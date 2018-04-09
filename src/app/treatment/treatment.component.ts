@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { GridOptions, GridApi } from "ag-grid/main";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TreatmentService } from '../../model/treatment.service';
 import { Treatment } from '../../model/treatment.model';
 
@@ -12,16 +13,41 @@ import { Treatment } from '../../model/treatment.model';
 export class TreatmentComponent implements OnInit {
   treatments: Treatment[];
   selectedTreatment: Treatment;
-  gridOptions: GridOptions;
-  itemsGridOptions: GridOptions;
-  gridReadyPromise: Promise<any>;
-  itemsGridReadyPromise: Promise<any>;
+  gridOptions: GridOptions;  
+  gridReadyPromise: Promise<any>;  
   gridReady: boolean = false;
   private _quickFilterText: string = '';
 
   constructor(
-    private treatmentService: TreatmentService
+    private treatmentService: TreatmentService,
+    private activeRoute : ActivatedRoute,
+    private router: Router
   ) {
+       
+    this.configureGrid();
+  }
+
+  ngOnInit() {
+    Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
+      this.gridOptions.api.setRowData(this.treatments);      
+    });
+  }
+
+  removeTreatment(id: number) : void {
+    let subscription = this.treatmentService.delete(id.toString()).subscribe(success=>{
+      if(success) {
+          let deletedTreatmentIndex = this.treatments.findIndex(d=> d.Id == id);
+
+          if(deletedTreatmentIndex) {
+            this.treatments.splice(deletedTreatmentIndex, 1);
+            this.gridOptions.api.setRowData(this.treatments);
+          }
+      }
+      subscription.unsubscribe();
+    });
+  }
+
+  private configureGrid(): void {
     this.gridOptions = <GridOptions>{
       enableFilter: true,
       enableSorting: true,
@@ -33,74 +59,43 @@ export class TreatmentComponent implements OnInit {
       //angularCompileRows: true,
       onGridReady: () => {
         this.gridReadyPromise = new Promise((resolve, reject) => {
-          resolve();
-        });
-      },
-      onSelectionChanged: () => {
-        let selectedTreatment = this.gridOptions.api.getSelectedRows();
-
-        this.selectedTreatment = selectedTreatment && selectedTreatment.length ? selectedTreatment[0] : null;
-
-        let treatmentSubscription = this.treatmentService.getById(this.selectedTreatment.Id.toString()).subscribe(treatment => {
-          this.itemsGridOptions.api.setRowData(treatment.TreatmentItems);
-          treatmentSubscription.unsubscribe();
-        });
-      }
-    };
-
-    this.itemsGridOptions = <GridOptions>{
-      enableFilter: true,
-      enableSorting: true,
-      sortingOrder: ['asc', 'desc', null],
-      pagination: true,
-      paginationAutoPageSize: true,
-      rowSelection: 'single',
-      rowHeight: 30,    
-      onGridReady: () => {
-        this.itemsGridReadyPromise = new Promise((resolve, reject) => {
+          this.gridReady = true;
           resolve();
         });
       },
       onSelectionChanged: () => {
         
-      }
-    };
-
-    this.setGridColums();
-  }
-
-  ngOnInit() {
-    Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.treatments);
-      this.selectFirstRow(this.gridOptions.api);
-    });
-  }
-
-  private setGridColums(): void {
-    this.gridOptions.columnDefs = [
-      {
-        headerName: 'Tratament',
-        field: "Name",
-        width: 300
-      }
-    ];
-    this.itemsGridOptions.columnDefs = [
-      {
-        headerName: 'Medicament',
-        width: 200,
-        valueGetter: (params) => params.data.Medicament.Name
       },
-      {
-        headerName: 'Doza Medicament',
-        width: 150,
-        valueGetter: (params) => params.data.Medicament.Dose
-      },
-      {
-        headerName: 'Ziua',
-        field: "OnDay",
-        width: 100
-      }
-    ];
+      columnDefs: [
+        {
+          headerName: 'Tratament',
+          field: "Name",
+          width: 300
+        },
+        {
+          headerName: '',
+          field: '',
+          width: 80,
+          cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+          onCellClicked: (params) => {  
+              let id = params.data.Id;
+  
+              this.router.navigateByUrl(`/treatment/${id}`);
+          }
+        },
+        {
+          headerName: '',
+          field: '',
+          width: 80,
+          cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+          onCellClicked: (params) => {  
+              let id = params.data.Id;
+  
+              this.removeTreatment(id);
+          }
+        }
+      ]
+    };        
   }
 
   private fetchEntities(): Promise<any> {
@@ -111,13 +106,5 @@ export class TreatmentComponent implements OnInit {
         resolve();
       });
     });
-  }
-
-  private selectFirstRow(gridAdpi: GridApi): void {
-    let first: boolean = true;
-    gridAdpi.forEachNode(node => {
-      if (first) node.setSelected(true);
-      first = false;
-    });
-  }
+  }  
 }

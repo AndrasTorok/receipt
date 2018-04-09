@@ -18,17 +18,15 @@ export class Diagnostic implements IDiagnostic {
                 Patient: null,
                 Description: '',
                 Localization: '',
-                Date: null
+                Date: new Date()
             };
         } else diagnostic = <IDiagnostic>diagnosticOrId;
 
         for (var prop in diagnostic) {
-            if (prop == 'Date') {
-                this.Date = new Date(diagnostic.Date.toString());
-            } else {
-                this[prop] = diagnostic[prop];
-            }
+            this[prop] = diagnostic[prop];
         }
+
+        this.Date = new Date(diagnostic.Date.toString());
     }
 }
 

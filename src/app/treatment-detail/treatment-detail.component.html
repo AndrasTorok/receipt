@@ -1,0 +1,27 @@
+<div class="container treatment-detail-component">
+  <form *ngIf="treatment" class="noprint" novalidate #form="ngForm">
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label>Descriere:</label>
+        <input type="text" class="form-control" name="Name" #Name="ngModel" [(ngModel)]="treatment.Name" required minlength="2" maxlength="200"
+        />
+        <ul class="text-danger list-unstyled" *ngIf="Name.dirty && Name.invalid">
+          <li *ngIf="Name.errors?.required">
+            You must enter FirstName
+          </li>
+          <li *ngIf="Name.errors?.minlength">
+            Name names must be at least {{Name.errors.minlength?.requiredLength}} characters
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <button type="button" class="btn" [routerLink]="['/treatment']">Inapoi</button>
+    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+  </form>
+  <div class="m-3">
+    <ag-grid-angular #agGrid class="ag-fresh treatment-items-grid" [gridOptions]="gridOptions">
+    </ag-grid-angular>
+    <button type="button" class="btn btn-primary" [routerLink]="['/treatment', treatmentId, 'item', '']">Adauga</button>
+  </div>
+</div>

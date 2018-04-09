@@ -3,6 +3,7 @@ import { GridOptions } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
 import { Diagnostic } from '../../model/diagnostic.model';
+import { DiagnosticService } from '../../model/diagnostic.service';
 
 @Component({
   selector: 'app-diagnostic',
@@ -15,11 +16,42 @@ export class DiagnosticComponent implements OnInit {
     selectedDiagnostic : Diagnostic;
     gridOptions: GridOptions;
     gridReadyPromise: Promise<any>;
+    patientId : string;
 
   constructor(
     private datePipe: DatePipe  ,
-    private router : Router  
+    private activeRoute: ActivatedRoute,
+    private router : Router  ,
+    private diagnosticService: DiagnosticService
   ) { 
+    this.patientId = this.activeRoute.snapshot.params['patientId'];
+    
+    this.configureGrid();
+  }
+
+  ngOnInit() {
+    if(!this.diagnostics) this.diagnostics = [];
+
+    Promise.all([this.gridReadyPromise]).then(() => {
+      this.gridOptions.api.setRowData(this.diagnostics);        
+    });
+  }  
+
+  removeDiagnostic(id: number) : void {
+    let subscription = this.diagnosticService.delete(id.toString()).subscribe(success=>{
+      if(success) {
+          let deletedDiagnosticIndex = this.diagnostics.findIndex(d=> d.Id == id);
+
+          if(deletedDiagnosticIndex) {
+            this.diagnostics.splice(deletedDiagnosticIndex, 1);
+            this.gridOptions.api.setRowData(this.diagnostics);
+          }
+      }
+      subscription.unsubscribe();
+    });
+  }
+
+  private configureGrid(): void {
     this.gridOptions = <GridOptions>{
       enableFilter: true,
       enableSorting: true,
@@ -41,16 +73,6 @@ export class DiagnosticComponent implements OnInit {
       }
     };
 
-    this.setGridColums();
-  }
-
-  ngOnInit() {
-    Promise.all([this.gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.diagnostics);        
-    });
-  }
-
-  private setGridColums(): void {
     this.gridOptions.columnDefs = [
       {
         headerName: 'Descriere',
@@ -76,9 +98,20 @@ export class DiagnosticComponent implements OnInit {
         onCellClicked: (params) => {  
             let id = params.data.Id;
 
-            this.router.navigateByUrl(`/diagnostic/${id}`);
+            this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${id}`);
         }
-      }  
+      },
+      {
+        headerName: '',
+        field: '',
+        width: 80,
+        cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+        onCellClicked: (params) => {  
+            let id = params.data.Id;
+
+            this.removeDiagnostic(id);
+        }
+      }
     ];
   }
 }

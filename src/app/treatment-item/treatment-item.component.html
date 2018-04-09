@@ -1,0 +1,26 @@
+<div class="container treatment-item-component">
+  <form *ngIf="treatmentItem" class="noprint" novalidate #form="ngForm">
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label>Medicament:</label>
+        <select class="form-control" name="Medicament" #Medicament="ngModel" [(ngModel)]="treatmentItem.MedicamentId" required>
+          <option *ngFor="let item of medicaments" [value]="item.Id">{{item.Name}}</option>
+        </select>
+
+      </div>
+      <div class="form-group col-md-4">
+        <label>Descriere:</label>
+        <input type="text" class="form-control" name="OnDay" #OnDay="ngModel" [(ngModel)]="treatmentItem.OnDay" required minlength="2"
+          maxlength="200" />
+        <ul class="text-danger list-unstyled" *ngIf="OnDay.dirty && OnDay.invalid">
+          <li *ngIf="OnDay.errors?.required">
+            You must enter OnDay
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <button type="button" class="btn" [routerLink]="['/treatment', treatmentId]">Inapoi</button>
+    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+  </form>
+</div>

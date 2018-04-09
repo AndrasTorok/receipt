@@ -20,13 +20,19 @@ import { TreatmentComponent } from './treatment/treatment.component';
 import { TreatmentService } from '../model/treatment.service';
 import { DiagnosticDetailComponent } from './diagnostic-detail/diagnostic-detail.component';
 import { DiagnosticService } from '../model/diagnostic.service';
+import { TreatmentDetailComponent } from './treatment-detail/treatment-detail.component';
+import { TreatmentItemComponent } from './treatment-item/treatment-item.component';
+import { TreatmentItemService } from '../model/treatment-item.service';
+import { MedicamentService } from '../model/medicament.service';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
   { path: 'patient', component: PatientComponent },
-  { path: 'patient/:id', component: PatientDetailComponent },
-  { path: 'treatment', component: TreatmentComponent },
-  { path: 'diagnostic/:id', component : DiagnosticDetailComponent },
+  { path: 'patient/:patientId', component: PatientDetailComponent },
+  { path: 'patient/:patientId/diagnostic/:diagnosticId', component : DiagnosticDetailComponent },
+  { path: 'treatment', component: TreatmentComponent },  
+  { path: 'treatment/:treatmentId', component: TreatmentDetailComponent },
+  { path: 'treatment/:treatmentId/item/:treatmentItemId', component: TreatmentItemComponent },
   { path: '**', redirectTo: 'welcome', pathMatch: 'full' }
 ]);
 
@@ -43,7 +49,9 @@ export function initConfig(config: AppConfig) {
     PatientDetailComponent,
     DiagnosticComponent,
     TreatmentComponent,
-    DiagnosticDetailComponent       
+    DiagnosticDetailComponent,
+    TreatmentDetailComponent,
+    TreatmentItemComponent       
   ],
   imports: [
     BrowserModule,
@@ -59,7 +67,9 @@ export function initConfig(config: AppConfig) {
     ReceiptDocument,
     PatientService,
     TreatmentService,
-    DiagnosticService
+    DiagnosticService,
+    TreatmentItemService,
+    MedicamentService
   ],
   bootstrap: [AppComponent]
 })

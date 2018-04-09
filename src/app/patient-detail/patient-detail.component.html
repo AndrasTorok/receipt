@@ -99,7 +99,7 @@
     <button type="submit" class="btn" [disabled]="formSubmitted || form.invalid">Tipareste reteta</button>
   </form>
 
-  <div class="diagnostics-container" *ngIf="patient?.Diagnostics?.length">
+  <div class="diagnostics-container" *ngIf="patient">
     <app-diagnostic [diagnostics]="patient.Diagnostics"></app-diagnostic>
   </div>
 </div>

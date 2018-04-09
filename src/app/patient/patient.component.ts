@@ -64,7 +64,7 @@ export class PatientComponent implements OnInit {
   }
 
   add(): void {
-    this.router.navigateByUrl(`/person/`);
+    this.router.navigateByUrl(`/patient/`);
   }
 
   private setGridColums(): void {

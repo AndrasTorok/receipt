@@ -23,7 +23,7 @@ export class PatientDetailComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.id = this.activeRoute.snapshot.params['id'];
+    this.id = this.activeRoute.snapshot.params['patientId'];
     this.formState = this.id ? FormState.Updating : FormState.Adding;
   }
 
@@ -36,8 +36,7 @@ export class PatientDetailComponent implements OnInit {
     } else this.patient = new Patient();    
   }
 
-  previewReceipt(form: NgForm): void {
-    
+  previewReceipt(form: NgForm): void {    
     this.receiptDocument.preview({ patient: this.patient });
   }
 

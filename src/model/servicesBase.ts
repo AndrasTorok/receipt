@@ -56,6 +56,15 @@ export abstract class ServiceBase<T> {
             .catch(this.handleError);
     }
 
+    delete(id: string): Observable<boolean> {
+        return this._http.delete(`${this._url}/${id}`)
+            .map((response: Response) => response.ok)
+            .do(data => {
+                if (this._doLog) console.log(`All ${JSON.stringify(data)}`);
+            })
+            .catch(this.handleError);
+    }
+
     protected handleError(error: Response) {
         console.error(error);
         return Observable.throw(error.json().error || 'Server error');

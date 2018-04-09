@@ -9,15 +9,17 @@ export class TreatmentItem {
     Medicament: Medicament;
     OnDay: number;
 
-    constructor(treatmentItem: ITreatmentItem) {
-        if(!treatmentItem) {
+    constructor(treatmentItemOrId: ITreatmentItem | number) {
+        let treatmentItem : ITreatmentItem;
+
+        if(Number.isInteger(<number>treatmentItemOrId)) {
             treatmentItem = <ITreatmentItem> {
                 Id: 0,
-                Treatment : new Treatment(),
-                Medicament: new Medicament(),
+                TreatmentId: <number> treatmentItemOrId,               
+                MedicamentId: 0,
                 OnDay: 0
             };
-        }
+        } else treatmentItem = <ITreatmentItem> treatmentItemOrId;
 
         for(var prop in treatmentItem) {
             this[prop]  = treatmentItem[prop];

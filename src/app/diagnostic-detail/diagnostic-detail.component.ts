@@ -12,14 +12,17 @@ import { DiagnosticService } from '../../model/diagnostic.service';
 })
 export class DiagnosticDetailComponent implements OnInit {
   diagnostic: Diagnostic;
+  patientId: string;
   id: string;
   formState: FormState;
 
   constructor(
     private diagnosticService: DiagnosticService,
-    private activeRoute: ActivatedRoute
+    activeRoute: ActivatedRoute    ,
+    private router: Router
   ) { 
-    this.id = this.activeRoute.snapshot.params['id'];
+    this.patientId = activeRoute.snapshot.params['patientId'];
+    this.id = activeRoute.snapshot.params['diagnosticId'];
     this.formState = this.id ? FormState.Updating : FormState.Adding;
   }
 
@@ -29,9 +32,31 @@ export class DiagnosticDetailComponent implements OnInit {
         this.diagnostic = new Diagnostic(diagnostic);
         diagnosticSubscription.unsubscribe();
       });
-    } else this.diagnostic = new Diagnostic(0); 
+    } else this.diagnostic = new Diagnostic(Number(this.patientId)); 
+  }  
+
+  addOrUpdate(): void {
+    switch (this.formState) {
+      case FormState.Updating:
+        this.diagnosticService.put(this.diagnostic).subscribe(diagnostic => {          
+          this.goBack();
+        }, err => {
+
+        });
+        break;
+      case FormState.Adding:
+        this.diagnosticService.post(this.diagnostic).subscribe(diagnostic => {
+          this.goBack();
+        }, err => {
+
+        });
+        break;
+    }
   }
 
+  private goBack(): void {
+    this.router.navigateByUrl(`/patient/${this.patientId}`);
+  }
 }
 
 enum FormState {
