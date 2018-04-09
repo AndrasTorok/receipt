@@ -1,0 +1,17 @@
+<div class="patient-component">
+    <div class="row m-3">
+        <div class="col-md-1">Filter by:</div>
+        <div class="col-md-2">
+            <input type="text" [(ngModel)]='quickFilterText' class="filter-input" name="quickFilter" [disabled]="!gridReady" />
+        </div>
+    </div>
+    <div class="m-3">
+        <ag-grid-angular #agGrid class="ag-fresh pacients-grid" [gridOptions]="gridOptions">
+        </ag-grid-angular>
+    </div>
+    <div class="row m-3">
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" (click)="add()">Adauga</button>
+        </div>
+    </div>
+</div>

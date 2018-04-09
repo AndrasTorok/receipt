@@ -1,0 +1,106 @@
+<div class="container patient-detail-component">
+  <form *ngIf="patient" class="noprint" novalidate #form="ngForm" (ngSubmit)="previewReceipt()">
+    <div class="form-row">
+      <div class="form-group col-md-2">
+        <label>CNP</label>
+        <input type="text" class="form-control" name="CNP" #CNP="ngModel" [(ngModel)]="patient.CNP" required minlength="13" maxlength="13"
+          pattern="^[1-9]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(0[1-9]|[1-4]\d|5[0-2]|99)(00[1-9]|0[1-9]\d|[1-9]\d\d)\d$" (change)="cnpChanged()" />
+        <ul class="text-danger list-unstyled" *ngIf="CNP.dirty && CNP.invalid">
+          <li *ngIf="CNP.errors?.required">
+            You must enter CNP
+          </li>
+          <li *ngIf="CNP.errors?.minlength">
+            CNP names must be at least {{CNP.errors.minlength?.requiredLength}} characters
+          </li>
+          <li *ngIf="CNP.errors.pattern">
+              CNP names pattern error
+            </li>
+        </ul>
+      </div>
+      <div class="form-group col-md-5">
+        <label>Nume:</label>
+        <input type="text" class="form-control" name="FirstName" #FirstName="ngModel" [(ngModel)]="patient.FirstName" required minlength="2"
+        />
+        <ul class="text-danger list-unstyled" *ngIf="FirstName.dirty && FirstName.invalid">
+          <li *ngIf="FirstName.errors?.required">
+            You must enter FirstName
+          </li>
+          <li *ngIf="FirstName.errors?.minlength">
+            FirstName names must be at least {{FirstName.errors.minlength?.requiredLength}} characters
+          </li>
+        </ul>
+      </div>
+      <div class="form-group col-md-5">
+        <label>Prenume:</label>
+        <input type="text" class="form-control" name="LastName" #LastName="ngModel" [(ngModel)]="patient.LastName" required minlength="2"
+        />
+        <ul class="text-danger list-unstyled" *ngIf="LastName.dirty && LastName.invalid">
+          <li *ngIf="LastName.errors?.required">
+            You must enter LastName
+          </li>
+          <li *ngIf="LastName.errors?.minlength">
+            lLastName names must be at least {{LastName.errors.minlength?.requiredLength}} characters
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-2">
+        <label>Data nasterii:</label>
+        <input type="date" class="form-control" name="BirthDate" [value]="patient.BirthDate|date:'yyyy-MM-dd'" disabled
+          />
+        <!--<input type="date" class="form-control" name="BirthDate" #BirthDate="ngModel" [ngModel]="patient.BirthDate|date:'yyyy-MM-dd'"
+          (ngModelChange)="patient.BirthDate=$event" required />
+        <ul class="text-danger list-unstyled" *ngIf="BirthDate.dirty && BirthDate.invalid">
+          <li *ngIf="BirthDate.errors?.required">
+            You must enter BirthDate
+          </li>
+        </ul>-->
+      </div>
+      <div class="form-group col-md-1">
+        <label>Varsta (ani)</label>
+        <input class="form-control" [value]="patient.Age" disabled />
+      </div>
+      <div class="form-group col-md-1">
+        <label>Sex</label>
+        <select class="form-control" name="Gender" [value]="patient.Gender" disabled>
+          <option value="1">F</option>
+          <option value="0">M</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Inaltime (cm)</label>
+        <input type="number" class="form-control" name="Height" #Height="ngModel" [(ngModel)]="patient.Height" required min="60" max="260"
+        />
+        <ul class="text-danger list-unstyled" *ngIf="Height.dirty && Height.invalid">
+          <li *ngIf="Height.errors?.required">
+            You must enter Height
+          </li>
+        </ul>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Gerutate (kg)</label>
+        <input type="number" class="form-control" name="Weight" #Weight="ngModel" [(ngModel)]="patient.Weight" required min="20" max="500"
+        />
+        <ul class="text-danger list-unstyled" *ngIf="Weight.dirty && Weight.invalid">
+          <li *ngIf="Weight.errors?.required">
+            You must enter Weight
+          </li>
+        </ul>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Suprafata (m2)</label>
+        <input type="text" class="form-control" [value]="patient.BodySurfaceArea.toFixed(2)" disabled />
+      </div>
+    </div>
+
+    <button type="button" class="btn" [routerLink]="['/patient']">Inapoi</button>
+    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate()">Salveaza</button>
+    <button type="submit" class="btn" [disabled]="formSubmitted || form.invalid">Tipareste reteta</button>
+  </form>
+
+  <div class="diagnostics-container" *ngIf="patient?.Diagnostics?.length">
+    <app-diagnostic [diagnostics]="patient.Diagnostics"></app-diagnostic>
+  </div>
+</div>
+
