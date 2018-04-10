@@ -26,6 +26,8 @@ import { TreatmentItemService } from '../model/treatment-item.service';
 import { MedicamentService } from '../model/medicament.service';
 import { MedicamentComponent } from './medicament/medicament.component';
 import { MedicamentDetailComponent } from './medicament-detail/medicament-detail.component';
+import { CycleComponent } from './cycle/cycle.component';
+import { CycleService } from '../model/cycle.service';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
@@ -36,7 +38,7 @@ let routes = RouterModule.forRoot([
   { path: 'treatment/:treatmentId', component: TreatmentDetailComponent },
   { path: 'treatment/:treatmentId/item/:treatmentItemId', component: TreatmentItemComponent },  
   { path: 'medicament', component: MedicamentComponent },
-  { path: 'medicament/:medicamentId', component: MedicamentDetailComponent }
+  { path: 'medicament/:medicamentId', component: MedicamentDetailComponent },
   { path: '**', redirectTo: 'welcome', pathMatch: 'full' }
 ]);
 
@@ -57,7 +59,8 @@ export function initConfig(config: AppConfig) {
     TreatmentDetailComponent,
     TreatmentItemComponent,
     MedicamentComponent,
-    MedicamentDetailComponent       
+    MedicamentDetailComponent,
+    CycleComponent       
   ],
   imports: [
     BrowserModule,
@@ -75,7 +78,8 @@ export function initConfig(config: AppConfig) {
     TreatmentService,
     DiagnosticService,
     TreatmentItemService,
-    MedicamentService
+    MedicamentService,
+    CycleService
   ],
   bootstrap: [AppComponent]
 })

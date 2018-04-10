@@ -42,4 +42,7 @@
     <button type="button" class="btn" [routerLink]="['/patient', patientId]">Inapoi</button>
     <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate()">Salveaza</button>
   </form>
+  <div>
+    <app-cycle></app-cycle>
+  </div>
 </div>
