@@ -1,46 +1,45 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { GridOptions, GridApi } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
-import { TreatmentService } from '../../model/treatment.service';
-import { Treatment } from '../../model/treatment.model';
+import { Medicament } from '../../model/medicament.model';
+import { MedicamentService } from '../../model/medicament.service';
 
 @Component({
-  selector: 'app-treatment',
-  templateUrl: './treatment.component.html',
-  styleUrls: ['./treatment.component.scss'],
+  selector: 'app-medicament',
+  templateUrl: './medicament.component.html',
+  styleUrls: ['./medicament.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class TreatmentComponent implements OnInit {
-  treatments: Treatment[];
-  selectedTreatment: Treatment;
+export class MedicamentComponent implements OnInit {
+  medicaments: Medicament[];
+  selectedMedicament: Medicament;
   gridOptions: GridOptions;  
   gridReadyPromise: Promise<any>;  
   gridReady: boolean = false;
   private _quickFilterText: string = '';
 
   constructor(
-    private treatmentService: TreatmentService,
+    private medicamentService: MedicamentService,
     private activeRoute : ActivatedRoute,
     private router: Router
-  ) {
-       
+  ) { 
     this.configureGrid();
   }
 
   ngOnInit() {
     Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.treatments);      
+      this.gridOptions.api.setRowData(this.medicaments);      
     });
   }
 
-  removeTreatment(id: number) : void {
-    let subscription = this.treatmentService.delete(id.toString()).subscribe(success=>{
+  removeMedicament(id: number): void {
+    let subscription = this.medicamentService.delete(id.toString()).subscribe(success=>{
       if(success) {
-          let deletedTreatmentIndex = this.treatments.findIndex(d=> d.Id == id);
+          let deletedMedicamentIndex = this.medicaments.findIndex(d=> d.Id == id);
 
-          if(deletedTreatmentIndex >= 0) {
-            this.treatments.splice(deletedTreatmentIndex, 1);
-            this.gridOptions.api.setRowData(this.treatments);
+          if(deletedMedicamentIndex >=0 ) {
+            this.medicaments.splice(deletedMedicamentIndex, 1);
+            this.gridOptions.api.setRowData(this.medicaments);
           }
       }
       subscription.unsubscribe();
@@ -68,9 +67,14 @@ export class TreatmentComponent implements OnInit {
       },
       columnDefs: [
         {
-          headerName: 'Tratament',
+          headerName: 'Medicament',
           field: "Name",
           width: 300
+        },
+        {
+          headerName: 'Doza',
+          field: "Dose",
+          width: 100
         },
         {
           headerName: '',
@@ -80,7 +84,7 @@ export class TreatmentComponent implements OnInit {
           onCellClicked: (params) => {  
               let id = params.data.Id;
   
-              this.router.navigateByUrl(`/treatment/${id}`);
+              this.router.navigateByUrl(`/medicament/${id}`);
           }
         },
         {
@@ -91,7 +95,7 @@ export class TreatmentComponent implements OnInit {
           onCellClicked: (params) => {  
               let id = params.data.Id;
   
-              this.removeTreatment(id);
+              this.removeMedicament(id);
           }
         }
       ]
@@ -101,10 +105,10 @@ export class TreatmentComponent implements OnInit {
   private fetchEntities(): Promise<any> {
     return new Promise((resolve, reject) => {
       Promise.all([
-        this.treatmentService.fetchEntityAndUnsubscribe((entities) => this.treatments = entities.map(p => new Treatment(p)))
+        this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)))
       ]).then(() => {
         resolve();
       });
     });
-  }  
+  }
 }

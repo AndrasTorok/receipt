@@ -1,0 +1,27 @@
+<div class="container medicament-detail-component">
+  <form *ngIf="medicament" class="noprint" novalidate #form="ngForm">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label>Descriere:</label>
+        <input type="text" class="form-control" name="Name" #Name="ngModel" [(ngModel)]="medicament.Name" required minlength="2" maxlength="200"
+        />
+        <ul class="text-danger list-unstyled" *ngIf="Name.dirty && Name.invalid">
+          <li *ngIf="Name.errors?.required">
+            You must enter FirstName
+          </li>
+          <li *ngIf="Name.errors?.minlength">
+            Name names must be at least {{Name.errors.minlength?.requiredLength}} characters
+          </li>
+        </ul>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Descriere:</label>
+        <input type="number" class="form-control" name="Dose" #Dose="ngModel" [(ngModel)]="medicament.Dose" required min="0.01"
+        />        
+      </div>
+    </div>
+
+    <button type="button" class="btn" [routerLink]="['/medicament']">Inapoi</button>
+    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+  </form>  
+</div>

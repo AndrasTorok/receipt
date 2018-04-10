@@ -10,19 +10,19 @@ export class TreatmentItem {
     OnDay: number;
 
     constructor(treatmentItemOrId: ITreatmentItem | number) {
-        let treatmentItem : ITreatmentItem;
+        let treatmentItem: ITreatmentItem;
 
-        if(Number.isInteger(<number>treatmentItemOrId)) {
-            treatmentItem = <ITreatmentItem> {
+        if (Number.isInteger(<number>treatmentItemOrId)) {
+            treatmentItem = <ITreatmentItem>{
                 Id: 0,
-                TreatmentId: <number> treatmentItemOrId,               
+                TreatmentId: <number>treatmentItemOrId,
                 MedicamentId: 0,
                 OnDay: 0
             };
-        } else treatmentItem = <ITreatmentItem> treatmentItemOrId;
+        } else treatmentItem = <ITreatmentItem>treatmentItemOrId;
 
-        for(var prop in treatmentItem) {
-            this[prop]  = treatmentItem[prop];
+        for (var prop in treatmentItem) {
+            this[prop] = treatmentItem[prop];
         }
     }
 }
