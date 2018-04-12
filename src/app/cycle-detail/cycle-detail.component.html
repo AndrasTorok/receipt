@@ -1,0 +1,46 @@
+<div class="container cycle-item-component">
+  <form *ngIf="formLoaded" class="noprint" novalidate #form="ngForm">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label>Treatment:</label>
+        <select class="form-control" name="Treatment" #Treatment="ngModel" [(ngModel)]="treatmentId" required>
+          <option *ngFor="let item of treatments" [value]="item.Id">{{item.Name}}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Aplica:</label>
+        <button type="button" class="form-control btn btn-primary" [disabled]="!treatmentId" (click)="applyTreatment()">Aplica tratament</button>
+      </div>
+    </div>
+    <div *ngIf="cycle?.CycleItems">
+      <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
+        <div class="form-group col-md-2">
+          <label>In ziua:</label>
+          <input type="text" class="form-control" name="OnDay-{{index}}" #OnDay="ngModel" [(ngModel)]="cycleItem.OnDay" required />
+          <ul class="text-danger list-unstyled" *ngIf="OnDay.dirty && OnDay.invalid">
+            <li *ngIf="OnDay.errors?.required">
+              You must enter OnDay
+            </li>
+          </ul>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Medicament</label>
+          <input type="text" class="form-control" name="Medicament-{{index}}" [value]="cycleItem.Medicament.Name" disabled />
+        </div>
+        <div class="form-group col-md-2">
+          <label>Cantitate calculata</label>
+          <input type="number" class="form-control" name="QuantityCalculated-{{index}}" [value]="cycleItem.QuantityCalculated" disabled
+          />
+        </div>
+        <div class="form-group col-md-2">
+          <label>Cantitate aplicata</label>
+          <input type="number" class="form-control" name="QuantityCalculated-{{index}}" name="QuantityApplied-{{index}}" [(ngModel)]="cycleItem.QuantityApplied" required
+          />
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn" [routerLink]="['/cycle', cycleId]">Inapoi</button>
+    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+  </form>
+</div>

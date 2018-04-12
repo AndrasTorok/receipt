@@ -65,6 +65,17 @@ export abstract class ServiceBase<T> {
             .catch(this.handleError);
     }
 
+    protected getAllFor(segment: string, id: string): Observable<T[]> {
+        let url = `${this._url}/getAllFor${segment}/${id}`;
+
+        return this._http.get(url)
+            .map((response: Response) => <T>response.json())
+            .do(data => {
+                if (this._doLog) console.log(`All ${JSON.stringify(data)}`);
+            })
+            .catch(this.handleError);
+    }
+
     protected handleError(error: Response) {
         console.error(error);
         return Observable.throw(error.json().error || 'Server error');

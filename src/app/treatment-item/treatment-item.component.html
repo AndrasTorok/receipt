@@ -9,7 +9,7 @@
 
       </div>
       <div class="form-group col-md-4">
-        <label>Descriere:</label>
+        <label>In ziua:</label>
         <input type="text" class="form-control" name="OnDay" #OnDay="ngModel" [(ngModel)]="treatmentItem.OnDay" required minlength="2"
           maxlength="200" />
         <ul class="text-danger list-unstyled" *ngIf="OnDay.dirty && OnDay.invalid">

@@ -78,7 +78,7 @@ export class CycleComponent implements OnInit {
           onCellClicked: (params) => {  
               let id = params.data.Id;
   
-              this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
+              this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
           }
         },
         {
@@ -101,8 +101,7 @@ export class CycleComponent implements OnInit {
         this.cycleService.getAllForDiagnosticId(this.diagnosticId ).subscribe((cycles: ICycle[])=>{
           this.cycles = cycles.map(cycle=> new Cycle(cycle));
           resolve();
-        });
-      
+        });      
     });
   }
 }

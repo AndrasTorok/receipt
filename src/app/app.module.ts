@@ -28,12 +28,14 @@ import { MedicamentComponent } from './medicament/medicament.component';
 import { MedicamentDetailComponent } from './medicament-detail/medicament-detail.component';
 import { CycleComponent } from './cycle/cycle.component';
 import { CycleService } from '../model/cycle.service';
+import { CycleDetailComponent } from './cycle-detail/cycle-detail.component';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
   { path: 'patient', component: PatientComponent },
   { path: 'patient/:patientId', component: PatientDetailComponent },
   { path: 'patient/:patientId/diagnostic/:diagnosticId', component : DiagnosticDetailComponent },
+  { path: 'patient/:patientId/diagnostic/:diagnosticId/cycle/:cycleId', component : CycleDetailComponent },
   { path: 'treatment', component: TreatmentComponent },  
   { path: 'treatment/:treatmentId', component: TreatmentDetailComponent },
   { path: 'treatment/:treatmentId/item/:treatmentItemId', component: TreatmentItemComponent },  
@@ -60,7 +62,8 @@ export function initConfig(config: AppConfig) {
     TreatmentItemComponent,
     MedicamentComponent,
     MedicamentDetailComponent,
-    CycleComponent       
+    CycleComponent,
+    CycleDetailComponent       
   ],
   imports: [
     BrowserModule,
