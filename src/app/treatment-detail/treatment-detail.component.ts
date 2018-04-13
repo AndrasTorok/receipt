@@ -44,22 +44,23 @@ export class TreatmentDetailComponent implements OnInit {
     switch (this.formState) {
       case FormState.Updating:
         this.treatment.TreatmentItems = null;       //need to remove the items from the graph to be able to edit it
-        this.treatmentService.put(this.treatment).subscribe(patient => {
-          this.treatment = new Treatment(patient);          
+        this.treatmentService.put(this.treatment).subscribe(treatment => {
+          //this.treatment = new Treatment(treatment);    
+          this.router.navigateByUrl(`/treatment/${this.treatment.Id}`);      
         }, err => {
 
         });
         break;
       case FormState.Adding:
-        this.treatmentService.post(this.treatment).subscribe(patient => {
-          this.treatment = new Treatment(patient);
+        this.treatmentService.post(this.treatment).subscribe(treatment => {
+          //this.treatment = new Treatment(treatment);
           this.router.navigateByUrl(`/treatment/${this.treatment.Id}`);
         }, err => {
 
         });
         break;
     }
-  }
+  }  
 
   removeTreatmentItem(id: number): void {
 

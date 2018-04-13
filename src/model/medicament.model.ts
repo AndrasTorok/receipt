@@ -1,7 +1,8 @@
 export class Medicament {
     Id: number;
     Name: string;
-    Dose: number;
+    DoseApplicationMode: DoseApplicationMode;
+    Dose: number;    
 
     constructor(medicament?: IMedicament) {
         if(!medicament) {
@@ -22,4 +23,8 @@ export interface IMedicament {
     Id: number;
     Name: string;
     Dose: number;
+}
+
+export enum DoseApplicationMode {
+    Sqm, Kg
 }

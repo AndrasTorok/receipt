@@ -21,13 +21,12 @@ import { Medicament } from '../../model/medicament.model';
   encapsulation: ViewEncapsulation.None
 })
 export class CycleDetailComponent implements OnInit {
-  cycle: Cycle;  
+  cycle: Cycle;
   patient: Patient;
   diagnostic: Diagnostic;
   patientId: string;
   diagnosticId: string;
   cycleId: string;
-  treatmentId: number;
   treatments: Treatment[];
   selectedTreatment: Treatment;
   formState: FormState;
@@ -54,33 +53,44 @@ export class CycleDetailComponent implements OnInit {
   }
 
   applyTreatment(): void {
-    this.treatmentService.getById(this.treatmentId.toString()).subscribe(treatment => {
+    this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       let cycleItems = [];
 
       this.selectedTreatment = new Treatment(treatment);
 
       if (treatment.TreatmentItems && treatment.TreatmentItems.length) {
         cycleItems = treatment.TreatmentItems.map(ti => {
-          let calculatedQuantity = Number((ti.Medicament.Dose * this.patient.BodySurfaceArea).toFixed(2)),
-            cycleItem = new CycleItem(<ICycleItem>{
-              Treatment: this.selectedTreatment,
-              Medicament: new Medicament(ti.Medicament),              
-              OnDay: ti.OnDay,
-              QuantityCalculated: calculatedQuantity,
-              QuantityApplied: calculatedQuantity
-            });
+          let cycleItem = new CycleItem(<ICycleItem>{
+            CycleId: this.cycle.Id,
+            TreatmentItemId: ti.Id,
+            MedicamentId: ti.MedicamentId,
+            Medicament: new Medicament(ti.Medicament),
+            OnDay: ti.OnDay,
+            QuantityCalculated: 0,
+            QuantityApplied: 0
+          });
+
+          cycleItem.setCalculatedQuantity(this.patient);
 
           return cycleItem;
         });
       }
 
-      this.cycle = new Cycle(<ICycle>{
-        Diagnostic: this.diagnostic,
-        Treatment: this.selectedTreatment,
-        StartDate: new Date(),
-        CycleItems: cycleItems
-      });
+      this.cycle.CycleItems = cycleItems;
     });
+  }
+
+  saveCycleGraph(): void {
+    let s=1;
+    this.cycleService.cycleGraph(this.cycle).subscribe(cycle => {
+      this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
+    }, err => {
+
+    });
+  }
+
+  removeItem(index: number) : void {
+    this.cycle.CycleItems.splice(index, 1);
   }
 
   private fetchEntities(): Promise<any>[] {
@@ -100,20 +110,20 @@ export class CycleDetailComponent implements OnInit {
     let fetchTreatmentsPromise = this.treatmentService.fetchEntityAndUnsubscribe(entities => this.treatments = entities.map(ent => new Treatment(ent)));
 
     let fetchPatientPromise = new Promise((resolve, reject) => {
-      let patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {        
-        this.patient = new Patient(patient);        
+      let patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
+        this.patient = new Patient(patient);
         patientSubscription.unsubscribe();
       });
     });
 
     let fetchDiagnosticPromise = new Promise((resolve, reject) => {
-      let diagnosticSubscription = this.diagnosticService.getById(this.diagnosticId).subscribe(diagnostic => {        
-        this.diagnostic = new Diagnostic(diagnostic);        
+      let diagnosticSubscription = this.diagnosticService.getById(this.diagnosticId).subscribe(diagnostic => {
+        this.diagnostic = new Diagnostic(diagnostic);
         diagnosticSubscription.unsubscribe();
       });
     });
 
-    return [fetchCycleEntityPromise, fetchTreatmentsPromise, fetchPatientPromise,fetchDiagnosticPromise];
+    return [fetchCycleEntityPromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
   }
 }
 

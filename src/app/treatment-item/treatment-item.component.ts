@@ -27,7 +27,7 @@ export class TreatmentItemComponent implements OnInit {
   ) { 
     this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
     this.treatmentItemId = this.activeRoute.snapshot.params['treatmentItemId'];
-    this.formState = this.treatmentId ? FormState.Updating: FormState.Adding;
+    this.formState = this.treatmentItemId ? FormState.Updating: FormState.Adding;
   }
 
   ngOnInit() {    
@@ -41,6 +41,26 @@ export class TreatmentItemComponent implements OnInit {
     this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)));    
   }
 
+  addOrUpdate(form: NgForm): void {
+    switch (this.formState) {
+      case FormState.Updating:        
+        this.treatmentItemService.put(this.treatmentItem).subscribe(treatmentItem => {
+          //this.treatmentItem = new TreatmentItem(treatmentItem);      
+          this.router.navigateByUrl(`/treatment/${this.treatmentId}`);    
+        }, err => {
+
+        });
+        break;
+      case FormState.Adding:
+        this.treatmentItemService.post(this.treatmentItem).subscribe(treatmentItem => {
+          //this.treatmentItem = new TreatmentItem(treatmentItem);
+          this.router.navigateByUrl(`/treatment/${this.treatmentId}`);
+        }, err => {
+
+        });
+        break;
+    }
+  }
 }
 
 enum FormState {

@@ -1,16 +1,30 @@
 <div class="container cycle-item-component">
-  <form *ngIf="formLoaded" class="noprint" novalidate #form="ngForm">
-    <div class="form-row">
+  <form *ngIf="formLoaded" novalidate #form="ngForm">
+    <div *ngIf="cycle" class="form-row">
       <div class="form-group col-md-6">
         <label>Treatment:</label>
-        <select class="form-control" name="Treatment" #Treatment="ngModel" [(ngModel)]="treatmentId" required>
+        <select class="form-control" name="Treatment" #Treatment="ngModel" [(ngModel)]="cycle.TreatmentId" required>
           <option *ngFor="let item of treatments" [value]="item.Id">{{item.Name}}</option>
         </select>
       </div>
       <div class="form-group col-md-2">
-        <label>Aplica:</label>
-        <button type="button" class="form-control btn btn-primary" [disabled]="!treatmentId" (click)="applyTreatment()">Aplica tratament</button>
+        <label>Data inceput tratament:</label>
+        <input type="date" class="form-control" name="StartDate" #StartDate="ngModel" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" 
+          (ngModelChange)="cycle.StartDate=$event" required />
+        <ul class="text-danger list-unstyled" *ngIf="StartDate.dirty && StartDate.invalid">
+          <li *ngIf="StartDate.errors?.required">
+            You must enter Date
+          </li>
+        </ul>
       </div>
+      <div class="form-group col-md-2">
+        <label>Aplica:</label>
+        <button type="button" class="form-control btn btn-primary" [disabled]="!cycle.TreatmentId || cycle?.CycleItems.length" (click)="applyTreatment()">Aplica tratament</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
+      <button type="button" class="btn btn-primary m-3" [disabled]="formSubmitted || form.invalid" (click)="saveCycleGraph()">Salveaza</button>
     </div>
     <div *ngIf="cycle?.CycleItems">
       <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
@@ -34,13 +48,14 @@
         </div>
         <div class="form-group col-md-2">
           <label>Cantitate aplicata</label>
-          <input type="number" class="form-control" name="QuantityCalculated-{{index}}" name="QuantityApplied-{{index}}" [(ngModel)]="cycleItem.QuantityApplied" required
+          <input type="number" class="form-control" name="QuantityCalculated-{{index}}" #QuantityCalculated="ngModel" [(ngModel)]="cycleItem.QuantityApplied" required
           />
         </div>
+        <div class="form-group col-md-1">
+          <label>Actiune</label>
+          <button type="button" class="btn btn-link" (click)="removeItem(index)">Sterge</button>
+        </div>
       </div>
-    </div>
-
-    <button type="button" class="btn" [routerLink]="['/cycle', cycleId]">Inapoi</button>
-    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+    </div>    
   </form>
 </div>
