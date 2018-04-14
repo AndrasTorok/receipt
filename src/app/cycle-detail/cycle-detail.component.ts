@@ -80,8 +80,7 @@ export class CycleDetailComponent implements OnInit {
     });
   }
 
-  saveCycleGraph(): void {
-    let s=1;
+  saveCycleGraph(): void {    
     this.cycleService.cycleGraph(this.cycle).subscribe(cycle => {
       this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
     }, err => {
@@ -91,6 +90,14 @@ export class CycleDetailComponent implements OnInit {
 
   removeItem(index: number) : void {
     this.cycle.CycleItems.splice(index, 1);
+  }
+
+  get valid() : boolean {
+    return this.cycle && this.cycle.$valid();
+  }
+
+  get invalidProperties() : string {
+    return this.cycle ? this.cycle.$invalidProperties().join(', ') : ''['']'';
   }
 
   private fetchEntities(): Promise<any>[] {

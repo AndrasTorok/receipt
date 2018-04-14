@@ -24,13 +24,13 @@
     </div>
     <div class="form-row">
       <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
-      <button type="button" class="btn btn-primary m-3" [disabled]="formSubmitted || form.invalid" (click)="saveCycleGraph()">Salveaza</button>
+      <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph()">Salveaza</button> InvalidProperties: {{invalidProperties}}
     </div>
     <div *ngIf="cycle?.CycleItems">
       <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
         <div class="form-group col-md-2">
           <label>In ziua:</label>
-          <input type="text" class="form-control" name="OnDay-{{index}}" #OnDay="ngModel" [(ngModel)]="cycleItem.OnDay" required />
+          <input type="number" class="form-control" name="OnDay-{{index}}" #OnDay="ngModel" [(ngModel)]="cycleItem.OnDay" required />
           <ul class="text-danger list-unstyled" *ngIf="OnDay.dirty && OnDay.invalid">
             <li *ngIf="OnDay.errors?.required">
               You must enter OnDay

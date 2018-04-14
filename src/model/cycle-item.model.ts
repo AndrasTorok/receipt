@@ -4,8 +4,9 @@ import { TreatmentItem } from './treatment-item.model';
 import { Medicament, DoseApplicationMode } from './medicament.model';
 import { Cycle } from './cycle.model';
 import { Patient } from './patient.model';
+import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 
-export class CycleItem implements ICycleItem {
+export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     Id: number;
     CycleId: number;
     Cycle: Cycle;
@@ -20,7 +21,27 @@ export class CycleItem implements ICycleItem {
     QuantityApplied: number;
     private _calculationMap: Map<DoseApplicationMode, (patient: Patient) => number>;
 
+    static validityMap = new Map<string, IValidity<CycleItem>>([
+        ['TreatmentItem', new Validity(
+            (entity: CycleItem) => !!entity.TreatmentItemId || !!entity.TreatmentItem,
+            (entity: CycleItem) => `Tratamentul trebuie specificat.`)
+        ],
+        ['Medicament', new Validity(
+            (entity: CycleItem) => !!entity.MedicamentId || !!entity.Medicament,
+            (entity: CycleItem) => `Medicamentul trebuie sa fie specificat.`)
+        ],
+        ['OnDay', new Validity(
+            (entity: CycleItem) => entity.OnDay !== null,
+            (entity: CycleItem) => `In ziua trebuie sa fie specificata.`)
+        ],
+        ['QuantityApplied', new Validity(
+            (entity: CycleItem) => !!entity.QuantityApplied,
+            (entity: CycleItem) => `Cantitatea aplicata trebuie sa fie specificata.`)
+        ]
+    ]);
+
     constructor(cycleItemOrCycleId: ICycleItem | number) {
+        super(CycleItem.validityMap);
         let cycleItem: ICycleItem;
 
         if (Number.isInteger(<number>cycleItemOrCycleId)) {
@@ -41,10 +62,10 @@ export class CycleItem implements ICycleItem {
         }
     }
 
-    setCalculatedQuantity(patient: Patient) : void {
-        let calculatedQuantity= this.calculatedQuantity(patient);
+    setCalculatedQuantity(patient: Patient): void {
+        let calculatedQuantity = this.calculatedQuantity(patient);
 
-        this.QuantityCalculated= calculatedQuantity;
+        this.QuantityCalculated = calculatedQuantity;
         this.QuantityApplied = calculatedQuantity;
     }
 
@@ -61,7 +82,7 @@ export class CycleItem implements ICycleItem {
             this._calculationMap = new Map<DoseApplicationMode, (patient: Patient) => number>();
 
             this._calculationMap.set(DoseApplicationMode.Sqm, (patient: Patient) => Number((this.Medicament.Dose * patient.BodySurfaceArea).toFixed(2)));
-            this._calculationMap.set(DoseApplicationMode.Kg, (patient: Patient) => Number((this.Medicament.Dose * patient.Weight).toFixed(2)));            
+            this._calculationMap.set(DoseApplicationMode.Kg, (patient: Patient) => Number((this.Medicament.Dose * patient.Weight).toFixed(2)));
         }
 
         return this._calculationMap;

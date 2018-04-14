@@ -1,8 +1,9 @@
 import { Diagnostic } from './diagnostic.model';
 import { Treatment } from './treatment.model';
 import { CycleItem, ICycleItem } from './cycle-item.model';
+import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 
-export class Cycle implements ICycle {
+export class Cycle extends CommonEntity<Cycle> implements ICycle {
     Id: number;
     DiagnosticId: number;
     Diagnostic: Diagnostic;
@@ -11,7 +12,26 @@ export class Cycle implements ICycle {
     StartDate: Date;
     CycleItems: CycleItem[];
 
+    static validityMap = new Map<string, IValidity<Cycle>>([
+        ['Diagnostic', new Validity(
+            (entity: Cycle) => !!entity.DiagnosticId || !!entity.Diagnostic,
+            (entity: Cycle) => `Diagnostic trebuie sa fie specificat.`)],
+        ['Treatment', new Validity(
+            (entity: Cycle) => !!entity.TreatmentId || !!entity.Treatment,
+            (entity: Cycle) => `Tratementul pacientului trebuie sa fie specificat.`)
+        ],
+        ['StartDate', new Validity(
+            (entity: Cycle) => !!entity.StartDate,
+            (entity: Cycle) => `Data de inceput ciclului de tratament trebuie sa fie specificata.`)
+        ],
+        ['CycleItems', new Validity(
+            (entity: Cycle) => !entity.CycleItems || !entity.CycleItems.some(ci => !ci.$valid()),
+            (entity: Cycle) => ``)
+        ]
+    ]);
+
     constructor(cycleOrDiagnosticId: ICycle | number) {
+        super(Cycle.validityMap);
         let cycle: ICycle;
 
         if (Number.isInteger(<number>cycleOrDiagnosticId)) {
@@ -30,8 +50,8 @@ export class Cycle implements ICycle {
             this[prop] = cycle[prop];
         }
 
-        if(cycle.CycleItems) {
-            this.CycleItems = cycle.CycleItems.map(ci=> new CycleItem(ci));
+        if (cycle.CycleItems) {
+            this.CycleItems = cycle.CycleItems.map(ci => new CycleItem(ci));
         }
 
         this.StartDate = new Date(cycle.StartDate.toString());

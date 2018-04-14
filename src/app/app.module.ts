@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { DatePipe } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular/main';
@@ -69,6 +69,7 @@ export function initConfig(config: AppConfig) {
     BrowserModule,
     routes,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     AgGridModule.withComponents([])
   ],
