@@ -10,6 +10,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     TreatmentId: number;
     Treatment: Treatment;
     StartDate: Date;
+    SerumCreat?: number;
     CycleItems: CycleItem[];
 
     static validityMap = new Map<string, IValidity<Cycle>>([

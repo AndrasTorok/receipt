@@ -97,7 +97,7 @@ export class CycleDetailComponent implements OnInit {
   }
 
   get invalidProperties() : string {
-    return this.cycle ? this.cycle.$invalidProperties().join(', ') : ''['']'';
+    return this.cycle ? this.cycle.$invalidProperties().join(', ') : '';
   }
 
   private fetchEntities(): Promise<any>[] {

@@ -29,6 +29,7 @@ import { MedicamentDetailComponent } from './medicament-detail/medicament-detail
 import { CycleComponent } from './cycle/cycle.component';
 import { CycleService } from '../model/cycle.service';
 import { CycleDetailComponent } from './cycle-detail/cycle-detail.component';
+import { ValidationComponent } from './validation/validation.component';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
@@ -63,7 +64,8 @@ export function initConfig(config: AppConfig) {
     MedicamentComponent,
     MedicamentDetailComponent,
     CycleComponent,
-    CycleDetailComponent       
+    CycleDetailComponent,
+    ValidationComponent       
   ],
   imports: [
     BrowserModule,

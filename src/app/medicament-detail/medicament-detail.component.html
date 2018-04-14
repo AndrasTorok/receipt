@@ -1,10 +1,10 @@
 <div class="container medicament-detail-component">
   <form *ngIf="medicament" class="noprint" novalidate #form="ngForm">
     <div class="form-row">
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-8">
         <label>Descriere:</label>
-        <input type="text" class="form-control" name="Name" #Name="ngModel" [(ngModel)]="medicament.Name" required minlength="2" maxlength="200"
-        />
+        <input type="text" class="form-control" name="Name" #Name="ngModel" [(ngModel)]="medicament.Name" required minlength="2"
+          maxlength="200" />
         <ul class="text-danger list-unstyled" *ngIf="Name.dirty && Name.invalid">
           <li *ngIf="Name.errors?.required">
             You must enter FirstName
@@ -15,13 +15,26 @@
         </ul>
       </div>
       <div class="form-group col-md-2">
+        <label>Mod aplicare:</label>
+        <select class="form-control" name="DoseApplicationMode" #DoseApplicationMode="ngModel" [(ngModel)]="medicament.DoseApplicationMode">
+          <option value="0">Mp</option>
+          <option value="1">Kg</option>
+          <option value="2">Carboplatin</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>{{medicament.DoseApplicationMode == 2 ? 'TargetAUC' : 'Doza' }}:</label>
+        <input type="number" class="form-control" name="Dose" #Dose="ngModel" [(ngModel)]="medicament.Dose" required min="0.01" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-12">
         <label>Descriere:</label>
-        <input type="number" class="form-control" name="Dose" #Dose="ngModel" [(ngModel)]="medicament.Dose" required min="0.01"
-        />        
+        <textarea class="form-control" rows=3 maxlength="300" name="Description" #Description="ngModel" [(ngModel)]="medicament.Description"></textarea>
       </div>
     </div>
 
     <button type="button" class="btn" [routerLink]="['/medicament']">Inapoi</button>
     <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
-  </form>  
+  </form>
 </div>

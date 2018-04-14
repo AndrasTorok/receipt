@@ -3,7 +3,7 @@ import { Treatment } from './treatment.model';
 import { TreatmentItem } from './treatment-item.model';
 import { Medicament, DoseApplicationMode } from './medicament.model';
 import { Cycle } from './cycle.model';
-import { Patient } from './patient.model';
+import { Patient, Gender } from './patient.model';
 import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 
 export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
@@ -40,6 +40,17 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         ]
     ]);
 
+    static calculationMap = new Map<DoseApplicationMode, (cycleItem: CycleItem, patient: Patient) => number>([
+        [DoseApplicationMode.Sqm, (cycleItem: CycleItem, patient: Patient) => Number((cycleItem.Medicament.Dose * patient.BodySurfaceArea).toFixed(2))],
+        [DoseApplicationMode.Kg, (cycleItem: CycleItem, patient: Patient) => Number((cycleItem.Medicament.Dose * patient.Weight).toFixed(2))],
+        [DoseApplicationMode.Carboplatin, (cycleItem: CycleItem, patient: Patient) => {
+            let GFR = (patient.Gender == Gender.Male ? 1 : 0.85) * (140 - patient.Age) / cycleItem.Cycle.SerumCreat * (patient.Weight / 72),
+                dose = cycleItem.Medicament.Dose * (GFR + 25);
+
+            return dose;
+        }]
+    ]);
+
     constructor(cycleItemOrCycleId: ICycleItem | number) {
         super(CycleItem.validityMap);
         let cycleItem: ICycleItem;
@@ -70,22 +81,10 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     }
 
     calculatedQuantity(patient: Patient): number {
-        let calculationMap = this.getCalculationMap(),
-            calculation = calculationMap.get(this.Medicament.DoseApplicationMode),
-            calculatedQuantity = calculation(patient);
+        let calculation = CycleItem.calculationMap.get(this.Medicament.DoseApplicationMode),
+            calculatedQuantity = calculation(this, patient);
 
         return calculatedQuantity;
-    }
-
-    private getCalculationMap(): Map<DoseApplicationMode, (patient: Patient) => number> {
-        if (!this._calculationMap) {
-            this._calculationMap = new Map<DoseApplicationMode, (patient: Patient) => number>();
-
-            this._calculationMap.set(DoseApplicationMode.Sqm, (patient: Patient) => Number((this.Medicament.Dose * patient.BodySurfaceArea).toFixed(2)));
-            this._calculationMap.set(DoseApplicationMode.Kg, (patient: Patient) => Number((this.Medicament.Dose * patient.Weight).toFixed(2)));
-        }
-
-        return this._calculationMap;
     }
 }
 

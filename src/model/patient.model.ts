@@ -6,7 +6,7 @@ export class Patient implements IPatient {
     BirthDate: Date;
     Gender: Gender;
     Height: number;
-    Weight: number;
+    Weight: number;    
 
     constructor(
         patient?: IPatient
