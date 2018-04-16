@@ -3,16 +3,9 @@
     <div class="form-row">
       <div class="form-group col-md-8">
         <label>Descriere:</label>
-        <input type="text" class="form-control" name="Name" #Name="ngModel" [(ngModel)]="medicament.Name" required minlength="2"
+        <input type="text" class="form-control" name="Name" [(ngModel)]="medicament.Name" required minlength="2"
           maxlength="200" />
-        <ul class="text-danger list-unstyled" *ngIf="Name.dirty && Name.invalid">
-          <li *ngIf="Name.errors?.required">
-            You must enter FirstName
-          </li>
-          <li *ngIf="Name.errors?.minlength">
-            Name names must be at least {{Name.errors.minlength?.requiredLength}} characters
-          </li>
-        </ul>
+        <app-validation [entity]="medicament" property="Name"></app-validation>
       </div>
       <div class="form-group col-md-2">
         <label>Mod aplicare:</label>
@@ -22,8 +15,9 @@
       </div>
       <div class="form-group col-md-2">
         <label>{{medicament.DoseApplicationMode == 2 ? 'TargetAUC' : 'Doza' }}:</label>
-        <input type="number" class="form-control" name="Dose" #Dose="ngModel" [(ngModel)]="medicament.Dose" required min="0.01" />
-      </div>
+        <input type="number" class="form-control" name="Dose" [(ngModel)]="medicament.Dose" required min="0.01" />
+        <app-validation [entity]="medicament" property="Dose"></app-validation>
+      </div>  
     </div>
     <div class="form-row">
       <div class="form-group col-md-12">
@@ -33,6 +27,6 @@
     </div>
 
     <button type="button" class="btn" [routerLink]="['/medicament']">Inapoi</button>
-    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+    <button type="button" class="btn btn-primary" [disabled]="!(medicament.$valid() && form.dirty)" (click)="addOrUpdate(form)">Salveaza</button>
   </form>
 </div>

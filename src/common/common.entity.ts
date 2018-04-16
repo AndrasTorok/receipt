@@ -20,7 +20,7 @@ export abstract class CommonEntity<T extends ICommonEntity> implements ICommonEn
         } else {
             this._validityMap.forEach((validities, prop) => {
                 if (validities) {
-                    if (validities.some(validity => !validity.rule(<any>this))) return false;
+                    if (validities.some(validity => !validity.rule(<any>this))) isValid = false;
                 }
             });
         }
@@ -44,7 +44,7 @@ export abstract class CommonEntity<T extends ICommonEntity> implements ICommonEn
 
     $invalidMessages(prop: string): string[] {
         let validities = this._validityMap.get(prop),
-            messages: string[] = validities.map(validity => validity.message(<any>this));
+            messages: string[] = validities.filter(validity=> !validity.rule(<any>this)).map(validity => validity.message(<any>this));
 
         return messages;
     }
@@ -53,6 +53,7 @@ export abstract class CommonEntity<T extends ICommonEntity> implements ICommonEn
 export interface ICommonEntity {
     $valid(prop?: string): boolean;
     $invalidProperties(): string[];
+    $invalidMessages(prop: string): string[];
 }
 
 export interface IValidity<T extends ICommonEntity> {

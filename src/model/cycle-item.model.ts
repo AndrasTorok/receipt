@@ -48,11 +48,11 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         ]
     ]);
 
-    static calculationMap = new Map<DoseApplicationMode, (cycleItem: CycleItem, patient: Patient) => number>([
-        [DoseApplicationMode.Sqm, (cycleItem: CycleItem, patient: Patient) => Number((cycleItem.Medicament.Dose * patient.BodySurfaceArea).toFixed(2))],
-        [DoseApplicationMode.Kg, (cycleItem: CycleItem, patient: Patient) => Number((cycleItem.Medicament.Dose * patient.Weight).toFixed(2))],
-        [DoseApplicationMode.Carboplatin, (cycleItem: CycleItem, patient: Patient) => {
-            let GFR = (patient.Gender == Gender.Male ? 1 : 0.85) * (140 - patient.Age) / cycleItem.Cycle.SerumCreat * (patient.Weight / 72),
+    static calculationMap = new Map<DoseApplicationMode, (cycleItem: CycleItem) => number>([
+        [DoseApplicationMode.Sqm, (cycleItem: CycleItem) => Number((cycleItem.Medicament.Dose * cycleItem.Cycle.bodySurfaceArea).toFixed(2))],
+        [DoseApplicationMode.Kg, (cycleItem: CycleItem) => Number((cycleItem.Medicament.Dose * cycleItem.Cycle.Weight).toFixed(2))],
+        [DoseApplicationMode.Carboplatin, (cycleItem: CycleItem) => {
+            let GFR = (cycleItem.Cycle.Gender == Gender.Male ? 1 : 0.85) * (140 - cycleItem.Cycle.age) / cycleItem.Cycle.SerumCreat * (cycleItem.Cycle.Weight / 72),
                 dose = cycleItem.Medicament.Dose * (GFR + 25);
 
             return dose;
@@ -82,18 +82,12 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     }
 
     setCalculatedQuantity(patient: Patient): void {
-        let calculatedQuantity = this.calculatedQuantity(patient);
+        let calculation = CycleItem.calculationMap.get(this.Medicament.DoseApplicationMode),
+            calculatedQuantity = calculation(this);
 
         this.QuantityCalculated = calculatedQuantity;
         this.QuantityApplied = calculatedQuantity;
-    }
-
-    calculatedQuantity(patient: Patient): number {
-        let calculation = CycleItem.calculationMap.get(this.Medicament.DoseApplicationMode),
-            calculatedQuantity = calculation(this, patient);
-
-        return calculatedQuantity;
-    }
+    }    
 }
 
 export interface ICycleItem {

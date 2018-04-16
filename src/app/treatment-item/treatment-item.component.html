@@ -3,20 +3,16 @@
     <div class="form-row">
       <div class="form-group col-md-4">
         <label>Medicament:</label>
-        <select class="form-control" name="Medicament" #Medicament="ngModel" [(ngModel)]="treatmentItem.MedicamentId" required>
+        <select class="form-control" name="Medicament" [(ngModel)]="treatmentItem.MedicamentId" required>
           <option *ngFor="let item of medicaments" [value]="item.Id">{{item.Name}}</option>
         </select>
-
+        <app-validation [entity]="treatmentItem" property="Medicament"></app-validation>
       </div>
       <div class="form-group col-md-4">
         <label>In ziua:</label>
-        <input type="number" class="form-control" name="OnDay" #OnDay="ngModel" [(ngModel)]="treatmentItem.OnDay" required 
+        <input type="number" class="form-control" name="OnDay" [(ngModel)]="treatmentItem.OnDay" required 
          />
-        <ul class="text-danger list-unstyled" *ngIf="OnDay.dirty && OnDay.invalid">
-          <li *ngIf="OnDay.errors?.required">
-            You must enter OnDay
-          </li>
-        </ul>
+         <app-validation [entity]="treatmentItem" property="OnDay"></app-validation>
       </div>
     </div>
 

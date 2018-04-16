@@ -99,7 +99,7 @@ export class CycleComponent implements OnInit {
   private fetchEntities(): Promise<any> {
     return new Promise((resolve, reject) => {      
         this.cycleService.getAllForDiagnosticId(this.diagnosticId ).subscribe((cycles: ICycle[])=>{
-          this.cycles = cycles.map(cycle=> new Cycle(cycle));
+          this.cycles = cycles.map(cycle=> new Cycle(cycle, <any>0, new Date()));
           resolve();
         });      
     });

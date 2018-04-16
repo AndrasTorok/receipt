@@ -1,7 +1,8 @@
 import { Treatment } from './treatment.model';
 import { Medicament } from './medicament.model';
+import { CommonEntity, IValidity } from '../common/common.entity';
 
-export class TreatmentItem {
+export class TreatmentItem extends CommonEntity<TreatmentItem> {
     Id: number;
     TreatmentId: number;
     Treatment: Treatment;
@@ -10,6 +11,7 @@ export class TreatmentItem {
     OnDay: number;
 
     constructor(treatmentItemOrId: ITreatmentItem | number) {
+        super(TreatmentItem.validityMap);
         let treatmentItem: ITreatmentItem;
 
         if (Number.isInteger(<number>treatmentItemOrId)) {
@@ -25,6 +27,21 @@ export class TreatmentItem {
             this[prop] = treatmentItem[prop];
         }
     }
+
+    static validityMap = new Map<string, IValidity<TreatmentItem>[]>([
+        ['OnDay',
+            [{
+                rule: (entity: TreatmentItem) => entity.OnDay != null && entity.OnDay != undefined,
+                message: (entity: TreatmentItem) => `Ziua de aplicare trebuie sa fie specificat.`
+            }]
+        ],
+        ['Medicament',
+            [{
+                rule: (entity: TreatmentItem) => !!entity.Medicament || !!entity.MedicamentId,
+                message: (entity: TreatmentItem) => `Medicamentul trebuie sa fie specificat.`
+            }]
+        ]
+    ]);
 }
 
 export interface ITreatmentItem {

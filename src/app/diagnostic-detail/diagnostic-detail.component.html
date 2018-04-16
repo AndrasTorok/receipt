@@ -3,39 +3,21 @@
     <div class="form-row">
       <div class="form-group col-md-2">
         <label>Data:</label>
-        <input type="date" class="form-control" name="Date" #Date="ngModel" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date=$event"
+        <input type="date" class="form-control" name="Date" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date=$event"
           required />
-        <ul class="text-danger list-unstyled" *ngIf="Date.dirty && Date.invalid">
-          <li *ngIf="Date.errors?.required">
-            You must enter Date
-          </li>
-        </ul>
+        <app-validation [entity]="diagnostic" property="Date"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Descriere:</label>
-        <input type="text" class="form-control" name="Description" #Description="ngModel" [(ngModel)]="diagnostic.Description" required
+        <input type="text" class="form-control" name="Description" [(ngModel)]="diagnostic.Description" required
           minlength="2" maxlength="200" />
-        <ul class="text-danger list-unstyled" *ngIf="Description.dirty && Description.invalid">
-          <li *ngIf="Description.errors?.required">
-            You must enter FirstName
-          </li>
-          <li *ngIf="Description.errors?.minlength">
-            Description names must be at least {{Description.errors.minlength?.requiredLength}} characters
-          </li>
-        </ul>
+        <app-validation [entity]="diagnostic" property="Description"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Localizare:</label>
-        <input type="text" class="form-control" name="Localization" #Localization="ngModel" [(ngModel)]="diagnostic.Localization"
+        <input type="text" class="form-control" name="Localization" [(ngModel)]="diagnostic.Localization"
           required minlength="2" maxlength="200" />
-        <ul class="text-danger list-unstyled" *ngIf="Localization.dirty && Localization.invalid">
-          <li *ngIf="Localization.errors?.required">
-            You must enter FirstName
-          </li>
-          <li *ngIf="Localization.errors?.minlength">
-            Localization names must be at least {{Localization.errors.minlength?.requiredLength}} characters
-          </li>
-        </ul>
+        <app-validation [entity]="diagnostic" property="Localization"></app-validation>
       </div>
     </div>
 

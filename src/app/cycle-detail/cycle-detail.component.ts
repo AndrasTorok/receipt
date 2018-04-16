@@ -13,6 +13,7 @@ import { TreatmentItem, ITreatmentItem } from '../../model/treatment-item.model'
 import { Diagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
 import { Medicament, DoseApplicationMode } from '../../model/medicament.model';
+import { Calculation } from '../../common/helpers';
 
 @Component({
   selector: 'app-cycle-detail',
@@ -57,7 +58,7 @@ export class CycleDetailComponent implements OnInit {
   }
 
   applyTreatment(): void {
-    let s=1;
+    let s = 1;
 
     this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       let cycleItems = [];
@@ -132,31 +133,33 @@ export class CycleDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let fetchCycleEntityPromise = new Promise((resolve, reject) => {
-      if (this.cycleId) {
-        let cycleSubscription = this.cycleService.getById(this.cycleId).subscribe(cycle => {
-          this.cycle = new Cycle(cycle);
-          cycleSubscription.unsubscribe();
-          resolve();
-        });
-      } else {
-        this.cycle = new Cycle(Number(this.diagnosticId));
+    let fetchPatientPromise = new Promise((resolve, reject) => {
+      let patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
+        this.patient = new Patient(patient);
+        patientSubscription.unsubscribe();
         resolve();
-      }
+      });
+    });
+
+    let fetchCycleEntityPromise = new Promise((resolve, reject) => {
+      fetchPatientPromise.then(() => {
+        if (this.cycleId) {
+          let cycleSubscription = this.cycleService.getById(this.cycleId).subscribe(cycle => {
+            this.cycle = new Cycle(cycle, this.patient.Gender, this.patient.BirthDate);
+            cycleSubscription.unsubscribe();
+            resolve();
+          });
+        } else {
+          this.cycle = new Cycle(Number(this.diagnosticId), this.patient.Gender, this.patient.BirthDate, this.patient.Height, this.patient.Weight);
+          resolve();
+        }
+      });
     });
 
     let fetchTreatmentsPromise = new Promise((resolve, reject) => {
       let subscription = this.treatmentService.getAll().subscribe(treatments => {
         this.treatments = treatments.map(t => new Treatment(t));
         subscription.unsubscribe();
-        resolve();
-      });
-    });
-
-    let fetchPatientPromise = new Promise((resolve, reject) => {
-      let patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
-        this.patient = new Patient(patient);
-        patientSubscription.unsubscribe();
         resolve();
       });
     });
