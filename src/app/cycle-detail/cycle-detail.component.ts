@@ -12,7 +12,7 @@ import { PatientService } from '../../model/patient.service';
 import { TreatmentItem, ITreatmentItem } from '../../model/treatment-item.model';
 import { Diagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
-import { Medicament } from '../../model/medicament.model';
+import { Medicament, DoseApplicationMode } from '../../model/medicament.model';
 
 @Component({
   selector: 'app-cycle-detail',
@@ -47,12 +47,18 @@ export class CycleDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    Promise.all([this.fetchEntities()]).then(() => {
+    Promise.all(this.fetchEntities()).then(() => {
       this.formLoaded = true;
     });
   }
 
+  change(): void {
+    let selectedTreatment = this.cycle;
+  }
+
   applyTreatment(): void {
+    let s=1;
+
     this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       let cycleItems = [];
 
@@ -62,6 +68,7 @@ export class CycleDetailComponent implements OnInit {
         cycleItems = treatment.TreatmentItems.map(ti => {
           let cycleItem = new CycleItem(<ICycleItem>{
             CycleId: this.cycle.Id,
+            Cycle: this.cycle,
             TreatmentItemId: ti.Id,
             MedicamentId: ti.MedicamentId,
             Medicament: new Medicament(ti.Medicament),
@@ -76,11 +83,22 @@ export class CycleDetailComponent implements OnInit {
         });
       }
 
-      this.cycle.CycleItems = cycleItems;
+      this.cycle.CycleItems = cycleItems.sort((a, b) => {
+        let onDayDifference = a.OnDay - b.OnDay;
+        if (onDayDifference) return onDayDifference;
+        let medicamentNameDifference = a.Medicament.Name > b.Medicament.Name ? 1 : -1;
+
+        return medicamentNameDifference;
+      });
     });
   }
 
-  saveCycleGraph(): void {    
+  saveCycleGraph(): void {
+    this.cycle.CycleItems = this.cycle.CycleItems.map(ci => {
+      ci.Cycle = null;
+      return ci;
+    });
+
     this.cycleService.cycleGraph(this.cycle).subscribe(cycle => {
       this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
     }, err => {
@@ -88,16 +106,29 @@ export class CycleDetailComponent implements OnInit {
     });
   }
 
-  removeItem(index: number) : void {
+  removeItem(index: number): void {
     this.cycle.CycleItems.splice(index, 1);
   }
 
-  get valid() : boolean {
+  get valid(): boolean {
     return this.cycle && this.cycle.$valid();
   }
 
-  get invalidProperties() : string {
+  get invalidProperties(): string {
     return this.cycle ? this.cycle.$invalidProperties().join(', ') : '';
+  }
+
+  get isSerumCreatNeeded(): boolean {
+    let isNeeded: boolean = false;
+
+    if (this.cycle && this.cycle.TreatmentId && this.treatments) {
+      let selectedTreatment = this.treatments.find(t => t.Id == this.cycle.TreatmentId);
+      if (!selectedTreatment) throw new Error(`Selected treatment does not exists!`);
+
+      isNeeded = selectedTreatment.IsSerumCreatNeeded;
+    }
+
+    return isNeeded;
   }
 
   private fetchEntities(): Promise<any>[] {
@@ -114,12 +145,19 @@ export class CycleDetailComponent implements OnInit {
       }
     });
 
-    let fetchTreatmentsPromise = this.treatmentService.fetchEntityAndUnsubscribe(entities => this.treatments = entities.map(ent => new Treatment(ent)));
+    let fetchTreatmentsPromise = new Promise((resolve, reject) => {
+      let subscription = this.treatmentService.getAll().subscribe(treatments => {
+        this.treatments = treatments.map(t => new Treatment(t));
+        subscription.unsubscribe();
+        resolve();
+      });
+    });
 
     let fetchPatientPromise = new Promise((resolve, reject) => {
       let patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
         this.patient = new Patient(patient);
         patientSubscription.unsubscribe();
+        resolve();
       });
     });
 
@@ -127,6 +165,7 @@ export class CycleDetailComponent implements OnInit {
       let diagnosticSubscription = this.diagnosticService.getById(this.diagnosticId).subscribe(diagnostic => {
         this.diagnostic = new Diagnostic(diagnostic);
         diagnosticSubscription.unsubscribe();
+        resolve();
       });
     });
 

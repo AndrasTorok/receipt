@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { NgForm } from '@angular/forms';
 import { TreatmentService } from '../../model/treatment.service';
 import { Treatment } from '../../model/treatment.model';
+import { DoseApplicationModeEnumeration } from '../../model/medicament.model';
 
 @Component({
   selector: 'app-treatment-detail',
@@ -23,10 +24,10 @@ export class TreatmentDetailComponent implements OnInit {
     private treatmentService: TreatmentService,
     private activeRoute: ActivatedRoute,
     private router: Router
-  ) { 
+  ) {
     this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
-    this.formState = this.treatmentId ? FormState.Updating: FormState.Adding;
-    
+    this.formState = this.treatmentId ? FormState.Updating : FormState.Adding;
+
     this.configureGrid();
   }
 
@@ -37,7 +38,7 @@ export class TreatmentDetailComponent implements OnInit {
         this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
         treatmentSubscription.unsubscribe();
       });
-    } else this.treatment = new Treatment();         
+    } else this.treatment = new Treatment();
   }
 
   addOrUpdate(form: NgForm): void {
@@ -46,7 +47,7 @@ export class TreatmentDetailComponent implements OnInit {
         this.treatment.TreatmentItems = null;       //need to remove the items from the graph to be able to edit it
         this.treatmentService.put(this.treatment).subscribe(treatment => {
           //this.treatment = new Treatment(treatment);    
-          this.router.navigateByUrl(`/treatment/${this.treatment.Id}`);      
+          this.router.navigateByUrl(`/treatment/${this.treatment.Id}`);
         }, err => {
 
         });
@@ -60,7 +61,7 @@ export class TreatmentDetailComponent implements OnInit {
         });
         break;
     }
-  }  
+  }
 
   removeTreatmentItem(id: number): void {
 
@@ -74,40 +75,53 @@ export class TreatmentDetailComponent implements OnInit {
       pagination: true,
       paginationAutoPageSize: true,
       rowSelection: 'single',
-      rowHeight: 30,    
+      rowHeight: 30,
       onGridReady: () => {
         this.gridReadyPromise = new Promise((resolve, reject) => {
           resolve();
         });
       },
       onSelectionChanged: () => {
-        
+
       },
       columnDefs: [
         {
+          headerName: 'Ziua',
+          field: "OnDay",
+          width: 60
+        },
+        {
           headerName: 'Medicament',
-          width: 200,
+          width: 300,
           valueGetter: (params) => params.data.Medicament.Name
         },
         {
           headerName: 'Doza Medicament',
-          width: 150,
+          width: 130,
           valueGetter: (params) => params.data.Medicament.Dose
         },
         {
-          headerName: 'Ziua',
-          field: "OnDay",
-          width: 100
-        }  ,
+          headerName: 'Mod aplicare',
+          field: "DoseApplicationMode",
+          width: 100,
+          valueGetter: (params) => DoseApplicationModeEnumeration.get(params.data.Medicament.DoseApplicationMode)
+        },
+        {
+          headerName: 'Descriere',
+          field: "Description",
+          width: 300,
+          valueGetter: (params) => params.data.Medicament.Description,
+          tooltip: (params) => params.data.Medicament.Description
+        },
         {
           headerName: '',
           field: '',
           width: 80,
           cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-          onCellClicked: (params) => {  
-              let id = params.data.Id;
-  
-              this.router.navigateByUrl(`/treatment/${this.treatmentId}/item/${id}`);
+          onCellClicked: (params) => {
+            let id = params.data.Id;
+
+            this.router.navigateByUrl(`/treatment/${this.treatmentId}/item/${id}`);
           }
         },
         {
@@ -115,14 +129,14 @@ export class TreatmentDetailComponent implements OnInit {
           field: '',
           width: 80,
           cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
-          onCellClicked: (params) => {  
-              let id = params.data.Id;
-  
-              this.removeTreatmentItem(id);
+          onCellClicked: (params) => {
+            let id = params.data.Id;
+
+            this.removeTreatmentItem(id);
           }
-        }    
+        }
       ]
-    };    
+    };
   }
 }
 

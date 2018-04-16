@@ -3,40 +3,39 @@
     <div *ngIf="cycle" class="form-row">
       <div class="form-group col-md-6">
         <label>Treatment:</label>
-        <select class="form-control" name="Treatment" #Treatment="ngModel" [(ngModel)]="cycle.TreatmentId" required>
-          <option *ngFor="let item of treatments" [value]="item.Id">{{item.Name}}</option>
+        <select class="form-control" name="Treatment" #Treatment="ngModel" [(ngModel)]="cycle.Treatment" required (change)="change()">
+          <option *ngFor="let item of treatments" [value]="item">{{item.Name}}</option>
         </select>
       </div>
       <div class="form-group col-md-2">
         <label>Data inceput tratament:</label>
-        <input type="date" class="form-control" name="StartDate" #StartDate="ngModel" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" 
+        <input type="date" class="form-control" name="StartDate" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" 
           (ngModelChange)="cycle.StartDate=$event" required />
-        <ul class="text-danger list-unstyled" *ngIf="StartDate.dirty && StartDate.invalid">
-          <li *ngIf="StartDate.errors?.required">
-            You must enter Date
-          </li>
-        </ul>
+          <app-validation [entity]="cycle" property="StartDate"></app-validation>
       </div>
       <div class="form-group col-md-2">
+          <label>Serum creat:</label>
+          <input type="number" class="form-control" name="SerumCreat" [(ngModel)]="cycle.SerumCreat" [disabled]="!(cycle && cycle.isSerumCreatNeeded)" />   
+          <app-validation [entity]="cycle" property="SerumCreat"></app-validation>      
+        </div>
+      <div class="form-group col-md-2">
         <label>Aplica:</label>
-        <button type="button" class="form-control btn btn-primary" [disabled]="!cycle.TreatmentId || cycle?.CycleItems.length" (click)="applyTreatment()">Aplica tratament</button>
+        <button type="button" class="form-control btn btn-primary" [disabled]="!(cycle && cycle.$valid())" (click)="applyTreatment()">Aplica tratament</button>
       </div>
     </div>
+
     <div class="form-row">
       <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
-      <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph()">Salveaza</button> InvalidProperties: {{invalidProperties}}
+      <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph()">Salveaza</button>
     </div>
+
     <div *ngIf="cycle?.CycleItems">
       <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
         <div class="form-group col-md-2">
           <label>In ziua:</label>
-          <input type="number" class="form-control" name="OnDay-{{index}}" #OnDay="ngModel" [(ngModel)]="cycleItem.OnDay" required />
-          <ul class="text-danger list-unstyled" *ngIf="OnDay.dirty && OnDay.invalid">
-            <li *ngIf="OnDay.errors?.required">
-              You must enter OnDay
-            </li>
-          </ul>
-        </div>
+          <input type="number" class="form-control" name="OnDay-{{index}}" [(ngModel)]="cycleItem.OnDay" required />          
+          <app-validation [entity]="cycleItem" property="OnDay"></app-validation>
+        </div>        
         <div class="form-group col-md-4">
           <label>Medicament</label>
           <input type="text" class="form-control" name="Medicament-{{index}}" [value]="cycleItem.Medicament.Name" disabled />

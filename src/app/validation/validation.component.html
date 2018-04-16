@@ -1,3 +1,5 @@
-<p>
-  validation works!
-</p>
+<ul class="text-danger list-unstyled" *ngIf="showMessage">
+  <li *ngFor="let message of entity.$invalidMessages(property)">
+    {{message}}
+  </li>
+</ul>

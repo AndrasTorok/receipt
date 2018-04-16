@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { NgForm } from '@angular/forms';
-import { Medicament } from '../../model/medicament.model';
+import { Medicament, DoseApplicationModeEnumeration } from '../../model/medicament.model';
 import { MedicamentService } from '../../model/medicament.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { MedicamentService } from '../../model/medicament.service';
 export class MedicamentDetailComponent implements OnInit {
   medicament: Medicament;
   medicamentId: string;
+  doseApplicationModeEnumeration = DoseApplicationModeEnumeration;
   private formState: FormState;
 
   constructor(

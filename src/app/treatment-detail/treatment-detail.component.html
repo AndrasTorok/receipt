@@ -14,12 +14,22 @@
           </li>
         </ul>
       </div>
+      <div class="form-group col-md-2">
+          <label>Necesita serum creat:</label>
+          <input type="checkbox" class="form-control" name="IsSerumCreatNeeded" [(ngModel)]="treatment.IsSerumCreatNeeded" 
+          />          
+        </div>
     </div>
 
-    <button type="button" class="btn" [routerLink]="['/treatment']">Inapoi</button>
-    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+    <div class="form-row m-1">
+      <div class="form-group">
+        <button type="button" class="btn" [routerLink]="['/treatment']">Inapoi</button>
+        <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>
+      </div>
+    </div>
+
   </form>
-  <div class="m-3">
+  <div class="m-1">
     <ag-grid-angular #agGrid class="ag-fresh treatment-items-grid" [gridOptions]="gridOptions">
     </ag-grid-angular>
     <button type="button" class="btn btn-primary" [routerLink]="['/treatment', treatmentId, 'item', '']">Adauga</button>

@@ -21,22 +21,30 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     QuantityApplied: number;
     private _calculationMap: Map<DoseApplicationMode, (patient: Patient) => number>;
 
-    static validityMap = new Map<string, IValidity<CycleItem>>([
-        ['TreatmentItem', new Validity(
-            (entity: CycleItem) => !!entity.TreatmentItemId || !!entity.TreatmentItem,
-            (entity: CycleItem) => `Tratamentul trebuie specificat.`)
+    static validityMap = new Map<string, IValidity<CycleItem>[]>([
+        ['TreatmentItem',
+            [{
+                rule: (entity: CycleItem) => !!entity.TreatmentItemId || !!entity.TreatmentItem,
+                message: (entity: CycleItem) => `Tratamentul trebuie specificat.`
+            }]
         ],
-        ['Medicament', new Validity(
-            (entity: CycleItem) => !!entity.MedicamentId || !!entity.Medicament,
-            (entity: CycleItem) => `Medicamentul trebuie sa fie specificat.`)
+        ['Medicament',
+            [{
+                rule: (entity: CycleItem) => !!entity.MedicamentId || !!entity.Medicament,
+                message: (entity: CycleItem) => `Medicamentul trebuie sa fie specificat.`
+            }]
         ],
-        ['OnDay', new Validity(
-            (entity: CycleItem) => entity.OnDay !== null,
-            (entity: CycleItem) => `In ziua trebuie sa fie specificata.`)
+        ['OnDay',
+            [{
+                rule: (entity: CycleItem) => entity.OnDay !== null,
+                message: (entity: CycleItem) => `Ziua trebuie sa fie specificata.`
+            }]
         ],
-        ['QuantityApplied', new Validity(
-            (entity: CycleItem) => !!entity.QuantityApplied,
-            (entity: CycleItem) => `Cantitatea aplicata trebuie sa fie specificata.`)
+        ['QuantityApplied',
+            [{
+                rule: (entity: CycleItem) => !!entity.QuantityApplied,
+                message: (entity: CycleItem) => `Cantitatea aplicata trebuie sa fie specificata.`
+            }]
         ]
     ]);
 

@@ -1,7 +1,17 @@
 <div class="container diagnostic-detail-component">
   <form *ngIf="diagnostic" class="noprint" novalidate #form="ngForm">
     <div class="form-row">
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-2">
+        <label>Data:</label>
+        <input type="date" class="form-control" name="Date" #Date="ngModel" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date=$event"
+          required />
+        <ul class="text-danger list-unstyled" *ngIf="Date.dirty && Date.invalid">
+          <li *ngIf="Date.errors?.required">
+            You must enter Date
+          </li>
+        </ul>
+      </div>
+      <div class="form-group col-md-5">
         <label>Descriere:</label>
         <input type="text" class="form-control" name="Description" #Description="ngModel" [(ngModel)]="diagnostic.Description" required
           minlength="2" maxlength="200" />
@@ -14,7 +24,7 @@
           </li>
         </ul>
       </div>
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-5">
         <label>Localizare:</label>
         <input type="text" class="form-control" name="Localization" #Localization="ngModel" [(ngModel)]="diagnostic.Localization"
           required minlength="2" maxlength="200" />
@@ -24,16 +34,6 @@
           </li>
           <li *ngIf="Localization.errors?.minlength">
             Localization names must be at least {{Localization.errors.minlength?.requiredLength}} characters
-          </li>
-        </ul>
-      </div>
-      <div class="form-group col-md-2">
-        <label>Data:</label>
-        <input type="date" class="form-control" name="Date" #Date="ngModel" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date=$event"
-          required />
-        <ul class="text-danger list-unstyled" *ngIf="Date.dirty && Date.invalid">
-          <li *ngIf="Date.errors?.required">
-            You must enter Date
           </li>
         </ul>
       </div>

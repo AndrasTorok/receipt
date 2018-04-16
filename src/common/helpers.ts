@@ -16,3 +16,43 @@ export class StringBuilder {
         return this.store.join(joinStr !== undefined ? joinStr : '');
     }
 }
+
+export interface IKeyValuePair<TKey, TValue> {
+    key: TKey;
+    value: TValue;
+}
+
+export class KeyValuePair<TKey, TValue> implements IKeyValuePair<TKey, TValue> {
+
+    constructor(
+        public key: TKey,
+        public value: TValue
+    ) {
+
+    }
+}
+
+export class Enumeration<TEnum> {
+    private _keyValuePairs: IKeyValuePair<TEnum, string>[];
+
+    constructor(
+        private _map: Map<TEnum, string>
+    ) {
+        this._keyValuePairs = [];
+
+        _map.forEach((value, key) => {
+            this._keyValuePairs.push(<IKeyValuePair<TEnum, string>>{
+                key: key,
+                value: value
+            });
+        });
+    }
+
+    get keyValuePairs(): IKeyValuePair<TEnum, string>[] {
+        return this._keyValuePairs;
+    }
+
+    get(key: TEnum): string {
+        return this._map.get(key);
+    }
+}

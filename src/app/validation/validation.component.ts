@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { ICommonEntity } from '../../common/common.entity';
 
 @Component({
   selector: 'app-validation',
@@ -7,9 +8,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ValidationComponent implements OnInit {
 
+  @Input("entity") entity: ICommonEntity;
+  @Input("property") property: string;
+
   constructor() { }
 
   ngOnInit() {
+  }  
+
+  ngOnChanges() {
+    let entity = this.entity;
+
+  }
+
+  get showMessage() : boolean {
+    let doShow = this.entity && !this.entity.$valid(this.property);
+
+    return doShow;
   }
 
 }

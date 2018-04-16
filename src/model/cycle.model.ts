@@ -2,6 +2,7 @@ import { Diagnostic } from './diagnostic.model';
 import { Treatment } from './treatment.model';
 import { CycleItem, ICycleItem } from './cycle-item.model';
 import { CommonEntity, IValidity, Validity } from '../common/common.entity';
+import { DoseApplicationMode } from './medicament.model';
 
 export class Cycle extends CommonEntity<Cycle> implements ICycle {
     Id: number;
@@ -10,24 +11,42 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     TreatmentId: number;
     Treatment: Treatment;
     StartDate: Date;
-    SerumCreat?: number;
+    SerumCreat: number;
     CycleItems: CycleItem[];
 
-    static validityMap = new Map<string, IValidity<Cycle>>([
-        ['Diagnostic', new Validity(
-            (entity: Cycle) => !!entity.DiagnosticId || !!entity.Diagnostic,
-            (entity: Cycle) => `Diagnostic trebuie sa fie specificat.`)],
-        ['Treatment', new Validity(
-            (entity: Cycle) => !!entity.TreatmentId || !!entity.Treatment,
-            (entity: Cycle) => `Tratementul pacientului trebuie sa fie specificat.`)
+    static validityMap = new Map<string, IValidity<Cycle>[]>([
+        ['Diagnostic',
+            [{
+                rule: (entity: Cycle) => !!entity.DiagnosticId || !!entity.Diagnostic,
+                message: (entity: Cycle) => `Diagnostic trebuie sa fie specificat.`
+            }]
         ],
-        ['StartDate', new Validity(
-            (entity: Cycle) => !!entity.StartDate,
-            (entity: Cycle) => `Data de inceput ciclului de tratament trebuie sa fie specificata.`)
+        ['Treatment',
+            [{
+                rule: (entity: Cycle) => !!entity.TreatmentId || !!entity.Treatment,
+                message: (entity: Cycle) => `Tratementul pacientului trebuie sa fie specificat.`
+            }]
         ],
-        ['CycleItems', new Validity(
-            (entity: Cycle) => !entity.CycleItems || !entity.CycleItems.some(ci => !ci.$valid()),
-            (entity: Cycle) => ``)
+        ['StartDate',
+            [{
+                rule: (entity: Cycle) => !!entity.StartDate,
+                message: (entity: Cycle) => `Data de inceput ciclului de tratament trebuie sa fie specificata.`
+            }],
+        ],
+        ['SerumCreat',
+            [{
+                rule: (entity: Cycle) => {
+                    return !entity.Treatment || !entity.Treatment.IsSerumCreatNeeded || entity.Treatment.IsSerumCreatNeeded && !!entity.SerumCreat;
+                },
+                message: (entity: Cycle) => `Data de inceput ciclului de tratament trebuie sa fie specificata.`
+            }
+            ]
+        ],
+        ['CycleItems',
+            [{
+                rule: (entity: Cycle) => !entity.CycleItems || !entity.CycleItems.some(ci => !ci.$valid()),
+                message: (entity: Cycle) => ``
+            }]
         ]
     ]);
 
@@ -43,6 +62,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
                 TreatmentId: 0,
                 Treatment: null,
                 StartDate: new Date(),
+                SerumCreat: null,
                 CycleItems: []
             };
         } else cycle = <ICycle>cycleOrDiagnosticId;
@@ -57,6 +77,10 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
 
         this.StartDate = new Date(cycle.StartDate.toString());
     }
+
+    get isSerumCreatNeeded(): boolean {
+        return this.Treatment && this.Treatment.IsSerumCreatNeeded;
+    }
 }
 
 export interface ICycle {
@@ -66,5 +90,6 @@ export interface ICycle {
     TreatmentId: number;
     Treatment: Treatment;
     StartDate: Date;
+    SerumCreat?: number;
     CycleItems: ICycleItem[];
 }

@@ -61,7 +61,7 @@ export class CycleComponent implements OnInit {
         {
           headerName: 'Data inceput',
           field: "StartDate",
-          width: 200,
+          width: 100,
           valueGetter: (params) => this.datePipe.transform(params.data.StartDate, 'dd/MM/yyyy')
         },
         {

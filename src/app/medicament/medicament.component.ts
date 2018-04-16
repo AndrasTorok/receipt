@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { GridOptions, GridApi } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Medicament } from '../../model/medicament.model';
+import { Medicament, DoseApplicationModeEnumeration } from '../../model/medicament.model';
 import { MedicamentService } from '../../model/medicament.service';
 
 @Component({
@@ -75,6 +75,18 @@ export class MedicamentComponent implements OnInit {
           headerName: 'Doza',
           field: "Dose",
           width: 100
+        },
+        {
+          headerName: 'Mod aplicare',
+          field: "DoseApplicationMode",
+          width: 100,
+          valueGetter: (params)=> DoseApplicationModeEnumeration.get(params.data.DoseApplicationMode)
+        },
+        {
+          headerName: 'Descriere',
+          field: "Description",
+          width: 350          ,
+          tooltip: (params)=> params.data.Description
         },
         {
           headerName: '',

@@ -17,9 +17,7 @@
       <div class="form-group col-md-2">
         <label>Mod aplicare:</label>
         <select class="form-control" name="DoseApplicationMode" #DoseApplicationMode="ngModel" [(ngModel)]="medicament.DoseApplicationMode">
-          <option value="0">Mp</option>
-          <option value="1">Kg</option>
-          <option value="2">Carboplatin</option>
+          <option *ngFor="let kvp of doseApplicationModeEnumeration.keyValuePairs" value="{{kvp.key}}">{{kvp.value}}</option>          
         </select>
       </div>
       <div class="form-group col-md-2">
