@@ -5,8 +5,8 @@
       <div class="form-row">
           <div class="form-group col-md-4">
             <label>Treatment:</label>
-            <select class="form-control" name="Treatment" #Treatment="ngModel" [(ngModel)]="cycle.Treatment" required (change)="change()">
-              <option *ngFor="let item of treatments" [value]="item">{{item.Name}}</option>
+            <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" required>
+              <option *ngFor="let item of treatments" [value]="item.Id">{{item.Name}}</option>
             </select>
           </div>
           <div class="form-group col-md-3">
@@ -56,27 +56,28 @@
     <div class="form-row noprint">
       <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
       <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph()">Salveaza</button>
+      <button type="button" class="btn btn-primary m-3" [disabled]="!canClone" (click)="clone()">Cloneaza</button>
       <button type="button" class="btn m-3" [disabled]="!valid" (click)="print()">Tipareste</button>
     </div>
 
     <div *ngIf="cycle?.CycleItems">
       <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
         <div class="form-group col-md-2">
-          <label>In ziua:</label>
+          <label [class.noprint]="index">In ziua:</label>
           <input type="number" class="form-control" name="OnDay-{{index}}" [(ngModel)]="cycleItem.OnDay" required />
           <app-validation [entity]="cycleItem" property="OnDay"></app-validation>
         </div>
         <div class="form-group col-md-4">
-          <label>Medicament</label>
+          <label [class.noprint]="index">Medicament</label>
           <input type="text" class="form-control" name="Medicament-{{index}}" [value]="cycleItem.Medicament.Name" disabled />
         </div>
         <div class="form-group col-md-2">
-          <label>Cantitate calculata</label>
+          <label [class.noprint]="index">Cantitate calculata</label>
           <input type="number" class="form-control" name="QuantityCalculated-{{index}}" [value]="cycleItem.QuantityCalculated" disabled
           />
         </div>
         <div class="form-group col-md-2">
-          <label>Cantitate aplicata</label>
+          <label [class.noprint]="index">Cantitate aplicata</label>
           <input type="number" class="form-control" name="QuantityCalculated-{{index}}" #QuantityCalculated="ngModel" [(ngModel)]="cycleItem.QuantityApplied"
             required />
         </div>

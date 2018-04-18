@@ -40,27 +40,26 @@ export class CycleDetailComponent implements OnInit {
     private diagnosticService: DiagnosticService,
     private activeRoute: ActivatedRoute,
     private router: Router,
-    @Inject('Window') private window : Window
+    @Inject('Window') private window: Window
   ) {
-    this.patientId = activeRoute.snapshot.params['patientId'];
-    this.diagnosticId = activeRoute.snapshot.params['diagnosticId'];
-    this.cycleId = activeRoute.snapshot.params['cycleId'];
-    this.formState = this.cycleId ? FormState.Updating : FormState.Adding;
+
   }
 
   ngOnInit() {
-    Promise.all(this.fetchEntities()).then(() => {
-      this.formLoaded = true;
-    });
-  }
+    this.activeRoute.params.subscribe(params => {
+      this.patientId = this.activeRoute.snapshot.params['patientId'];
+      this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
+      this.cycleId = this.activeRoute.snapshot.params['cycleId'];
+      this.formState = this.cycleId ? FormState.Updating : FormState.Adding;
 
-  change(): void {
-    let selectedTreatment = this.cycle;
+      Promise.all(this.fetchEntities()).then(() => {
+        this.formLoaded = true;
+      });
+    });
   }
 
   applyTreatment(): void {
     let s = 1;
-
     this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       let cycleItems = [];
 
@@ -131,6 +130,28 @@ export class CycleDetailComponent implements OnInit {
     }
 
     return isNeeded;
+  }
+
+  clone(): void {
+    let clone = JSON.parse(JSON.stringify(this.cycle));
+
+    clone.CycleItems.forEach(ci => {
+      ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
+      ci.Id = ci.CycleId = 0;
+    });
+
+    clone.Diagnostic = clone.Treatment = null;
+    clone.Id = 0;
+
+    this.cycleService.cycleGraph(clone).subscribe(cycle => {
+      this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${cycle.Id}`);
+    }, err => {
+
+    });
+  }
+
+  get canClone(): boolean {
+    return this.valid && !!this.cycle.Id && this.cycle.CycleItems && !this.cycle.CycleItems.some(ci => !ci.Id);
   }
 
   print(): void {
