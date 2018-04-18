@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Inject } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
@@ -39,7 +39,8 @@ export class CycleDetailComponent implements OnInit {
     private patientService: PatientService,
     private diagnosticService: DiagnosticService,
     private activeRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    @Inject('Window') private window : Window
   ) {
     this.patientId = activeRoute.snapshot.params['patientId'];
     this.diagnosticId = activeRoute.snapshot.params['diagnosticId'];
@@ -130,6 +131,10 @@ export class CycleDetailComponent implements OnInit {
     }
 
     return isNeeded;
+  }
+
+  print(): void {
+    (<any>window).print();
   }
 
   private fetchEntities(): Promise<any>[] {

@@ -1,0 +1,31 @@
+<div class="form-row">
+  <div class="form-group col-md-6">
+    <label>Nume:</label>
+    <input type="text" class="form-control" name="FirstName" [value]="patient.FirstName" disabled />
+  </div>
+  <div class="form-group col-md-6">
+    <label>Prenume:</label>
+    <input type="text" class="form-control" name="LastName" [value]="patient.LastName" disabled />
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group col-md-2">
+    <label>CNP</label>
+    <input type="text" class="form-control" name="CNP" [value]="patient.CNP" disabled />
+  </div>
+  <div class="form-group col-md-2">
+    <label>Data nasterii:</label>
+    <input type="date" class="form-control" name="BirthDate" [value]="patient.BirthDate|date:'yyyy-MM-dd'" disabled />
+  </div>
+  <div class="form-group col-md-1">
+    <label>Sex</label>
+    <select class="form-control" name="Gender" [value]="patient.Gender" disabled>
+      <option value="1">F</option>
+      <option value="0">M</option>
+    </select>
+  </div>
+  <div *ngIf="diagnostic" class="form-group col-md-3">
+    <label>Localizare:</label>
+    <input type="text" class="form-control" name="Localization" [value]="diagnostic.Localization" disabled />
+  </div>
+</div>

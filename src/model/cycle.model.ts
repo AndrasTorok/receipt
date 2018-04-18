@@ -18,7 +18,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     Weight: number;    
     BirthDate: Date;                     //property exists only on GUI
     Gender: Gender;                     //property exists only on GUI
-    CycleItems: CycleItem[];
+    CycleItems: CycleItem[];    
 
     static validityMap = new Map<string, IValidity<Cycle>[]>([
         ['Diagnostic',
@@ -131,6 +131,28 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
 
     get age(): number{
         return Calculation.age(this.BirthDate, this.StartDate);
+    }
+
+    get durationInDays() : number {
+        let durationInDays : number = 0;
+
+        if(this.CycleItems && this.CycleItems.length) {
+            let onDayArray : number[] = this.CycleItems.map(ci=> ci.OnDay),
+            startDay = Math.min(...onDayArray),
+            endDay = Math.max(...onDayArray);
+
+            durationInDays = endDay -  startDay;
+        }
+
+        return durationInDays;
+    }
+
+    get endDate() : Date {
+        let date = new Date(this.StartDate.toString());
+
+        date.setDate(date.getDate() + this.durationInDays);
+
+        return date;
     }
 }
 

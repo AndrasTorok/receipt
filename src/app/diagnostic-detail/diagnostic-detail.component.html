@@ -1,5 +1,6 @@
 <div class="container diagnostic-detail-component">
-  <form *ngIf="diagnostic" class="noprint" novalidate #form="ngForm">
+  <form *ngIf="viewLoaded" class="noprint" novalidate #form="ngForm">
+    <app-patient-detail-display [patient]="patient" [diagnostic]=""></app-patient-detail-display> 
     <div class="form-row">
       <div class="form-group col-md-2">
         <label>Data:</label>

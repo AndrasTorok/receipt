@@ -3,6 +3,14 @@
 @media print
 {
     .noprint {
-        display: none;
+        display: none !important;        
+    }    
+
+    @page { margin: 0; }
+}
+
+@media screen {
+    .print-only {
+        display: none !important;
     }
 }

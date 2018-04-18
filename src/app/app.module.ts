@@ -30,6 +30,7 @@ import { CycleComponent } from './cycle/cycle.component';
 import { CycleService } from '../model/cycle.service';
 import { CycleDetailComponent } from './cycle-detail/cycle-detail.component';
 import { ValidationComponent } from './validation/validation.component';
+import { PatientDetailDisplayComponent } from './patient-detail-display/patient-detail-display.component';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
@@ -65,7 +66,8 @@ export function initConfig(config: AppConfig) {
     MedicamentDetailComponent,
     CycleComponent,
     CycleDetailComponent,
-    ValidationComponent       
+    ValidationComponent,
+    PatientDetailDisplayComponent       
   ],
   imports: [
     BrowserModule,
@@ -85,7 +87,8 @@ export function initConfig(config: AppConfig) {
     DiagnosticService,
     TreatmentItemService,
     MedicamentService,
-    CycleService
+    CycleService,
+    { provide: 'Window',  useValue: window }
   ],
   bootstrap: [AppComponent]
 })

@@ -24,6 +24,6 @@
   <div class="m-1">
     <ag-grid-angular #agGrid class="ag-fresh treatment-items-grid" [gridOptions]="gridOptions">
     </ag-grid-angular>
-    <button type="button" class="btn btn-primary" [routerLink]="['/treatment', treatmentId, 'item', '']" [disabled]="!(treatment.Id && treatment.$valid())">Adauga</button>
+    <button type="button" class="btn btn-primary" [routerLink]="['/treatment', treatmentId, 'item', '']" [disabled]="!(treatment && treatment.Id && treatment.$valid())">Adauga</button>
   </div>
 </div>
