@@ -4,15 +4,16 @@ import { Observable } from 'rxjs/Observable';
 import { ServiceBase } from './servicesBase';
 import { AppConfig } from '../app/app.config';
 import { Diagnostic } from './diagnostic.model';
+import { MessageService } from '../messages/message.service';
 
 @Injectable()
-export class DiagnosticService extends ServiceBase<Diagnostic> {    
+export class DiagnosticService extends ServiceBase<Diagnostic> {
 
-    constructor(http : Http, config: AppConfig) {
-        super(http, config, 'diagnostic');                   
-    }    
+    constructor(http: Http, messageService: MessageService, config: AppConfig) {
+        super(http, messageService, config, 'diagnostic');
+    }
 
-    getAllForPatientId(patientId: string) : Observable<Diagnostic[]> {
-        return super.getAllFor('PatientId', patientId);        
+    getAllForPatientId(patientId: string): Observable<Diagnostic[]> {
+        return super.getAllFor('PatientId', patientId);
     }
 }

@@ -31,16 +31,17 @@ import { CycleService } from '../model/cycle.service';
 import { CycleDetailComponent } from './cycle-detail/cycle-detail.component';
 import { ValidationComponent } from './validation/validation.component';
 import { PatientDetailDisplayComponent } from './patient-detail-display/patient-detail-display.component';
+import { MessageModule } from '../messages/message.module';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
   { path: 'patient', component: PatientComponent },
   { path: 'patient/:patientId', component: PatientDetailComponent },
-  { path: 'patient/:patientId/diagnostic/:diagnosticId', component : DiagnosticDetailComponent },
-  { path: 'patient/:patientId/diagnostic/:diagnosticId/cycle/:cycleId', component : CycleDetailComponent },
-  { path: 'treatment', component: TreatmentComponent },  
+  { path: 'patient/:patientId/diagnostic/:diagnosticId', component: DiagnosticDetailComponent },
+  { path: 'patient/:patientId/diagnostic/:diagnosticId/cycle/:cycleId', component: CycleDetailComponent },
+  { path: 'treatment', component: TreatmentComponent },
   { path: 'treatment/:treatmentId', component: TreatmentDetailComponent },
-  { path: 'treatment/:treatmentId/item/:treatmentItemId', component: TreatmentItemComponent },  
+  { path: 'treatment/:treatmentId/item/:treatmentItemId', component: TreatmentItemComponent },
   { path: 'medicament', component: MedicamentComponent },
   { path: 'medicament/:medicamentId', component: MedicamentDetailComponent },
   { path: '**', redirectTo: 'welcome', pathMatch: 'full' }
@@ -54,7 +55,7 @@ export function initConfig(config: AppConfig) {
   declarations: [
     AppComponent,
     ReceiptPdfComponent,
-    WelcomeComponent,    
+    WelcomeComponent,
     PatientComponent,
     PatientDetailComponent,
     DiagnosticComponent,
@@ -67,7 +68,7 @@ export function initConfig(config: AppConfig) {
     CycleComponent,
     CycleDetailComponent,
     ValidationComponent,
-    PatientDetailDisplayComponent       
+    PatientDetailDisplayComponent    
   ],
   imports: [
     BrowserModule,
@@ -75,7 +76,8 @@ export function initConfig(config: AppConfig) {
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
-    AgGridModule.withComponents([])
+    AgGridModule.withComponents([]),
+    MessageModule
   ],
   providers: [
     AppConfig,
@@ -88,7 +90,7 @@ export function initConfig(config: AppConfig) {
     TreatmentItemService,
     MedicamentService,
     CycleService,
-    { provide: 'Window',  useValue: window }
+    { provide: 'Window', useValue: window }
   ],
   bootstrap: [AppComponent]
 })

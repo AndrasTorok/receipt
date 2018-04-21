@@ -35,7 +35,7 @@
             <app-validation [entity]="cycle" property="Height"></app-validation>
           </div>
           <div class="form-group col-md-2">
-            <label>Gerutate (kg)</label>
+            <label>Greutate (kg)</label>
             <input type="number" class="form-control" name="Weight" [(ngModel)]="cycle.Weight" required min="20" max="500" />
             <app-validation [entity]="cycle" property="Weight"></app-validation>
           </div>
@@ -47,7 +47,7 @@
           </div>
           <div class="form-group col-md-2 noprint">
             <label>Aplica:</label>
-            <button type="button" class="form-control btn btn-primary" [disabled]="!(cycle && cycle.$valid())" (click)="applyTreatment()">Aplica tratament</button>
+            <button type="button" class="form-control btn btn-primary" [disabled]="!(cycle && cycle.$valid()) || cycle.CycleItems && !!cycle.CycleItems.length" (click)="applyTreatment()">Aplica tratament</button>
           </div>
         </div>  
     </div>

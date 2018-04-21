@@ -5,13 +5,15 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
+import { MessageService } from '../messages/message.service';
+import { Message } from '../messages/message.model';
 
 @Injectable()
 export abstract class ServiceBase<T> {
     protected _requestOptions: RequestOptions;
     protected _url: string;
 
-    constructor(protected _http: Http, protected _config: AppConfig = null, protected _serviceUrl: string, protected _doLog: boolean = false) {
+    constructor(protected _http: Http, private _messageService: MessageService, protected _config: AppConfig = null, protected _serviceUrl: string, protected _doLog: boolean = false) {
         var host = this._config.getConfig('host'),
             origin = this._config.getConfig('origin'),
             headers = new Headers({ 'Access-Control-Allow-Origin': origin });
@@ -77,8 +79,16 @@ export abstract class ServiceBase<T> {
     }
 
     protected handleError(error: Response) {
+        let message;
+
+        if(error.status == 403) {
+            message = `${error.json().Message} ${error.statusText}`;
+        } else {
+            message = error.json().error;
+        }
+
         console.error(error);
-        return Observable.throw(error.json().error || 'Server error');
+        return Observable.throw(message || 'Server error');
     }
 
     fetchEntityAndUnsubscribe(callback: (entities: T[]) => void, sort: (first: T, second: T) => number = null): Promise<any> {
