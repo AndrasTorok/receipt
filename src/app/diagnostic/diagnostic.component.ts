@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
 import { Diagnostic, IDiagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
+import { MessageService } from '../../messages/message.service';
+import { Message } from '../../messages/message.model';
 
 @Component({
   selector: 'app-diagnostic',
@@ -22,7 +24,8 @@ export class DiagnosticComponent implements OnInit {
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
     private router: Router,
-    private diagnosticService: DiagnosticService
+    private diagnosticService: DiagnosticService,
+    private messageService: MessageService
   ) {
     this.patientId = this.activeRoute.snapshot.params['patientId'];
 
@@ -38,18 +41,38 @@ export class DiagnosticComponent implements OnInit {
   }
 
   removeDiagnostic(id: number): void {
-    let subscription = this.diagnosticService.delete(id.toString()).subscribe(success => {
-      if (success) {
-        let deletedDiagnosticIndex = this.diagnostics.findIndex(d => d.Id == id);
+    let promise = new Promise<boolean>((resolve, reject) => {
+      let msg = `Sunteti sigur ca doriti sa stergeti diagnostic-ul ?`,
+        responses: [string, (string) => void][] = [
+          ["Da", () => {
+            this.messageService.removeMessage();
+            resolve(true);
+          }],
+          ["Nu", () => {
+            this.messageService.removeMessage();
+            resolve(false);
+          }]
+        ],
+        message = new Message(msg, false, responses);
 
-        if (deletedDiagnosticIndex) {
-          this.diagnostics.splice(deletedDiagnosticIndex, 1);
-          this.gridOptions.api.setRowData(this.diagnostics);
-        }
-      }
-      subscription.unsubscribe();
+      this.messageService.reportMessage(message);
     });
-  } 
+
+    promise.then((doDelete: boolean) => {
+      if (!doDelete) return;
+      let subscription = this.diagnosticService.delete(id.toString()).subscribe(success => {
+        if (success) {
+          let deletedDiagnosticIndex = this.diagnostics.findIndex(d => d.Id == id);
+
+          if (deletedDiagnosticIndex) {
+            this.diagnostics.splice(deletedDiagnosticIndex, 1);
+            this.gridOptions.api.setRowData(this.diagnostics);
+          }
+        }
+        subscription.unsubscribe();
+      });
+    });
+  }
 
   private configureGrid(): void {
     this.gridOptions = <GridOptions>{
@@ -84,13 +107,13 @@ export class DiagnosticComponent implements OnInit {
         headerName: 'Descriere',
         field: "Description",
         width: 400,
-        tooltip: (params)=> params.data.Description
+        tooltip: (params) => params.data.Description
       },
       {
         headerName: 'Localizare',
         field: "Localization",
         width: 400,
-        tooltip: (params)=> params.data.Localization
+        tooltip: (params) => params.data.Localization
       },
       {
         headerName: '',
@@ -119,10 +142,12 @@ export class DiagnosticComponent implements OnInit {
 
   private fetchEntities(): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.diagnosticService.getAllForPatientId(this.patientId).subscribe((diagnostics: IDiagnostic[]) => {
-        this.diagnostics = diagnostics.map(diagnostic => new Diagnostic(diagnostic));
-        resolve();
-      });
+      if (this.patientId) {
+        this.diagnosticService.getAllForPatientId(this.patientId).subscribe((diagnostics: IDiagnostic[]) => {
+          this.diagnostics = diagnostics.map(diagnostic => new Diagnostic(diagnostic));
+          resolve();
+        });
+      } else resolve();
     });
   }
 }

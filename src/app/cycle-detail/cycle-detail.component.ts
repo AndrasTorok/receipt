@@ -58,8 +58,7 @@ export class CycleDetailComponent implements OnInit {
     });
   }
 
-  applyTreatment(): void {
-    let s = 1;
+  applyTreatment(): void {    
     this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       let cycleItems = [];
 
@@ -94,11 +93,13 @@ export class CycleDetailComponent implements OnInit {
     });
   }
 
-  saveCycleGraph(): void {
+  saveCycleGraph(): void {    
     this.cycle.CycleItems = this.cycle.CycleItems.map(ci => {
-      ci.Cycle = null;
+      ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
       return ci;
     });
+
+    this.cycle.Diagnostic = this.cycle.Treatment = null;
 
     this.cycleService.cycleGraph(this.cycle).subscribe(cycle => {
       this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
@@ -199,7 +200,7 @@ export class CycleDetailComponent implements OnInit {
     });
 
     return [fetchCycleEntityPromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
-  }
+  }  
 }
 
 enum FormState {

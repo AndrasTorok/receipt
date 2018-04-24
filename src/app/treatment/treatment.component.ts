@@ -3,6 +3,8 @@ import { GridOptions, GridApi } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TreatmentService } from '../../model/treatment.service';
 import { Treatment } from '../../model/treatment.model';
+import { MessageService } from '../../messages/message.service';
+import { Message } from '../../messages/message.model';
 
 @Component({
   selector: 'app-treatment',
@@ -21,7 +23,8 @@ export class TreatmentComponent implements OnInit {
   constructor(
     private treatmentService: TreatmentService,
     private activeRoute : ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {
        
     this.configureGrid();
@@ -34,17 +37,37 @@ export class TreatmentComponent implements OnInit {
   }
 
   removeTreatment(id: number) : void {
-    let subscription = this.treatmentService.delete(id.toString()).subscribe(success=>{
-      if(success) {
-          let deletedTreatmentIndex = this.treatments.findIndex(d=> d.Id == id);
+    let promise = new Promise<boolean>((resolve, reject) => {
+      let msg = `Sunteti sigur ca doriti sa stergeti schema de tratament ?`,
+        responses: [string, (string) => void][] = [
+          ["Da", () => {
+            this.messageService.removeMessage();
+            resolve(true);
+          }],
+          ["Nu", () => {
+            this.messageService.removeMessage();
+            resolve(false);
+          }]
+        ],
+        message = new Message(msg, false, responses);
 
-          if(deletedTreatmentIndex >= 0) {
-            this.treatments.splice(deletedTreatmentIndex, 1);
-            this.gridOptions.api.setRowData(this.treatments);
-          }
-      }
-      subscription.unsubscribe();
+      this.messageService.reportMessage(message);      
     });
+
+    promise.then((doDelete: boolean) => {
+      if(!doDelete) return;
+      let subscription = this.treatmentService.delete(id.toString()).subscribe(success=>{
+        if(success) {
+            let deletedTreatmentIndex = this.treatments.findIndex(d=> d.Id == id);
+  
+            if(deletedTreatmentIndex >= 0) {
+              this.treatments.splice(deletedTreatmentIndex, 1);
+              this.gridOptions.api.setRowData(this.treatments);
+            }
+        }
+        subscription.unsubscribe();
+      });
+    });    
   }
 
   private configureGrid(): void {

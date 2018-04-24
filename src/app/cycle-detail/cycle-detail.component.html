@@ -6,7 +6,7 @@
           <div class="form-group col-md-4">
             <label>Treatment:</label>
             <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" required>
-              <option *ngFor="let item of treatments" [value]="item.Id">{{item.Name}}</option>
+              <option *ngFor="let item of treatments" [value]="item?.Id">{{item?.Name}}</option>
             </select>
           </div>
           <div class="form-group col-md-3">
@@ -69,7 +69,7 @@
         </div>
         <div class="form-group col-md-4">
           <label [class.noprint]="index">Medicament</label>
-          <input type="text" class="form-control" name="Medicament-{{index}}" [value]="cycleItem.Medicament.Name" disabled />
+          <input type="text" class="form-control" name="Medicament-{{index}}" [value]="cycleItem?.Medicament?.Name" disabled />
         </div>
         <div class="form-group col-md-2">
           <label [class.noprint]="index">Cantitate calculata</label>

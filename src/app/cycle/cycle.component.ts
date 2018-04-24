@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
 import { Cycle, ICycle } from '../../model/cycle.model';
 import { CycleService } from '../../model/cycle.service';
+import { MessageService } from '../../messages/message.service';
+import { Message } from '../../messages/message.model';
 
 @Component({
   selector: 'app-cycle',
@@ -13,7 +15,7 @@ import { CycleService } from '../../model/cycle.service';
 })
 export class CycleComponent implements OnInit {
   cycles: Cycle[];
-  patientId : string;
+  patientId: string;
   diagnosticId: string;
   gridOptions: GridOptions;
   gridReadyPromise: Promise<any>;
@@ -21,10 +23,11 @@ export class CycleComponent implements OnInit {
 
   constructor(
     private cycleService: CycleService,
-    private datePipe: DatePipe  ,
+    private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
-    private router : Router  
-  ) { 
+    private router: Router,
+    private messageService: MessageService
+  ) {
     this.patientId = this.activeRoute.snapshot.params['patientId'];
     this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
 
@@ -38,8 +41,38 @@ export class CycleComponent implements OnInit {
     });
   }
 
-  removeCycle(id: number) : void {
+  removeCycle(id: number): void {
+    let promise = new Promise<boolean>((resolve, reject) => {
+      let msg = `Sunteti sigur ca doriti sa stergeti tratament pacient?`,
+        responses: [string, (string) => void][] = [
+          ["Da", () => {
+            this.messageService.removeMessage();
+            resolve(true);
+          }],
+          ["Nu", () => {
+            this.messageService.removeMessage();
+            resolve(false);
+          }]
+        ],
+        message = new Message(msg, false, responses);
 
+      this.messageService.reportMessage(message);
+    });
+
+    promise.then((doDelete: boolean) => {
+      if (!doDelete) return;
+      let subscription = this.cycleService.delete(id.toString()).subscribe(success => {
+        if (success) {
+          let deletedCycleIndex = this.cycles.findIndex(d => d.Id == id);
+
+          if (deletedCycleIndex >= 0) {
+            this.cycles.splice(deletedCycleIndex, 1);
+            this.gridOptions.api.setRowData(this.cycles);
+          }
+        }
+        subscription.unsubscribe();
+      });
+    });
   }
 
   private configureGrid(): void {
@@ -56,7 +89,7 @@ export class CycleComponent implements OnInit {
         this.gridReadyPromise = new Promise((resolve, reject) => {
           resolve();
         });
-      }  ,
+      },
       columnDefs: [
         {
           headerName: 'Data inceput',
@@ -69,16 +102,16 @@ export class CycleComponent implements OnInit {
           field: "Treatment",
           width: 300,
           valueGetter: (params) => params.data.Treatment.Name
-        },              
+        },
         {
           headerName: '',
           field: '',
           width: 80,
           cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-          onCellClicked: (params) => {  
-              let id = params.data.Id;
-  
-              this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
+          onCellClicked: (params) => {
+            let id = params.data.Id;
+
+            this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
           }
         },
         {
@@ -86,22 +119,24 @@ export class CycleComponent implements OnInit {
           field: '',
           width: 80,
           cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
-          onCellClicked: (params) => {  
-              let id = params.data.Id;
-  
-              this.removeCycle(id);
+          onCellClicked: (params) => {
+            let id = params.data.Id;
+
+            this.removeCycle(id);
           }
         }
-      ]    
-    };    
+      ]
+    };
   }
 
   private fetchEntities(): Promise<any> {
-    return new Promise((resolve, reject) => {      
-        this.cycleService.getAllForDiagnosticId(this.diagnosticId ).subscribe((cycles: ICycle[])=>{
-          this.cycles = cycles.map(cycle=> new Cycle(cycle, <any>0, new Date()));
+    return new Promise((resolve, reject) => {
+      if (this.diagnosticId) {
+        this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {
+          this.cycles = cycles.map(cycle => new Cycle(cycle, <any>0, new Date()));
           resolve();
-        });      
+        });
+      } else resolve();
     });
   }
 }

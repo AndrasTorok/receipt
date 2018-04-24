@@ -71,7 +71,8 @@ export class Calculation {
     static age(birthDate: Date, date?: Date): number {
         let age = 0;
 
-        birthDate = new Date(birthDate);
+        if (typeof birthDate == 'string') birthDate = new Date(birthDate);
+        if (typeof date == 'string') date = new Date(date);
 
         let now = date ? date : new Date(),
             months = now.getMonth() - birthDate.getMonth();

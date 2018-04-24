@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
 import { PatientService } from '../../model/patient.service';
 import { Patient } from '../../model/patient.model';
+import { MessageService } from '../../messages/message.service';
+import { Message } from '../../messages/message.model';
 
 @Component({
   selector: 'app-patient',
@@ -23,7 +25,8 @@ export class PatientComponent implements OnInit {
     private patientService: PatientService,
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {
     this.gridOptions = <GridOptions>{
       enableFilter: true,
@@ -65,6 +68,40 @@ export class PatientComponent implements OnInit {
 
   add(): void {
     this.router.navigateByUrl(`/patient/`);
+  }
+
+  removePatient(id: number) {
+    let promise = new Promise<boolean>((resolve, reject) => {
+      let msg = `Sunteti sigur ca doriti sa stergeti pacient-ul?`,
+        responses: [string, (string) => void][] = [
+          ["Da", () => {
+            this.messageService.removeMessage();
+            resolve(true);
+          }],
+          ["Nu", () => {
+            this.messageService.removeMessage();
+            resolve(false);
+          }]
+        ],
+        message = new Message(msg, false, responses);
+
+      this.messageService.reportMessage(message);
+    });
+
+    promise.then((doDelete: boolean) => {
+      if (!doDelete) return;
+      let subscription = this.patientService.delete(id.toString()).subscribe(success => {
+        if (success) {
+          let deletedPatientIndex = this.patients.findIndex(d => d.Id == id);
+
+          if (deletedPatientIndex >= 0) {
+            this.patients.splice(deletedPatientIndex, 1);
+            this.gridOptions.api.setRowData(this.patients);
+          }
+        }
+        subscription.unsubscribe();
+      });
+    });
   }
 
   private setGridColums(): void {
@@ -114,6 +151,17 @@ export class PatientComponent implements OnInit {
             let id = params.data.Id;
 
             this.router.navigateByUrl(`/patient/${id}`);
+        }
+      },
+      {
+        headerName: '',
+        field: '',
+        width: 80,
+        cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+        onCellClicked: (params) => {
+          let id = params.data.Id;
+
+          this.removePatient(id);
         }
       }
     ];
