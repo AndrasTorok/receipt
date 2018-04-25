@@ -115,7 +115,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
         }
 
         if (cycle.CycleItems) {
-            this.CycleItems = cycle.CycleItems.map(ci => new CycleItem(ci));
+            this.CycleItems = cycle.CycleItems.map(ci => new CycleItem(ci, this));
         }
 
         this.StartDate = new Date(cycle.StartDate.toString());

@@ -1,4 +1,5 @@
 <div class="container treatment-detail-component">
+  <h3 class="text-center">{{treatmentId ? 'Editare' : 'Adaugare'}} medicament</h3>
   <form *ngIf="treatment" class="noprint" novalidate #form="ngForm">
     <div class="form-row">
       <div class="form-group col-md-4">

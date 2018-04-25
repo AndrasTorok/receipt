@@ -17,8 +17,7 @@ export class CycleComponent implements OnInit {
   cycles: Cycle[];
   patientId: string;
   diagnosticId: string;
-  gridOptions: GridOptions;
-  gridReadyPromise: Promise<any>;
+  gridOptions: GridOptions;  
   gridReady: boolean = false;
 
   constructor(
@@ -28,17 +27,21 @@ export class CycleComponent implements OnInit {
     private router: Router,
     private messageService: MessageService
   ) {
-    this.patientId = this.activeRoute.snapshot.params['patientId'];
-    this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
+    let gridReadyPromise: Promise<any> = this.configureGrid();
 
-    this.configureGrid();
+    this.activeRoute.params.subscribe(params => {
+      this.patientId = this.activeRoute.snapshot.params['patientId'];
+      this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
+
+      Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
+        this.gridOptions.api.setRowData(this.cycles);
+        this.gridReady = true;
+      });
+    });    
   }
 
   ngOnInit() {
-    Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.cycles);
-      this.gridReady = true;
-    });
+
   }
 
   removeCycle(id: number): void {
@@ -75,58 +78,58 @@ export class CycleComponent implements OnInit {
     });
   }
 
-  private configureGrid(): void {
-    this.gridOptions = <GridOptions>{
-      enableFilter: true,
-      enableSorting: true,
-      sortingOrder: ['asc', 'desc', null],
-      pagination: true,
-      paginationAutoPageSize: true,
-      rowSelection: 'single',
-      rowHeight: 30,
-      //angularCompileRows: true,
-      onGridReady: () => {
-        this.gridReadyPromise = new Promise((resolve, reject) => {
+  private configureGrid(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.gridOptions = <GridOptions>{
+        enableFilter: true,
+        enableSorting: true,
+        sortingOrder: ['asc', 'desc', null],
+        pagination: true,
+        paginationAutoPageSize: true,
+        rowSelection: 'single',
+        rowHeight: 30,
+        //angularCompileRows: true,
+        onGridReady: () => {
           resolve();
-        });
-      },
-      columnDefs: [
-        {
-          headerName: 'Data inceput',
-          field: "StartDate",
-          width: 100,
-          valueGetter: (params) => this.datePipe.transform(params.data.StartDate, 'dd/MM/yyyy')
         },
-        {
-          headerName: 'Tratament',
-          field: "Treatment",
-          width: 300,
-          valueGetter: (params) => params.data.Treatment.Name
-        },
-        {
-          headerName: '',
-          field: '',
-          width: 80,
-          cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-          onCellClicked: (params) => {
-            let id = params.data.Id;
+        columnDefs: [
+          {
+            headerName: 'Data inceput',
+            field: "StartDate",
+            width: 100,
+            valueGetter: (params) => this.datePipe.transform(params.data.StartDate, 'dd/MM/yyyy')
+          },
+          {
+            headerName: 'Tratament',
+            field: "Treatment",
+            width: 300,
+            valueGetter: (params) => params.data.Treatment.Name
+          },
+          {
+            headerName: '',
+            field: '',
+            width: 80,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
 
-            this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
-          }
-        },
-        {
-          headerName: '',
-          field: '',
-          width: 80,
-          cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
-          onCellClicked: (params) => {
-            let id = params.data.Id;
+              this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
+            }
+          },
+          {
+            headerName: '',
+            field: '',
+            width: 80,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
 
-            this.removeCycle(id);
+              this.removeCycle(id);
+            }
           }
-        }
-      ]
-    };
+        ]
+      };
+    });
   }
 
   private fetchEntities(): Promise<any> {

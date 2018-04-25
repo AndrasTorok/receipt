@@ -1,57 +1,60 @@
 <div class="container cycle-item-component">
+  <h3 class="text-center noprint">{{cycleId ? 'Editare' : 'Adaugare'}} tratament pacient</h3>
+  <h3 class="text-center print-only">Ciclu de tratament pacient</h3>
   <form *ngIf="formLoaded" novalidate #form="ngForm">
     <div *ngIf="cycle">
-      <app-patient-detail-display [patient]="patient" [diagnostic]="diagnostic"></app-patient-detail-display>    
+      <app-patient-detail-display [patient]="patient" [diagnostic]="diagnostic"></app-patient-detail-display>
       <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>Treatment:</label>
-            <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" required>
-              <option *ngFor="let item of treatments" [value]="item?.Id">{{item?.Name}}</option>
-            </select>
-          </div>
-          <div class="form-group col-md-3">
-            <label>Data inceput tratament:</label>
-            <input type="date" class="form-control" name="StartDate" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" (ngModelChange)="cycle.StartDate=$event"
-              required />
-            <app-validation [entity]="cycle" property="StartDate"></app-validation>
-          </div>
-          <div class="form-group col-md-2">
-            <label>Durata in zile:</label>
-            <input type="number" class="form-control" name="durationInDays" [value]="cycle.durationInDays" disabled />
-          </div>
-          <div class="form-group col-md-3">
-            <label>Data finalizare tratament:</label>
-            <input type="date" class="form-control" name="endDate" [value]="cycle.endDate|date:'yyyy-MM-dd'" disabled />
-          </div>
+        <div class="form-group col-md-4">
+          <label>Treatment:</label>
+          <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" required>
+            <option *ngFor="let item of treatments" [value]="item?.Id">{{item?.Name}}</option>
+          </select>
         </div>
-        <div class="form-row">
-          <div class="form-group col-md-2">
-            <label>Varsta (ani)</label>
-            <input class="form-control" [value]="cycle.age" disabled />
-          </div>
-          <div class="form-group col-md-2">
-            <label>Inaltime (cm)</label>
-            <input type="number" class="form-control" name="Height" [(ngModel)]="cycle.Height" required min="60" max="260" />
-            <app-validation [entity]="cycle" property="Height"></app-validation>
-          </div>
-          <div class="form-group col-md-2">
-            <label>Greutate (kg)</label>
-            <input type="number" class="form-control" name="Weight" [(ngModel)]="cycle.Weight" required min="20" max="500" />
-            <app-validation [entity]="cycle" property="Weight"></app-validation>
-          </div>
-          <div class="form-group col-md-2">
-            <label>Creatina:</label>
-            <input type="number" class="form-control" name="SerumCreat" [(ngModel)]="cycle.SerumCreat" [disabled]="!(cycle && cycle.isSerumCreatNeeded)"
-            />
-            <app-validation [entity]="cycle" property="SerumCreat"></app-validation>
-          </div>
-          <div class="form-group col-md-2 noprint">
-            <label>Aplica:</label>
-            <button type="button" class="form-control btn btn-primary" [disabled]="!(cycle && cycle.$valid()) || cycle.CycleItems && !!cycle.CycleItems.length" (click)="applyTreatment()">Aplica tratament</button>
-          </div>
-        </div>  
+        <div class="form-group col-md-3">
+          <label>Data inceput tratament:</label>
+          <input type="date" class="form-control" name="StartDate" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" (ngModelChange)="cycle.StartDate=$event"
+            required />
+          <app-validation [entity]="cycle" property="StartDate"></app-validation>
+        </div>
+        <div class="form-group col-md-2">
+          <label>Durata in zile:</label>
+          <input type="number" class="form-control" name="durationInDays" [value]="cycle.durationInDays" disabled />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Data finalizare tratament:</label>
+          <input type="text" class="form-control" name="endDate" [value]="cycle.endDate|date:'dd/MM/yyyy'" disabled />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-2">
+          <label>Varsta (ani)</label>
+          <input class="form-control" [value]="cycle.age" disabled />
+        </div>
+        <div class="form-group col-md-2">
+          <label>Inaltime (cm)</label>
+          <input type="number" class="form-control" name="Height" [(ngModel)]="cycle.Height" required min="60" max="260" />
+          <app-validation [entity]="cycle" property="Height"></app-validation>
+        </div>
+        <div class="form-group col-md-2">
+          <label>Greutate (kg)</label>
+          <input type="number" class="form-control" name="Weight" [(ngModel)]="cycle.Weight" required min="20" max="500" />
+          <app-validation [entity]="cycle" property="Weight"></app-validation>
+        </div>
+        <div class="form-group col-md-2">
+          <label [class.noprint]="!cycle.SerumCreat">Creatina:</label>
+          <input type="number" class="form-control" [class.noprint]="!cycle.SerumCreat" name="SerumCreat" [(ngModel)]="cycle.SerumCreat"
+            [disabled]="!(cycle && cycle.isSerumCreatNeeded)" />
+          <app-validation [entity]="cycle" property="SerumCreat"></app-validation>
+        </div>
+        <div class="form-group col-md-2 noprint">
+          <label>Aplica:</label>
+          <button type="button" class="form-control btn btn-primary" [disabled]="!(cycle && cycle.$valid()) || cycle.CycleItems && !!cycle.CycleItems.length"
+            (click)="applyTreatment()">Aplica tratament</button>
+        </div>
+      </div>
     </div>
-    
+
 
     <div class="form-row noprint">
       <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
@@ -62,10 +65,14 @@
 
     <div *ngIf="cycle?.CycleItems">
       <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
-        <div class="form-group col-md-2">
+        <div class="form-group col-md-1">
           <label [class.noprint]="index">In ziua:</label>
           <input type="number" class="form-control" name="OnDay-{{index}}" [(ngModel)]="cycleItem.OnDay" required />
           <app-validation [entity]="cycleItem" property="OnDay"></app-validation>
+        </div>
+        <div class="form-group col-md-2">
+          <label [class.noprint]="index">In data:</label>
+          <input type="text" class="form-control" name="endDate" [value]="cycleItem.onDate|date:'dd/MM/yyyy'" disabled />
         </div>
         <div class="form-group col-md-4">
           <label [class.noprint]="index">Medicament</label>

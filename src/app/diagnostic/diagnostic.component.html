@@ -1,14 +1,12 @@
 <div class="diagnostic-component">
-  <div class="pt-3">
-    Diagnostic pacient
-  </div>
+  <h5 class="text-center">Lista de diagnostic pacient</h5>  
   <div>
     <ag-grid-angular #agGrid class="ag-fresh diagnostic-grid" [gridOptions]="gridOptions">
     </ag-grid-angular>
   </div>
   <div class="row">
     <div class="col-md-2">
-      <button type="button" class="btn btn-primary" [routerLink]="['/patient', patientId, 'diagnostic', '']">Adauga diagnostic</button>
+      <button type="button" class="btn btn-primary" [routerLink]="['/patient', patientId, 'diagnostic', '']" [disabled]="!patientId">Adauga diagnostic</button>
     </div>
   </div>  
 </div>

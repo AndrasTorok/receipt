@@ -59,7 +59,7 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         }]
     ]);
 
-    constructor(cycleItemOrCycleId: ICycleItem | number) {
+    constructor(cycleItemOrCycleId: ICycleItem | number, cycle?: Cycle) {
         super(CycleItem.validityMap);
         let cycleItem: ICycleItem;
 
@@ -67,8 +67,6 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
             cycleItem = <ICycleItem>{
                 Id: 0,
                 CycleId: <number>cycleItemOrCycleId,
-                //TreatmentId: 0,
-                //Treatment: null,
                 TreatmentItemId: 0,
                 TreatmentItem: null,
                 MedicamentId: 0,
@@ -79,6 +77,8 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         for (var prop in cycleItem) {
             this[prop] = cycleItem[prop];
         }
+
+        if(cycle) this.Cycle = cycle;
     }
 
     setCalculatedQuantity(patient: Patient): void {
@@ -87,15 +87,25 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
 
         this.QuantityCalculated = calculatedQuantity;
         this.QuantityApplied = calculatedQuantity;
-    }    
+    }
+
+    get onDate(): Date {
+        let date = null;
+
+        if (this.Cycle) {
+            date = new Date(this.Cycle.StartDate.toString());
+
+            date.setDate(date.getDate() + this.OnDay);
+        }
+
+        return date;
+    }
 }
 
 export interface ICycleItem {
     Id: number;
     CycleId: number;
-    Cycle: Cycle;
-    //TreatmentId: number;
-    //Treatment: Treatment;
+    Cycle: Cycle;    
     TreatmentItemId: number;
     TreatmentItem: TreatmentItem;
     MedicamentId: number;

@@ -1,4 +1,5 @@
 <div class="container patient-detail-component">
+  <h3 class="text-center">{{id ? 'Editare' : 'Adaugare'}} pacient</h3>
   <form *ngIf="patient" class="noprint" novalidate #form="ngForm" (ngSubmit)="previewReceipt()">
     <div class="form-row">
       <div class="form-group col-md-2">
@@ -23,7 +24,7 @@
     <div class="form-row">
       <div class="form-group col-md-2">
         <label>Data nasterii:</label>
-        <input type="date" class="form-control" name="BirthDate" [value]="patient.BirthDate|date:'yyyy-MM-dd'" disabled
+        <input type="text" class="form-control" name="BirthDate" [value]="patient.BirthDate | date:'dd/MM/yyyy'" disabled
           />        
       </div>
       <div class="form-group col-md-1">

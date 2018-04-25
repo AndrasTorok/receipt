@@ -1,14 +1,12 @@
 <div class="cycle-component">
-  <div class="pt-3">
-    Tratament pacient
-  </div>
+    <h5 class="text-center">Lista de tratamente pacient</h5>  
   <div>
     <ag-grid-angular #agGrid class="ag-fresh cycles-grid" [gridOptions]="gridOptions">
     </ag-grid-angular>
   </div>
   <div class="row">
     <div class="col-md-2 mt-3">
-      <button type="button" class="btn btn-primary" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId, 'cycle', '']">Adauga tratament pacient</button>
+      <button type="button" class="btn btn-primary" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId, 'cycle', '']" [disabled]="!diagnosticId">Adauga tratament pacient</button>
     </div>
   </div>  
 </div>

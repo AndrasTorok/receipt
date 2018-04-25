@@ -32,6 +32,7 @@ import { CycleDetailComponent } from './cycle-detail/cycle-detail.component';
 import { ValidationComponent } from './validation/validation.component';
 import { PatientDetailDisplayComponent } from './patient-detail-display/patient-detail-display.component';
 import { MessageModule } from '../messages/message.module';
+import { NgDatepickerModule } from 'ng2-datepicker';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
@@ -77,7 +78,8 @@ export function initConfig(config: AppConfig) {
     ReactiveFormsModule,
     HttpModule,
     AgGridModule.withComponents([]),
-    MessageModule
+    MessageModule,
+    NgDatepickerModule
   ],
   providers: [
     AppConfig,
@@ -90,7 +92,7 @@ export function initConfig(config: AppConfig) {
     TreatmentItemService,
     MedicamentService,
     CycleService,
-    { provide: 'Window', useValue: window }
+    { provide: 'Window', useValue: window }    
   ],
   bootstrap: [AppComponent]
 })

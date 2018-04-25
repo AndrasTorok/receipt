@@ -27,17 +27,21 @@ export class DiagnosticComponent implements OnInit {
     private diagnosticService: DiagnosticService,
     private messageService: MessageService
   ) {
-    this.patientId = this.activeRoute.snapshot.params['patientId'];
 
+    this.activeRoute.params.subscribe(params => {
+      this.patientId = this.activeRoute.snapshot.params['patientId'];
+
+      if (!this.diagnostics) this.diagnostics = [];
+
+      Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
+        this.gridOptions.api.setRowData(this.diagnostics);
+      });
+    });
     this.configureGrid();
   }
 
   ngOnInit() {
-    if (!this.diagnostics) this.diagnostics = [];
 
-    Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.diagnostics);
-    });
   }
 
   removeDiagnostic(id: number): void {
@@ -64,7 +68,7 @@ export class DiagnosticComponent implements OnInit {
         if (success) {
           let deletedDiagnosticIndex = this.diagnostics.findIndex(d => d.Id == id);
 
-          if (deletedDiagnosticIndex) {
+          if (deletedDiagnosticIndex >= 0) {
             this.diagnostics.splice(deletedDiagnosticIndex, 1);
             this.gridOptions.api.setRowData(this.diagnostics);
           }

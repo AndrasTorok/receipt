@@ -1,23 +1,24 @@
 <div class="container medicament-detail-component">
+  <h3 class="text-center">{{medicamentId ? 'Editare' : 'Adaugare'}} medicament</h3>
   <form *ngIf="medicament" class="noprint" novalidate #form="ngForm">
     <div class="form-row">
       <div class="form-group col-md-8">
         <label>Descriere:</label>
-        <input type="text" class="form-control" name="Name" [(ngModel)]="medicament.Name" required minlength="2"
-          maxlength="200" />
+        <input type="text" class="form-control" name="Name" [(ngModel)]="medicament.Name" required minlength="2" maxlength="200"
+        />
         <app-validation [entity]="medicament" property="Name"></app-validation>
       </div>
       <div class="form-group col-md-2">
         <label>Mod aplicare:</label>
         <select class="form-control" name="DoseApplicationMode" #DoseApplicationMode="ngModel" [(ngModel)]="medicament.DoseApplicationMode">
-          <option *ngFor="let kvp of doseApplicationModeEnumeration.keyValuePairs" value="{{kvp.key}}">{{kvp.value}}</option>          
+          <option *ngFor="let kvp of doseApplicationModeEnumeration.keyValuePairs" value="{{kvp.key}}">{{kvp.value}}</option>
         </select>
       </div>
       <div class="form-group col-md-2">
         <label>{{medicament.DoseApplicationMode == 2 ? 'TargetAUC' : 'Doza' }}:</label>
         <input type="number" class="form-control" name="Dose" [(ngModel)]="medicament.Dose" required min="0.01" />
         <app-validation [entity]="medicament" property="Dose"></app-validation>
-      </div>  
+      </div>
     </div>
     <div class="form-row">
       <div class="form-group col-md-12">

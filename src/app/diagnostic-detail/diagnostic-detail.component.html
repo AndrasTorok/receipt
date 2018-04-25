@@ -1,29 +1,30 @@
 <div class="container diagnostic-detail-component">
+  <h3 class="text-center">{{id ? 'Editare' : 'Adaugare'}} diagnostic pacient</h3>
   <form *ngIf="viewLoaded" class="noprint" novalidate #form="ngForm">
-    <app-patient-detail-display [patient]="patient" [diagnostic]=""></app-patient-detail-display> 
+    <app-patient-detail-display [patient]="patient" [diagnostic]=""></app-patient-detail-display>
     <div class="form-row">
       <div class="form-group col-md-2">
         <label>Data:</label>
-        <input type="date" class="form-control" name="Date" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date=$event"
+        <input type="date" class="form-control" name="Date" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date = $event"
           required />
         <app-validation [entity]="diagnostic" property="Date"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Descriere:</label>
-        <input type="text" class="form-control" name="Description" [(ngModel)]="diagnostic.Description" required
-          minlength="2" maxlength="200" />
+        <input type="text" class="form-control" name="Description" [(ngModel)]="diagnostic.Description" required minlength="2" maxlength="200"
+        />
         <app-validation [entity]="diagnostic" property="Description"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Localizare:</label>
-        <input type="text" class="form-control" name="Localization" [(ngModel)]="diagnostic.Localization"
-          required minlength="2" maxlength="200" />
+        <input type="text" class="form-control" name="Localization" [(ngModel)]="diagnostic.Localization" required minlength="2"
+          maxlength="200" />
         <app-validation [entity]="diagnostic" property="Localization"></app-validation>
       </div>
     </div>
 
     <button type="button" class="btn" [routerLink]="['/patient', patientId]">Inapoi</button>
-    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate()">Salveaza</button>
+    <button type="button" class="btn btn-primary" [disabled]="!diagnostic?.$valid() || !form.dirty" (click)="addOrUpdate()">Salveaza</button>
   </form>
   <div>
     <app-cycle></app-cycle>

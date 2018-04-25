@@ -18,42 +18,54 @@ export class DiagnosticDetailComponent implements OnInit {
   patientId: string;
   id: string;
   formState: FormState;
-  viewLoaded: boolean = false;
+  viewLoaded: boolean = false;  
 
   constructor(
     private diagnosticService: DiagnosticService,
     private patientService: PatientService,
     activeRoute: ActivatedRoute,
     private router: Router
-  ) {
-    this.patientId = activeRoute.snapshot.params['patientId'];
-    this.id = activeRoute.snapshot.params['diagnosticId'];
-    this.formState = this.id ? FormState.Updating : FormState.Adding;
+  ) {    
+    activeRoute.params.subscribe(params => {
+      this.patientId = activeRoute.snapshot.params['patientId'];
+      this.id = activeRoute.snapshot.params['diagnosticId'];
+      this.formState = this.id ? FormState.Updating : FormState.Adding;
+
+      Promise.all(this.fetchEntities()).then(()=>{
+        this.viewLoaded = true;
+      });
+    });
   }
 
   ngOnInit() {
-    Promise.all(this.fetchEntities()).then(()=>{
-      this.viewLoaded = true;
-    });
+    
   }
 
   addOrUpdate(): void {
     switch (this.formState) {
       case FormState.Updating:
         this.diagnosticService.put(this.diagnostic).subscribe(diagnostic => {
-          this.goBack();
+          this.reloadView(diagnostic);
         }, err => {
 
         });
         break;
       case FormState.Adding:
         this.diagnosticService.post(this.diagnostic).subscribe(diagnostic => {
-          this.goBack();
+          this.reloadView(diagnostic);
         }, err => {
 
         });
         break;
     }
+  }
+
+  changeDate(event) {
+    this.diagnostic.Date = new Date(event);
+  }
+
+  private reloadView(diagnostic: Diagnostic) {
+    this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${diagnostic.Id}`);
   }
 
   private goBack(): void {
