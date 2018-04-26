@@ -16,8 +16,7 @@ import { Message } from '../../messages/message.model';
 export class PatientComponent implements OnInit {
   patients: Patient[];
   selectedPatient: Patient;
-  gridOptions: GridOptions;
-  gridReadyPromise: Promise<any>;
+  gridOptions: GridOptions;  
   gridReady: boolean = false;
   private _quickFilterText: string = '';
 
@@ -28,35 +27,16 @@ export class PatientComponent implements OnInit {
     private router: Router,
     private messageService: MessageService
   ) {
-    this.gridOptions = <GridOptions>{
-      enableFilter: true,
-      enableSorting: true,
-      sortingOrder: ['asc', 'desc', null],
-      pagination: true,
-      paginationAutoPageSize: true,
-      rowSelection: 'single',
-      rowHeight: 30,
-      //angularCompileRows: true,
-      onGridReady: () => {
-        this.gridReadyPromise = new Promise((resolve, reject) => {
-          resolve();
-        });
-      },
-      onSelectionChanged: () => {
-        let selectedPatient = this.gridOptions.api.getSelectedRows();
+    let gridReadyPromise = this.configureGrid();
 
-        this.selectedPatient = selectedPatient && selectedPatient.length ? selectedPatient[0] : null;
-      }
-    };
-
-    this.setGridColums();
-  }
-
-  ngOnInit() {
-    Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
+    Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.patients);
       this.gridReady = true;
     });
+  }
+
+  ngOnInit() {
+    
   }
 
   get quickFilterText(): string { return this._quickFilterText; }
@@ -104,69 +84,89 @@ export class PatientComponent implements OnInit {
     });
   }
 
-  private setGridColums(): void {
-    this.gridOptions.columnDefs = [
-      {
-        headerName: 'CNP',
-        field: "CNP",
-        width: 130
-      },
-      {
-        headerName: 'Nume',
-        field: "LastName",
-        width: 100
-      },
-      {
-        headerName: 'Prenume',
-        field: "FirstName",
-        width: 100
-      },
-      {
-        headerName: 'Sex',
-        field: 'GenderDisplay',
-        width: 80
-      },
-      {
-        headerName: 'Data nasterii',
-        field: 'BirthDate',
-        width: 200,
-        valueGetter: (params) => this.datePipe.transform(params.data.BirthDate, 'dd/MM/yyyy')
-      },
-      {
-        headerName: 'Inaltime',
-        field: 'Height',
-        width: 80
-      },
-      {
-        headerName: 'Greutate',
-        field: 'Weight',
-        width: 80
-      },
-      {
-        headerName: '',
-        field: '',
-        width: 80,
-        cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-        onCellClicked: (params) => {  
-            let id = params.data.Id;
+  private configureGrid(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.gridOptions = <GridOptions>{
+        enableFilter: true,
+        enableSorting: true,
+        sortingOrder: ['asc', 'desc', null],
+        pagination: true,
+        paginationAutoPageSize: true,
+        rowSelection: 'single',
+        rowHeight: 30,
+        //angularCompileRows: true,
+        onGridReady: () => {
+          resolve();
+        },
+        onSelectionChanged: () => {
+          let selectedPatient = this.gridOptions.api.getSelectedRows();
 
-            this.router.navigateByUrl(`/patient/${id}`);
-        }
-      },
-      {
-        headerName: '',
-        field: '',
-        width: 80,
-        cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
-        onCellClicked: (params) => {
-          let id = params.data.Id;
-
-          this.removePatient(id);
-        }
-      }
-    ];
+          this.selectedPatient = selectedPatient && selectedPatient.length ? selectedPatient[0] : null;
+        },
+        columnDefs: [
+          {
+            headerName: 'CNP',
+            field: "CNP",
+            width: 130
+          },
+          {
+            headerName: 'Nume',
+            field: "LastName",
+            width: 100
+          },
+          {
+            headerName: 'Prenume',
+            field: "FirstName",
+            width: 100
+          },
+          {
+            headerName: 'Sex',
+            field: 'GenderDisplay',
+            width: 80
+          },
+          {
+            headerName: 'Data nasterii',
+            field: 'BirthDate',
+            width: 200,
+            valueGetter: (params) => this.datePipe.transform(params.data.BirthDate, 'dd/MM/yyyy')
+          },
+          {
+            headerName: 'Inaltime',
+            field: 'Height',
+            width: 80
+          },
+          {
+            headerName: 'Greutate',
+            field: 'Weight',
+            width: 80
+          },
+          {
+            headerName: '',
+            field: '',
+            width: 80,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+    
+              this.router.navigateByUrl(`/patient/${id}`);
+            }
+          },
+          {
+            headerName: '',
+            field: '',
+            width: 80,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+    
+              this.removePatient(id);
+            }
+          }
+        ]
+      };
+    });
   }
-
+  
   private fetchEntities(): Promise<any> {
     return new Promise((resolve, reject) => {
       Promise.all([
@@ -175,5 +175,5 @@ export class PatientComponent implements OnInit {
         resolve();
       });
     });
-  }  
+  }
 }

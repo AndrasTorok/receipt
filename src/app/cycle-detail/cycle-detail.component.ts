@@ -168,7 +168,7 @@ export class CycleDetailComponent implements OnInit {
       });
     });
 
-    let fetchCycleEntityPromise = new Promise((resolve, reject) => {
+    let fetchCyclePromise = new Promise((resolve, reject) => {
       fetchPatientPromise.then(() => {
         if (this.cycleId) {
           let cycleSubscription = this.cycleService.getById(this.cycleId).subscribe(cycle => {
@@ -199,7 +199,7 @@ export class CycleDetailComponent implements OnInit {
       });
     });
 
-    return [fetchCycleEntityPromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
+    return [fetchCyclePromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
   }  
 }
 

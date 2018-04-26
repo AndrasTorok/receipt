@@ -18,24 +18,22 @@ export class CycleComponent implements OnInit {
   patientId: string;
   diagnosticId: string;
   gridOptions: GridOptions;  
-  gridReady: boolean = false;
-
+  
   constructor(
     private cycleService: CycleService,
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
     private router: Router,
     private messageService: MessageService
-  ) {
-    let gridReadyPromise: Promise<any> = this.configureGrid();
+  ) {    
+    let gridReadyPromise = this.configureGrid();
 
     this.activeRoute.params.subscribe(params => {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
       this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
 
       Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
-        this.gridOptions.api.setRowData(this.cycles);
-        this.gridReady = true;
+        this.gridOptions.api.setRowData(this.cycles);        
       });
     });    
   }
@@ -135,9 +133,10 @@ export class CycleComponent implements OnInit {
   private fetchEntities(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.diagnosticId) {
-        this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {
+        let subscription = this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {
           this.cycles = cycles.map(cycle => new Cycle(cycle, <any>0, new Date()));
           resolve();
+          subscription.unsubscribe();
         });
       } else resolve();
     });

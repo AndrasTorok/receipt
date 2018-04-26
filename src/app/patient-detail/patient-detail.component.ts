@@ -12,10 +12,10 @@ import { PatientService } from '../../model/patient.service';
   encapsulation: ViewEncapsulation.None
 })
 export class PatientDetailComponent implements OnInit {
-  private formSubmitted: boolean = false;
-  private patient: Patient;
-  private id: string;
-  private formState: FormState;
+  formSubmitted: boolean = false;
+  patient: Patient;
+  id: string;
+  formState: FormState;
 
   constructor(
     private receiptDocument: ReceiptDocument,
@@ -25,15 +25,12 @@ export class PatientDetailComponent implements OnInit {
   ) {
     this.id = this.activeRoute.snapshot.params['patientId'];
     this.formState = this.id ? FormState.Updating : FormState.Adding;
+
+    this.fetchEntities();
   }
 
   ngOnInit() {
-    if (this.id) {
-      let patientSubscription = this.patientService.getById(this.id).subscribe(patient => {
-        this.patient = new Patient(patient);
-        patientSubscription.unsubscribe();
-      });
-    } else this.patient = new Patient();    
+       
   }
 
   previewReceipt(form: NgForm): void {    
@@ -63,6 +60,23 @@ export class PatientDetailComponent implements OnInit {
   cnpChanged(): void {
     if (this.patient) this.patient.extractCNP();
   }  
+
+  private fetchEntities(): Promise<any>[] {
+    let patientPromise = new Promise((resolve, reject)=>{
+      if (this.id) {
+        let patientSubscription = this.patientService.getById(this.id).subscribe(patient => {
+          this.patient = new Patient(patient);
+          patientSubscription.unsubscribe();
+          resolve();
+        });
+      } else {
+        this.patient = new Patient(); 
+        resolve();
+      } 
+    });
+
+    return [patientPromise];
+  }
 }
 
 enum FormState {

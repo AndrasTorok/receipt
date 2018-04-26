@@ -23,7 +23,7 @@ export class DiagnosticDetailComponent implements OnInit {
   constructor(
     private diagnosticService: DiagnosticService,
     private patientService: PatientService,
-    activeRoute: ActivatedRoute,
+    private activeRoute: ActivatedRoute,
     private router: Router
   ) {    
     activeRoute.params.subscribe(params => {

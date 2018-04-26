@@ -28,38 +28,46 @@ export class TreatmentItemComponent implements OnInit {
     this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
     this.treatmentItemId = this.activeRoute.snapshot.params['treatmentItemId'];
     this.formState = this.treatmentItemId ? FormState.Updating: FormState.Adding;
+
+    this.fetchEntities();
   }
 
   ngOnInit() {    
-    if (this.treatmentItemId) {
-      let treatmentItemSubscription = this.treatmentItemService.getById(this.treatmentItemId).subscribe(treatmentItem => {
-        this.treatmentItem = new TreatmentItem(treatmentItem);        
-        treatmentItemSubscription.unsubscribe();
-      });
-    } else this.treatmentItem = new TreatmentItem(Number(this.treatmentId));
-
-    this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)));    
+            
   }
 
   addOrUpdate(form: NgForm): void {
     switch (this.formState) {
       case FormState.Updating:        
-        this.treatmentItemService.put(this.treatmentItem).subscribe(treatmentItem => {
-          //this.treatmentItem = new TreatmentItem(treatmentItem);      
+        this.treatmentItemService.put(this.treatmentItem).subscribe(treatmentItem => {                
           this.router.navigateByUrl(`/treatment/${this.treatmentId}`);    
         }, err => {
 
         });
         break;
       case FormState.Adding:
-        this.treatmentItemService.post(this.treatmentItem).subscribe(treatmentItem => {
-          //this.treatmentItem = new TreatmentItem(treatmentItem);
+        this.treatmentItemService.post(this.treatmentItem).subscribe(treatmentItem => {         
           this.router.navigateByUrl(`/treatment/${this.treatmentId}`);
         }, err => {
 
         });
         break;
     }
+  }
+
+  private fetchEntities(): Promise<any>[] {
+    let fetchTreatmentItemPromise = new Promise((resolve, reject)=>{
+      if (this.treatmentItemId) {
+        let treatmentItemSubscription = this.treatmentItemService.getById(this.treatmentItemId).subscribe(treatmentItem => {
+          this.treatmentItem = new TreatmentItem(treatmentItem);        
+          treatmentItemSubscription.unsubscribe();
+        });
+      } else this.treatmentItem = new TreatmentItem(Number(this.treatmentId));
+    });
+
+    let fetchMedicamentPromise = this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)));
+
+    return [fetchTreatmentItemPromise, fetchMedicamentPromise];
   }
 }
 

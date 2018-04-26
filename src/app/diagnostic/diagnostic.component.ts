@@ -17,7 +17,6 @@ export class DiagnosticComponent implements OnInit {
   diagnostics: Diagnostic[];
   selectedDiagnostic: Diagnostic;
   gridOptions: GridOptions;
-  gridReadyPromise: Promise<any>;
   patientId: string;
 
   constructor(
@@ -27,17 +26,17 @@ export class DiagnosticComponent implements OnInit {
     private diagnosticService: DiagnosticService,
     private messageService: MessageService
   ) {
-
+    let gridReadyPromise = this.configureGrid();
+    
     this.activeRoute.params.subscribe(params => {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
 
       if (!this.diagnostics) this.diagnostics = [];
 
-      Promise.all([this.fetchEntities(), this.gridReadyPromise]).then(() => {
+      Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
         this.gridOptions.api.setRowData(this.diagnostics);
       });
-    });
-    this.configureGrid();
+    });    
   }
 
   ngOnInit() {
@@ -78,70 +77,71 @@ export class DiagnosticComponent implements OnInit {
     });
   }
 
-  private configureGrid(): void {
-    this.gridOptions = <GridOptions>{
-      enableFilter: true,
-      enableSorting: true,
-      sortingOrder: ['asc', 'desc', null],
-      pagination: true,
-      paginationAutoPageSize: true,
-      rowSelection: 'single',
-      rowHeight: 30,
-      //angularCompileRows: true,
-      onGridReady: () => {
-        this.gridReadyPromise = new Promise((resolve, reject) => {
+  private configureGrid(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.gridOptions = <GridOptions>{
+        enableFilter: true,
+        enableSorting: true,
+        sortingOrder: ['asc', 'desc', null],
+        pagination: true,
+        paginationAutoPageSize: true,
+        rowSelection: 'single',
+        rowHeight: 30,
+        //angularCompileRows: true,
+        onGridReady: () => {
+
           resolve();
-        });
-      },
-      onSelectionChanged: () => {
-        let selectedDiagnostic = this.gridOptions.api.getSelectedRows();
 
-        this.selectedDiagnostic = selectedDiagnostic && selectedDiagnostic.length ? selectedDiagnostic[0] : null;
+        },
+        onSelectionChanged: () => {
+          let selectedDiagnostic = this.gridOptions.api.getSelectedRows();
+
+          this.selectedDiagnostic = selectedDiagnostic && selectedDiagnostic.length ? selectedDiagnostic[0] : null;
+        },
+        columnDefs: [
+          {
+            headerName: 'Data',
+            field: 'Date',
+            width: 100,
+            valueGetter: (params) => this.datePipe.transform(params.data.Date, 'dd/MM/yyyy')
+          },
+          {
+            headerName: 'Descriere',
+            field: "Description",
+            width: 400,
+            tooltip: (params) => params.data.Description
+          },
+          {
+            headerName: 'Localizare',
+            field: "Localization",
+            width: 400,
+            tooltip: (params) => params.data.Localization
+          },
+          {
+            headerName: '',
+            field: '',
+            width: 80,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+
+              this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${id}`);
+            }
+          },
+          {
+            headerName: '',
+            field: '',
+            width: 80,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+
+              this.removeDiagnostic(id);
+            }
+          }
+        ]
       }
-    };
-
-    this.gridOptions.columnDefs = [
-      {
-        headerName: 'Data',
-        field: 'Date',
-        width: 100,
-        valueGetter: (params) => this.datePipe.transform(params.data.Date, 'dd/MM/yyyy')
-      },
-      {
-        headerName: 'Descriere',
-        field: "Description",
-        width: 400,
-        tooltip: (params) => params.data.Description
-      },
-      {
-        headerName: 'Localizare',
-        field: "Localization",
-        width: 400,
-        tooltip: (params) => params.data.Localization
-      },
-      {
-        headerName: '',
-        field: '',
-        width: 80,
-        cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-        onCellClicked: (params) => {
-          let id = params.data.Id;
-
-          this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${id}`);
-        }
-      },
-      {
-        headerName: '',
-        field: '',
-        width: 80,
-        cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
-        onCellClicked: (params) => {
-          let id = params.data.Id;
-
-          this.removeDiagnostic(id);
-        }
-      }
-    ];
+    });
   }
 
   private fetchEntities(): Promise<any> {

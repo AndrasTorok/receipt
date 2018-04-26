@@ -14,7 +14,7 @@ export class MedicamentDetailComponent implements OnInit {
   medicament: Medicament;
   medicamentId: string;
   doseApplicationModeEnumeration = DoseApplicationModeEnumeration;
-  private formState: FormState;
+  formState: FormState;
 
   constructor(
     private medicamentService: MedicamentService,
@@ -23,15 +23,12 @@ export class MedicamentDetailComponent implements OnInit {
   ) { 
     this.medicamentId = this.activeRoute.snapshot.params['medicamentId'];
     this.formState = this.medicamentId ? FormState.Updating: FormState.Adding;
+
+    this.fetchEntities();
   }
 
   ngOnInit() {
-    if (this.medicamentId) {
-      let subscription = this.medicamentService.getById(this.medicamentId).subscribe(medicament => {
-        this.medicament = new Medicament(medicament);        
-        subscription.unsubscribe();
-      });
-    } else this.medicament = new Medicament();
+    
   }
 
   addOrUpdate(form: NgForm): void {
@@ -53,6 +50,22 @@ export class MedicamentDetailComponent implements OnInit {
     }
   }
 
+  private fetchEntities(): Promise<any>[] {
+    let medicamentPromise = new Promise((resolve, reject)=>{
+      if (this.medicamentId) {
+        let subscription = this.medicamentService.getById(this.medicamentId).subscribe(medicament => {
+          this.medicament = new Medicament(medicament);        
+          subscription.unsubscribe();
+          resolve();
+        });
+      } else { 
+        this.medicament = new Medicament();
+        resolve();
+      }
+    });
+
+    return [medicamentPromise];
+  }
 }
 
 enum FormState {

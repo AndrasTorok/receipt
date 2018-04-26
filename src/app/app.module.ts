@@ -9,7 +9,6 @@ import { ReceiptDocument } from './pdf-helpers/receiptDocument';
 
 import { AppComponent } from './app.component';
 import { AppConfig } from './app.config';
-import { ReceiptPdfComponent } from './receipt-pdf/receipt-pdf.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { PatientComponent } from './patient/patient.component';
 import { PatientService } from '../model/patient.service';
@@ -55,7 +54,6 @@ export function initConfig(config: AppConfig) {
 @NgModule({
   declarations: [
     AppComponent,
-    ReceiptPdfComponent,
     WelcomeComponent,
     PatientComponent,
     PatientDetailComponent,
