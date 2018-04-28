@@ -32,6 +32,9 @@ import { ValidationComponent } from './validation/validation.component';
 import { PatientDetailDisplayComponent } from './patient-detail-display/patient-detail-display.component';
 import { MessageModule } from '../messages/message.module';
 import { NgDatepickerModule } from 'ng2-datepicker';
+import { SearchComponent } from './search/search.component';
+import { SearchService } from './search/search.service';
+import { OrderByPipe } from '../common/orderBy.pipe';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
@@ -67,7 +70,10 @@ export function initConfig(config: AppConfig) {
     CycleComponent,
     CycleDetailComponent,
     ValidationComponent,
-    PatientDetailDisplayComponent    
+    PatientDetailDisplayComponent,
+    SearchComponent    ,
+    OrderByPipe
+    
   ],
   imports: [
     BrowserModule,
@@ -90,7 +96,9 @@ export function initConfig(config: AppConfig) {
     TreatmentItemService,
     MedicamentService,
     CycleService,
-    { provide: 'Window', useValue: window }    
+    { provide: 'Window', useValue: window },
+    SearchService,
+    OrderByPipe
   ],
   bootstrap: [AppComponent]
 })

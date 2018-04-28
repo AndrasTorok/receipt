@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
@@ -6,6 +6,8 @@ import { PatientService } from '../../model/patient.service';
 import { Patient } from '../../model/patient.model';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
+import { SearchService } from '../search/search.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-patient',
@@ -13,37 +15,39 @@ import { Message } from '../../messages/message.model';
   styleUrls: ['./patient.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class PatientComponent implements OnInit {
+export class PatientComponent implements OnInit, OnDestroy {
   patients: Patient[];
   selectedPatient: Patient;
-  gridOptions: GridOptions;  
-  gridReady: boolean = false;
-  private _quickFilterText: string = '';
+  gridOptions: GridOptions;   
+  private searchSubscription: Subscription; 
 
   constructor(
     private patientService: PatientService,
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {
     let gridReadyPromise = this.configureGrid();
 
+    searchService.clearSearch();
+
     Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.patients);
-      this.gridReady = true;
-    });
+      this.gridOptions.api.setRowData(this.patients);      
+
+      this.searchSubscription = searchService.search.subscribe(search=>{      
+        this.gridOptions.api.setQuickFilter(search);
+      });
+    });   
   }
 
   ngOnInit() {
     
-  }
+  }  
 
-  get quickFilterText(): string { return this._quickFilterText; }
-
-  set quickFilterText(value: string) {
-    this._quickFilterText = value;
-    this.gridOptions.api.setQuickFilter(value);
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
   }
 
   add(): void {
@@ -93,8 +97,7 @@ export class PatientComponent implements OnInit {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,
-        //angularCompileRows: true,
+        rowHeight: 30,        
         onGridReady: () => {
           resolve();
         },
@@ -102,7 +105,7 @@ export class PatientComponent implements OnInit {
           let selectedPatient = this.gridOptions.api.getSelectedRows();
 
           this.selectedPatient = selectedPatient && selectedPatient.length ? selectedPatient[0] : null;
-        },
+        },        
         columnDefs: [
           {
             headerName: 'CNP',
@@ -112,22 +115,24 @@ export class PatientComponent implements OnInit {
           {
             headerName: 'Nume',
             field: "LastName",
-            width: 100
+            width: 200,
+            sort: 'asc'
           },
           {
             headerName: 'Prenume',
             field: "FirstName",
-            width: 100
+            width: 200,
+            sort: 'asc'
           },
           {
             headerName: 'Sex',
             field: 'GenderDisplay',
-            width: 80
+            width: 50            
           },
           {
             headerName: 'Data nasterii',
             field: 'BirthDate',
-            width: 200,
+            width: 100,
             valueGetter: (params) => this.datePipe.transform(params.data.BirthDate, 'dd/MM/yyyy')
           },
           {

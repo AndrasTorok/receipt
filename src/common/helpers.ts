@@ -17,6 +17,24 @@ export class StringBuilder {
     }
 }
 
+export class Guid {
+    constructor() {
+        return Guid.newGuid();
+    }
+
+    static newGuid(): string {
+        return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + this.s4() + this.s4();
+    }
+
+    static emptyGuid(): string {
+        return '00000000-0000-0000-0000-000000000000';
+    }
+
+    private static s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+}
+
 export interface IKeyValuePair<TKey, TValue> {
     key: TKey;
     value: TValue;

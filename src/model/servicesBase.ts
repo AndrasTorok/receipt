@@ -89,7 +89,7 @@ export abstract class ServiceBase<T> {
 
         console.error(error);
         return Observable.throw(message || 'Server error');
-    }
+    }    
 
     fetchEntityAndUnsubscribe(callback: (entities: T[]) => void, sort: (first: T, second: T) => number = null): Promise<any> {
         return new Promise<any>((resolve, reject) => {

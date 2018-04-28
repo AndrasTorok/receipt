@@ -1,7 +1,7 @@
 <div class="container cycle-item-component">
   <h3 class="text-center noprint">{{cycleId ? 'Editare' : 'Adaugare'}} tratament pacient</h3>
   <h3 class="text-center print-only">Ciclu de tratament pacient</h3>
-  <form *ngIf="formLoaded" novalidate #form="ngForm">
+  <form *ngIf="formLoaded" #form="ngForm">
     <div *ngIf="cycle">
       <app-patient-detail-display [patient]="patient" [diagnostic]="diagnostic"></app-patient-detail-display>
       <div class="form-row">
@@ -58,9 +58,9 @@
 
     <div class="form-row noprint">
       <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
-      <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph()">Salveaza</button>
-      <button type="button" class="btn btn-primary m-3" [disabled]="!canClone" (click)="clone()">Cloneaza</button>
-      <button type="button" class="btn m-3" [disabled]="!valid" (click)="print()">Tipareste</button>
+      <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph(form)">Salveaza</button>
+      <button type="button" class="btn btn-primary m-3" [disabled]="!canClone" (click)="clone(form)">Cloneaza</button>
+      <button type="button" class="btn m-3" [disabled]="!valid" (click)="print(form)">Tipareste</button>
     </div>
 
     <div *ngIf="cycle?.CycleItems">

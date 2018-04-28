@@ -116,11 +116,13 @@ export class TreatmentDetailComponent implements OnInit {
           {
             headerName: 'Ziua',
             field: "OnDay",
-            width: 60
+            width: 60,
+            sort: 'asc'
           },
           {
             headerName: 'Medicament',
             width: 300,
+            sort: 'asc',
             valueGetter: (params) => params.data.Medicament.Name
           },
           {

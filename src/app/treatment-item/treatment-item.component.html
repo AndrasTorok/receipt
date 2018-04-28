@@ -1,19 +1,27 @@
 <div class="container treatment-item-component">
+  <h3 class="text-center">{{treatmentItemId ? 'Editare' : 'Adaugare'}} linie tratament</h3>
   <form *ngIf="treatmentItem" class="noprint" novalidate #form="ngForm">
     <div class="form-row">
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-1">
+        <label>In ziua:</label>
+        <input type="number" class="form-control" name="OnDay" [(ngModel)]="treatmentItem.OnDay" required />
+        <app-validation [entity]="treatmentItem" property="OnDay"></app-validation>
+      </div>
+      <div class="form-group col-md-5">
         <label>Medicament:</label>
         <select class="form-control" name="Medicament" [(ngModel)]="treatmentItem.MedicamentId" required>
           <option *ngFor="let item of medicaments" [value]="item.Id">{{item.Name}}</option>
         </select>
         <app-validation [entity]="treatmentItem" property="Medicament"></app-validation>
       </div>
-      <div class="form-group col-md-4">
-        <label>In ziua:</label>
-        <input type="number" class="form-control" name="OnDay" [(ngModel)]="treatmentItem.OnDay" required 
-         />
-         <app-validation [entity]="treatmentItem" property="OnDay"></app-validation>
+      <div class="form-group col-md-1">
+        <label>Doza:</label>
+        <input type="number" class="form-control" name="Dose" [value]="selectedMedicament?.Dose" disabled />        
       </div>
+      <div class="form-group col-md-2">
+          <label>Mod aplicare:</label>
+          <input type="text" class="form-control" name="DoseApplicationMode" [value]="applicationMode" disabled />           
+        </div>
     </div>
 
     <button type="button" class="btn" [routerLink]="['/treatment', treatmentId]">Inapoi</button>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
@@ -6,6 +6,8 @@ import { Cycle, ICycle } from '../../model/cycle.model';
 import { CycleService } from '../../model/cycle.service';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
+import { SearchService } from '../search/search.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cycle',
@@ -13,18 +15,20 @@ import { Message } from '../../messages/message.model';
   styleUrls: ['./cycle.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class CycleComponent implements OnInit {
+export class CycleComponent implements OnInit, OnDestroy {
   cycles: Cycle[];
   patientId: string;
   diagnosticId: string;
   gridOptions: GridOptions;  
+  private searchSubscription: Subscription;
   
   constructor(
     private cycleService: CycleService,
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {    
     let gridReadyPromise = this.configureGrid();
 
@@ -32,14 +36,23 @@ export class CycleComponent implements OnInit {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
       this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
 
+      searchService.clearSearch();
+
       Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
-        this.gridOptions.api.setRowData(this.cycles);        
+        this.gridOptions.api.setRowData(this.cycles);     
+        this.searchSubscription = searchService.search.subscribe(search=>{      
+          this.gridOptions.api.setQuickFilter(search);
+        });   
       });
     });    
   }
 
   ngOnInit() {
 
+  }
+
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
   }
 
   removeCycle(id: number): void {
@@ -85,8 +98,7 @@ export class CycleComponent implements OnInit {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,
-        //angularCompileRows: true,
+        rowHeight: 30,        
         onGridReady: () => {
           resolve();
         },
@@ -94,13 +106,21 @@ export class CycleComponent implements OnInit {
           {
             headerName: 'Data inceput',
             field: "StartDate",
-            width: 100,
+            width: 150,
+            sort: 'desc',
             valueGetter: (params) => this.datePipe.transform(params.data.StartDate, 'dd/MM/yyyy')
+          },
+          {
+            headerName: 'Data finalizare',
+            field: "endDate",
+            width: 150,
+            sort: 'desc',
+            valueGetter: (params) => this.datePipe.transform(params.data.endDate, 'dd/MM/yyyy')
           },
           {
             headerName: 'Tratament',
             field: "Treatment",
-            width: 300,
+            width: 400,
             valueGetter: (params) => params.data.Treatment.Name
           },
           {

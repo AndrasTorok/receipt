@@ -75,7 +75,9 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         } else cycleItem = <ICycleItem>cycleItemOrCycleId;
 
         for (var prop in cycleItem) {
-            this[prop] = cycleItem[prop];
+            if(/^[A-Z]/.test(prop)) {
+                this[prop] = cycleItem[prop];
+            }  
         }
 
         if(cycle) this.Cycle = cycle;

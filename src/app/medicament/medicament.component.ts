@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { GridOptions, GridApi } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Medicament, DoseApplicationModeEnumeration } from '../../model/medicament.model';
 import { MedicamentService } from '../../model/medicament.service';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
+import { SearchService } from '../search/search.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-medicament',
@@ -12,35 +14,38 @@ import { Message } from '../../messages/message.model';
   styleUrls: ['./medicament.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class MedicamentComponent implements OnInit {
+export class MedicamentComponent implements OnInit, OnDestroy {
   medicaments: Medicament[];
   selectedMedicament: Medicament;
   gridOptions: GridOptions;  
   gridReady: boolean = false;
-  _quickFilterText: string = '';
+  private searchSubscription: Subscription;
 
   constructor(
     private medicamentService: MedicamentService,
     private activeRoute: ActivatedRoute,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {
     let gridReadyPromise = this.configureGrid();
 
+    searchService.clearSearch();
+
     Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.medicaments);
+      this.searchSubscription = searchService.search.subscribe(search => {
+        this.gridOptions.api.setQuickFilter(search);
+      });
     });
   }
 
   ngOnInit() {
     
-  }
+  }  
 
-  get quickFilterText(): string { return this._quickFilterText; }
-
-  set quickFilterText(value: string) {
-    this._quickFilterText = value;
-    this.gridOptions.api.setQuickFilter(value);
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
   }
 
   removeMedicament(id: number): void {
@@ -98,7 +103,8 @@ export class MedicamentComponent implements OnInit {
           {
             headerName: 'Medicament',
             field: "Name",
-            width: 300
+            width: 300,
+            sort: 'asc'
           },
           {
             headerName: 'Doza',

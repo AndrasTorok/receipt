@@ -1,11 +1,5 @@
 <div class="container patient-component">
-    <h3 class="text-center">Lista de pacienti</h3>
-    <div class="row m-3">
-        <div class="col-md-4">Filtrare dupa oricare din campurile din tabela:</div>
-        <div class="col-md-2">
-            <input type="text" [(ngModel)]='quickFilterText' class="filter-input" name="quickFilter" [disabled]="!gridReady" />
-        </div>
-    </div>
+    <h3 class="text-center">Lista de pacienti</h3>    
     <div class="m-3">
         <ag-grid-angular #agGrid class="ag-fresh pacients-grid" [gridOptions]="gridOptions">
         </ag-grid-angular>

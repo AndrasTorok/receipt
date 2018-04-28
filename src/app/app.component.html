@@ -1,7 +1,6 @@
 <nav class="navbar navbar-expand navbar-dark bg-dark noprint mb-4">
   <a class="navbar-brand" [routerLink]="['/welcome']">Tratament chimioterapie</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" 
-      aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler" type="button">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -20,9 +19,10 @@
         <a class="nav-link" [routerLink]="['/medicament']">Medicamente</a>
       </li> 
     </ul>
-    <form class="form-inline my-2 my-md-0">
+    <!--<form class="form-inline my-2 my-md-0">
       <input class="form-control" type="text" placeholder="Search">
-    </form>
+    </form>-->
+    <app-search></app-search>
   </div>  
 </nav>
 

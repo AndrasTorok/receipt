@@ -111,7 +111,9 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
         if(!cycle.Weight) cycle.Weight = weight;
 
         for (var prop in cycle) {
-            this[prop] = cycle[prop];
+            if(/^[A-Z]/.test(prop)) {
+                this[prop] = cycle[prop];
+            }            
         }
 
         if (cycle.CycleItems) {
@@ -148,6 +150,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     get endDate() : Date {
+        if(!this.StartDate) return null;
         let date = new Date(this.StartDate.toString());
 
         date.setDate(date.getDate() + this.durationInDays);

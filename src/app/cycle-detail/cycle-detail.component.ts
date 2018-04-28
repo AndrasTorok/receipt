@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, Inject } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Inject, ChangeDetectorRef } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
@@ -13,7 +13,11 @@ import { TreatmentItem, ITreatmentItem } from '../../model/treatment-item.model'
 import { Diagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
 import { Medicament, DoseApplicationMode } from '../../model/medicament.model';
-import { Calculation } from '../../common/helpers';
+import { Calculation, Guid } from '../../common/helpers';
+import { MessageService } from '../../messages/message.service';
+import { Message } from '../../messages/message.model';
+import { OrderByPipe } from '../../common/orderBy.pipe';
+import { resolveSoa } from 'dns';
 
 @Component({
   selector: 'app-cycle-detail',
@@ -40,6 +44,9 @@ export class CycleDetailComponent implements OnInit {
     private diagnosticService: DiagnosticService,
     private activeRoute: ActivatedRoute,
     private router: Router,
+    private messageService: MessageService,
+    private orderByPipe: OrderByPipe,
+    private changeDetectorRef: ChangeDetectorRef,
     @Inject('Window') private window: Window
   ) {
 
@@ -47,18 +54,15 @@ export class CycleDetailComponent implements OnInit {
 
   ngOnInit() {
     this.activeRoute.params.subscribe(params => {
-      this.patientId = this.activeRoute.snapshot.params['patientId'];
-      this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
-      this.cycleId = this.activeRoute.snapshot.params['cycleId'];
-      this.formState = this.cycleId ? FormState.Updating : FormState.Adding;
+      this.fetchView();
+    });
 
-      Promise.all(this.fetchEntities()).then(() => {
-        this.formLoaded = true;
-      });
+    this.activeRoute.queryParams.subscribe(params => {
+      if (params.reload) this.fetchView();
     });
   }
 
-  applyTreatment(): void {    
+  applyTreatment(): void {
     this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       let cycleItems = [];
 
@@ -83,17 +87,11 @@ export class CycleDetailComponent implements OnInit {
         });
       }
 
-      this.cycle.CycleItems = cycleItems.sort((a, b) => {
-        let onDayDifference = a.OnDay - b.OnDay;
-        if (onDayDifference) return onDayDifference;
-        let medicamentNameDifference = a.Medicament.Name > b.Medicament.Name ? 1 : -1;
-
-        return medicamentNameDifference;
-      });
+      this.cycle.CycleItems = this.sortCycleItems(cycleItems);
     });
   }
 
-  saveCycleGraph(): void {    
+  saveCycleGraph(form: NgForm): void {
     this.cycle.CycleItems = this.cycle.CycleItems.map(ci => {
       ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
       return ci;
@@ -102,7 +100,12 @@ export class CycleDetailComponent implements OnInit {
     this.cycle.Diagnostic = this.cycle.Treatment = null;
 
     this.cycleService.cycleGraph(this.cycle).subscribe(cycle => {
-      this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
+      if (this.cycle.Id) {                                          //saving an already added graph
+        form.reset();
+        this.router.navigate([`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${cycle.Id}`], { queryParams: { reload: Guid.newGuid() } });
+      } else {                                                      //adding a new graph
+        this.router.navigate([`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`]);
+      }
     }, err => {
 
     });
@@ -133,21 +136,43 @@ export class CycleDetailComponent implements OnInit {
     return isNeeded;
   }
 
-  clone(): void {
-    let clone = JSON.parse(JSON.stringify(this.cycle));
+  clone(form: NgForm): void {
+    this.checkFormIsSaved(form, 'a clona reteta').then((result: boolean) => {
+      let promise = new Promise<boolean>((resolve, reject) => {
+        let msg = `Sunteti sigur ca doriti sa clonati ciclul de tratament ? Daca da, se va crea un ciclu tratament care incepe cu ziua de azi. `,
+          responses: [string, (string) => void][] = [
+            ["Da", () => {
+              resolve(true);
+            }],
+            ["Nu", () => {
+              resolve(false);
+            }]
+          ],
+          message = new Message(msg, false, responses);
 
-    clone.CycleItems.forEach(ci => {
-      ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
-      ci.Id = ci.CycleId = 0;
-    });
+        this.messageService.reportMessage(message);
+      });
 
-    clone.Diagnostic = clone.Treatment = null;
-    clone.Id = 0;
+      promise.then((doClone: boolean) => {
+        this.messageService.removeMessage();
+        if (doClone) {
+          let clone = new Cycle(this.cycle, this.cycle.Gender, this.cycle.BirthDate);
 
-    this.cycleService.cycleGraph(clone).subscribe(cycle => {
-      this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${cycle.Id}`);
-    }, err => {
+          clone.CycleItems.forEach(ci => {
+            ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
+            ci.Id = ci.CycleId = 0;
+          });
 
+          clone.Diagnostic = clone.Treatment = null;
+          clone.Id = 0;
+
+          this.cycleService.cycleGraph(clone).subscribe(cycle => {
+            this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
+          }, err => {
+
+          });
+        }
+      });
     });
   }
 
@@ -155,8 +180,11 @@ export class CycleDetailComponent implements OnInit {
     return this.valid && !!this.cycle.Id && this.cycle.CycleItems && !this.cycle.CycleItems.some(ci => !ci.Id);
   }
 
-  print(): void {
-    (<any>window).print();
+  print(form: NgForm): void {
+    this.checkFormIsSaved(form, 'a tipari reteta').then((result: boolean) => {
+      this.cycle.CycleItems = this.sortCycleItems(this.cycle.CycleItems, true);     //before print apply sorting and trigger digest cycle
+      (<any>window).print();                                                        //print it      
+    });
   }
 
   private fetchEntities(): Promise<any>[] {
@@ -173,6 +201,7 @@ export class CycleDetailComponent implements OnInit {
         if (this.cycleId) {
           let cycleSubscription = this.cycleService.getById(this.cycleId).subscribe(cycle => {
             this.cycle = new Cycle(cycle, this.patient.Gender, this.patient.BirthDate);
+            this.cycle.CycleItems = this.sortCycleItems(this.cycle.CycleItems);
             cycleSubscription.unsubscribe();
             resolve();
           });
@@ -200,7 +229,50 @@ export class CycleDetailComponent implements OnInit {
     });
 
     return [fetchCyclePromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
-  }  
+  }
+
+  private sortCycleItems(cycleItems: CycleItem[], doTriggerDigestCycle: boolean = false): CycleItem[] {
+    let sortedCycleItems = cycleItems.sort((a, b) => {
+      let onDayDifference = a.OnDay - b.OnDay;
+      if (onDayDifference) return onDayDifference;
+      let medicamentNameDifference = a.Medicament && b.Medicament ? (a.Medicament.Name > b.Medicament.Name ? 1 : -1) : 0;
+
+      return medicamentNameDifference;
+    });
+
+    if (doTriggerDigestCycle) this.changeDetectorRef.detectChanges();
+
+    return sortedCycleItems;
+  }
+
+  private checkFormIsSaved(form: NgForm, action: string): Promise<boolean> {
+    let promise = new Promise<boolean>((resolve, reject) => {
+      if (form.dirty) {
+        let msg = `Ati facut schimbari in forma. Inainte de ${action} trebuie sa salvati schimbarile.`,
+          responses: [string, (string) => void][] = [
+            ["Ok", () => {
+              this.messageService.removeMessage();
+            }]
+          ],
+          message = new Message(msg, false, responses);
+
+        this.messageService.reportMessage(message);
+      } else resolve(true);
+    });
+
+    return promise;
+  }
+
+  private fetchView(): void {
+    this.patientId = this.activeRoute.snapshot.params['patientId'];
+    this.diagnosticId = this.activeRoute.snapshot.params['diagnosticId'];
+    this.cycleId = this.activeRoute.snapshot.params['cycleId'];
+    this.formState = this.cycleId ? FormState.Updating : FormState.Adding;
+
+    Promise.all(this.fetchEntities()).then(() => {
+      this.formLoaded = true;
+    });
+  }
 }
 
 enum FormState {

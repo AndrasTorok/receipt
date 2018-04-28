@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { GridOptions, GridApi } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TreatmentService } from '../../model/treatment.service';
 import { Treatment } from '../../model/treatment.model';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
+import { SearchService } from '../search/search.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-treatment',
@@ -12,35 +14,37 @@ import { Message } from '../../messages/message.model';
   styleUrls: ['./treatment.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class TreatmentComponent implements OnInit {
+export class TreatmentComponent implements OnInit, OnDestroy {
   treatments: Treatment[];
   selectedTreatment: Treatment;
-  gridOptions: GridOptions;  
-  gridReady: boolean = false;
-  private _quickFilterText: string = '';
+  gridOptions: GridOptions;
+  private searchSubscription: Subscription;
 
   constructor(
     private treatmentService: TreatmentService,
     private activeRoute: ActivatedRoute,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {
-    let gridReadyPromise =    this.configureGrid();
+    let gridReadyPromise = this.configureGrid();
+
+    searchService.clearSearch();
 
     Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.treatments);
+      this.searchSubscription = searchService.search.subscribe(search => {
+        this.gridOptions.api.setQuickFilter(search);
+      });
     });
   }
 
   ngOnInit() {
-    
+
   }
 
-  get quickFilterText(): string { return this._quickFilterText; }
-
-  set quickFilterText(value: string) {
-    this._quickFilterText = value;
-    this.gridOptions.api.setQuickFilter(value);
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
   }
 
   removeTreatment(id: number): void {
@@ -87,8 +91,7 @@ export class TreatmentComponent implements OnInit {
         paginationAutoPageSize: true,
         rowSelection: 'single',
         rowHeight: 30,
-        onGridReady: () => {
-          this.gridReady = true;
+        onGridReady: () => {          
           resolve();
         },
         onSelectionChanged: () => {
@@ -98,7 +101,8 @@ export class TreatmentComponent implements OnInit {
           {
             headerName: 'Tratament',
             field: "Name",
-            width: 300
+            width: 300,
+            sort: 'asc'
           },
           {
             headerName: '',

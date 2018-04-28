@@ -1,9 +1,9 @@
-import { Component, OnInit,ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { NgForm } from '@angular/forms';
 import { TreatmentItem } from '../../model/treatment-item.model';
 import { TreatmentItemService } from '../../model/treatment-item.service';
-import { Medicament } from '../../model/medicament.model';
+import { Medicament, DoseApplicationModeEnumeration } from '../../model/medicament.model';
 import { MedicamentService } from '../../model/medicament.service';
 
 @Component({
@@ -16,37 +16,50 @@ export class TreatmentItemComponent implements OnInit {
   treatmentItem: TreatmentItem;
   treatmentId: string;
   treatmentItemId: string;
-  medicaments : Medicament[];
+  medicaments: Medicament[];
   formState: FormState;
+  doseApplicationModeEnumeration = DoseApplicationModeEnumeration;
 
   constructor(
     private treatmentItemService: TreatmentItemService,
     private medicamentService: MedicamentService,
     private activeRoute: ActivatedRoute,
     private router: Router
-  ) { 
+  ) {
     this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
     this.treatmentItemId = this.activeRoute.snapshot.params['treatmentItemId'];
-    this.formState = this.treatmentItemId ? FormState.Updating: FormState.Adding;
+    this.formState = this.treatmentItemId ? FormState.Updating : FormState.Adding;
 
     this.fetchEntities();
   }
 
-  ngOnInit() {    
-            
+  ngOnInit() {
+
+  }
+
+  get selectedMedicament(): Medicament {
+    return this.medicaments && this.treatmentItem && this.treatmentItem.MedicamentId ?
+      this.medicaments.find(medicament => medicament.Id == this.treatmentItem.MedicamentId) : null;
+  }
+
+  get applicationMode(): string {
+    let selectedMedicament = this.selectedMedicament,
+      applicationMode =  selectedMedicament ? this.doseApplicationModeEnumeration.keyValuePairs.find(kvp => kvp.key == selectedMedicament.DoseApplicationMode).value : '';
+
+      return applicationMode;
   }
 
   addOrUpdate(form: NgForm): void {
     switch (this.formState) {
-      case FormState.Updating:        
-        this.treatmentItemService.put(this.treatmentItem).subscribe(treatmentItem => {                
-          this.router.navigateByUrl(`/treatment/${this.treatmentId}`);    
+      case FormState.Updating:
+        this.treatmentItemService.put(this.treatmentItem).subscribe(treatmentItem => {
+          this.router.navigateByUrl(`/treatment/${this.treatmentId}`);
         }, err => {
 
         });
         break;
       case FormState.Adding:
-        this.treatmentItemService.post(this.treatmentItem).subscribe(treatmentItem => {         
+        this.treatmentItemService.post(this.treatmentItem).subscribe(treatmentItem => {
           this.router.navigateByUrl(`/treatment/${this.treatmentId}`);
         }, err => {
 
@@ -56,10 +69,10 @@ export class TreatmentItemComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let fetchTreatmentItemPromise = new Promise((resolve, reject)=>{
+    let fetchTreatmentItemPromise = new Promise((resolve, reject) => {
       if (this.treatmentItemId) {
         let treatmentItemSubscription = this.treatmentItemService.getById(this.treatmentItemId).subscribe(treatmentItem => {
-          this.treatmentItem = new TreatmentItem(treatmentItem);        
+          this.treatmentItem = new TreatmentItem(treatmentItem);
           treatmentItemSubscription.unsubscribe();
         });
       } else this.treatmentItem = new TreatmentItem(Number(this.treatmentId));

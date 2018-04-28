@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, Input } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Input, OnDestroy } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
@@ -6,6 +6,8 @@ import { Diagnostic, IDiagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
+import { SearchService } from '../search/search.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-diagnostic',
@@ -13,18 +15,20 @@ import { Message } from '../../messages/message.model';
   styleUrls: ['./diagnostic.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DiagnosticComponent implements OnInit {
+export class DiagnosticComponent implements OnInit, OnDestroy {
   diagnostics: Diagnostic[];
   selectedDiagnostic: Diagnostic;
   gridOptions: GridOptions;
   patientId: string;
+  private searchSubscription: Subscription;
 
   constructor(
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
     private router: Router,
     private diagnosticService: DiagnosticService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {
     let gridReadyPromise = this.configureGrid();
     
@@ -32,10 +36,15 @@ export class DiagnosticComponent implements OnInit {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
 
       if (!this.diagnostics) this.diagnostics = [];
+      
+      searchService.clearSearch();
 
       Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
         this.gridOptions.api.setRowData(this.diagnostics);
-      });
+        this.searchSubscription = searchService.search.subscribe(search=>{      
+          this.gridOptions.api.setQuickFilter(search);
+        });
+      });      
     });    
   }
 
@@ -43,16 +52,18 @@ export class DiagnosticComponent implements OnInit {
 
   }
 
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
+  }
+
   removeDiagnostic(id: number): void {
     let promise = new Promise<boolean>((resolve, reject) => {
       let msg = `Sunteti sigur ca doriti sa stergeti diagnostic-ul ?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
-            this.messageService.removeMessage();
+          ["Da", () => {            
             resolve(true);
           }],
-          ["Nu", () => {
-            this.messageService.removeMessage();
+          ["Nu", () => {            
             resolve(false);
           }]
         ],
@@ -62,6 +73,7 @@ export class DiagnosticComponent implements OnInit {
     });
 
     promise.then((doDelete: boolean) => {
+      this.messageService.removeMessage();
       if (!doDelete) return;
       let subscription = this.diagnosticService.delete(id.toString()).subscribe(success => {
         if (success) {
@@ -86,12 +98,9 @@ export class DiagnosticComponent implements OnInit {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,
-        //angularCompileRows: true,
+        rowHeight: 30,        
         onGridReady: () => {
-
           resolve();
-
         },
         onSelectionChanged: () => {
           let selectedDiagnostic = this.gridOptions.api.getSelectedRows();
@@ -103,6 +112,7 @@ export class DiagnosticComponent implements OnInit {
             headerName: 'Data',
             field: 'Date',
             width: 100,
+            sort: 'asc',
             valueGetter: (params) => this.datePipe.transform(params.data.Date, 'dd/MM/yyyy')
           },
           {
