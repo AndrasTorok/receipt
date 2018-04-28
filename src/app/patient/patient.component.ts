@@ -37,7 +37,7 @@ export class PatientComponent implements OnInit, OnDestroy {
       this.gridOptions.api.setRowData(this.patients);      
 
       this.searchSubscription = searchService.search.subscribe(search=>{      
-        this.gridOptions.api.setQuickFilter(search);
+        if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
       });
     });   
   }

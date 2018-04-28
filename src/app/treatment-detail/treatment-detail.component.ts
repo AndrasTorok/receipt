@@ -29,13 +29,15 @@ export class TreatmentDetailComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     private router: Router,
     private messageService: MessageService
-  ) {
-    this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
-    this.formState = this.treatmentId ? FormState.Updating : FormState.Adding;
-
-    let gridReadyPromise = this.configureGrid();
-
-    this.fetchEntities();
+  ) {    
+    this.activeRoute.params.subscribe(params => {
+      this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
+      this.formState = this.treatmentId ? FormState.Updating : FormState.Adding;
+  
+      Promise.all([this.configureGrid(), this.fetchEntities()]).then(()=>{
+        this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
+      });       
+    });
   }
 
   ngOnInit() {
@@ -47,14 +49,14 @@ export class TreatmentDetailComponent implements OnInit {
       case FormState.Updating:
         this.treatment.TreatmentItems = null;       //need to remove the items from the graph to be able to edit it
         this.treatmentService.put(this.treatment).subscribe(treatment => {
-          this.router.navigateByUrl(`/treatment/${this.treatment.Id}`);
+          this.router.navigateByUrl(`/treatment/${treatment.Id}`);
         }, err => {
 
         });
         break;
       case FormState.Adding:
         this.treatmentService.post(this.treatment).subscribe(treatment => {
-          this.router.navigateByUrl(`/treatment/${this.treatment.Id}`);
+          this.router.navigateByUrl(`/treatment/${treatment.Id}`);
         }, err => {
 
         });
@@ -174,8 +176,7 @@ export class TreatmentDetailComponent implements OnInit {
     let treatmentPromise = new Promise((resolve, reject)=>{
       if (this.treatmentId) {
         let treatmentSubscription = this.treatmentService.getById(this.treatmentId).subscribe(treatment => {
-          this.treatment = new Treatment(treatment);
-          this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
+          this.treatment = new Treatment(treatment);          
           treatmentSubscription.unsubscribe();
           resolve();
         });

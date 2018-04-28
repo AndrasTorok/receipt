@@ -23,8 +23,10 @@
 
   </form>
   <div class="m-1">
+      <h5 class="text-center">Lista cu detaliile tratament-ului</h5> 
     <ag-grid-angular #agGrid class="ag-fresh treatment-items-grid" [gridOptions]="gridOptions">
     </ag-grid-angular>
-    <button type="button" class="btn btn-primary" [routerLink]="['/treatment', treatmentId, 'item', '']" [disabled]="!(treatment && treatment.Id && treatment.$valid())">Adauga</button>
+    <button type="button" class="btn btn-primary" [routerLink]="['/treatment', treatmentId, 'item', '']" 
+      [disabled]="!(treatment && treatment.Id && treatment.$valid())">Adauga</button>
   </div>
 </div>

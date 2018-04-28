@@ -34,7 +34,7 @@ export class TreatmentComponent implements OnInit, OnDestroy {
     Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.treatments);
       this.searchSubscription = searchService.search.subscribe(search => {
-        this.gridOptions.api.setQuickFilter(search);
+        if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
       });
     });
   }

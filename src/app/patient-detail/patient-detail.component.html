@@ -57,7 +57,7 @@
     </div>
 
     <button type="button" class="btn" [routerLink]="['/patient']">Inapoi</button>
-    <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate()">Salveaza</button>    
+    <button type="button" class="btn btn-primary" [disabled]="!patient.$valid() || !form.dirty" (click)="addOrUpdate()">Salveaza</button>    
   </form>
 
   <div class="diagnostics-container" *ngIf="patient">

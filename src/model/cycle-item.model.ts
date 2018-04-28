@@ -9,9 +9,7 @@ import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     Id: number;
     CycleId: number;
-    Cycle: Cycle;
-    //TreatmentId: number;
-    //Treatment: Treatment;
+    Cycle: Cycle;    
     TreatmentItemId: number;
     TreatmentItem: TreatmentItem;
     MedicamentId: number;

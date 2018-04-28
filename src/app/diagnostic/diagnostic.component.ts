@@ -31,21 +31,21 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
     private searchService: SearchService
   ) {
     let gridReadyPromise = this.configureGrid();
-    
+
     this.activeRoute.params.subscribe(params => {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
 
       if (!this.diagnostics) this.diagnostics = [];
-      
+
       searchService.clearSearch();
 
       Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
         this.gridOptions.api.setRowData(this.diagnostics);
-        this.searchSubscription = searchService.search.subscribe(search=>{      
-          this.gridOptions.api.setQuickFilter(search);
+        this.searchSubscription = searchService.search.subscribe(search => {
+          if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
         });
-      });      
-    });    
+      });
+    });
   }
 
   ngOnInit() {
@@ -60,10 +60,10 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
     let promise = new Promise<boolean>((resolve, reject) => {
       let msg = `Sunteti sigur ca doriti sa stergeti diagnostic-ul ?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {            
+          ["Da", () => {
             resolve(true);
           }],
-          ["Nu", () => {            
+          ["Nu", () => {
             resolve(false);
           }]
         ],
@@ -98,7 +98,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,        
+        rowHeight: 30,
         onGridReady: () => {
           resolve();
         },

@@ -54,7 +54,7 @@ export class Diagnostic extends CommonEntity<Diagnostic> implements IDiagnostic 
         ],
         ['Date',
             [{
-                rule: (entity: Diagnostic) => !!entity.Localization,
+                rule: (entity: Diagnostic) => !!entity.Date,
                 message: (entity: Diagnostic) => `Data trebuie sa fie specificata.`
             }
             ]

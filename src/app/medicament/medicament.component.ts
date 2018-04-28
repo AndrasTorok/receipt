@@ -35,7 +35,7 @@ export class MedicamentComponent implements OnInit, OnDestroy {
     Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.medicaments);
       this.searchSubscription = searchService.search.subscribe(search => {
-        this.gridOptions.api.setQuickFilter(search);
+        if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
       });
     });
   }

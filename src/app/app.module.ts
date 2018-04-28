@@ -72,8 +72,7 @@ export function initConfig(config: AppConfig) {
     ValidationComponent,
     PatientDetailDisplayComponent,
     SearchComponent    ,
-    OrderByPipe
-    
+    OrderByPipe    
   ],
   imports: [
     BrowserModule,

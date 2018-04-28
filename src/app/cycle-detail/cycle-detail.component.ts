@@ -17,7 +17,6 @@ import { Calculation, Guid } from '../../common/helpers';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { OrderByPipe } from '../../common/orderBy.pipe';
-import { resolveSoa } from 'dns';
 
 @Component({
   selector: 'app-cycle-detail',
