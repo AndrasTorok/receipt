@@ -7,14 +7,14 @@
       <div class="form-row">
         <div class="form-group col-md-4">
           <label>Treatment:</label>
-          <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" required>
+          <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" required [disabled]="cycle.Emitted">
             <option *ngFor="let item of treatments" [value]="item?.Id">{{item?.Name}}</option>
           </select>
         </div>
         <div class="form-group col-md-3">
           <label>Data inceput tratament:</label>
           <input type="date" class="form-control" name="StartDate" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" (ngModelChange)="cycle.StartDate=$event"
-            required />
+            [disabled]="cycle.Emitted" required />
           <app-validation [entity]="cycle" property="StartDate"></app-validation>
         </div>
         <div class="form-group col-md-2">
@@ -33,12 +33,12 @@
         </div>
         <div class="form-group col-md-2">
           <label>Inaltime (cm)</label>
-          <input type="number" class="form-control" name="Height" [(ngModel)]="cycle.Height" required min="60" max="260" />
+          <input type="number" class="form-control" name="Height" [(ngModel)]="cycle.Height" required min="60" max="260" [disabled]="cycle.Emitted" />
           <app-validation [entity]="cycle" property="Height"></app-validation>
         </div>
         <div class="form-group col-md-2">
           <label>Greutate (kg)</label>
-          <input type="number" class="form-control" name="Weight" [(ngModel)]="cycle.Weight" required min="20" max="500" />
+          <input type="number" class="form-control" name="Weight" [(ngModel)]="cycle.Weight" required min="20" max="500" [disabled]="cycle.Emitted" />
           <app-validation [entity]="cycle" property="Weight"></app-validation>
         </div>
         <div class="form-group col-md-2">
@@ -47,7 +47,7 @@
             [disabled]="!(cycle && cycle.isSerumCreatNeeded)" />
           <app-validation [entity]="cycle" property="SerumCreat"></app-validation>
         </div>
-        <div class="form-group col-md-2 noprint">
+        <div class="form-group col-md-2 noprint" *ngIf="!cycle.Emitted">
           <label>Aplica:</label>
           <button type="button" class="form-control btn btn-primary" [disabled]="!(cycle && cycle.$valid()) || cycle.CycleItems && !!cycle.CycleItems.length"
             (click)="applyTreatment()">Aplica tratament</button>
@@ -58,7 +58,7 @@
 
     <div class="form-row noprint">
       <button type="button" class="btn m-3" [routerLink]="['/patient', patientId, 'diagnostic', diagnosticId]">Inapoi</button>
-      <button type="button" class="btn btn-primary m-3" [disabled]="!valid" (click)="saveCycleGraph(form)">Salveaza</button>
+      <button type="button" class="btn btn-primary m-3" [disabled]="!valid || cycle.Emitted" (click)="saveCycleGraph(form)">Salveaza</button>
       <button type="button" class="btn btn-primary m-3" [disabled]="!canClone" (click)="clone(form)">Cloneaza</button>
       <button type="button" class="btn m-3" [disabled]="!valid" (click)="print(form)">Tipareste</button>
     </div>
@@ -67,7 +67,7 @@
       <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
         <div class="form-group col-md-1">
           <label [class.noprint]="index">In ziua:</label>
-          <input type="number" class="form-control" name="OnDay-{{index}}" [(ngModel)]="cycleItem.OnDay" required />
+          <input type="number" class="form-control" name="OnDay-{{index}}" [(ngModel)]="cycleItem.OnDay" required [disabled]="cycle.Emitted" />
           <app-validation [entity]="cycleItem" property="OnDay"></app-validation>
         </div>
         <div class="form-group col-md-2">
@@ -86,9 +86,9 @@
         <div class="form-group col-md-2">
           <label [class.noprint]="index">Cantitate aplicata</label>
           <input type="number" class="form-control" name="QuantityCalculated-{{index}}" #QuantityCalculated="ngModel" [(ngModel)]="cycleItem.QuantityApplied"
-            required />
+          [disabled]="cycle.Emitted" required />
         </div>
-        <div class="form-group col-md-1 noprint">
+        <div class="form-group col-md-1 noprint" *ngIf="!cycle.Emitted">
           <label>Actiune</label>
           <button type="button" class="btn btn-link" (click)="removeItem(index)">Sterge</button>
         </div>

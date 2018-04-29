@@ -3,8 +3,7 @@ import { Treatment } from './treatment.model';
 import { CycleItem, ICycleItem } from './cycle-item.model';
 import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 import { DoseApplicationMode } from './medicament.model';
-import { Calculation } from '../common/helpers';
-import { Gender } from './patient.model';
+import { Patient, Gender } from './patient.model';
 
 export class Cycle extends CommonEntity<Cycle> implements ICycle {
     Id: number;
@@ -16,6 +15,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     SerumCreat: number;
     Height: number;
     Weight: number;    
+    Emitted: boolean;
     BirthDate: Date;                     //property exists only on GUI
     Gender: Gender;                     //property exists only on GUI
     CycleItems: CycleItem[];    
@@ -99,6 +99,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
                 Weight: weight,
                 BirthDate: birthDate,
                 Gender: gender,
+                Emitted: false,
                 CycleItems: []
             };
         } else {
@@ -128,11 +129,11 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     get bodySurfaceArea(): number {
-        return Calculation.bodySurfaceArea(this.Height, this.Weight);
+        return Patient.bodySurfaceArea(this.Height, this.Weight);
     }
 
     get age(): number{
-        return Calculation.age(this.BirthDate, this.StartDate);
+        return Patient.age(this.BirthDate, this.StartDate);
     }
 
     get durationInDays() : number {
@@ -171,5 +172,6 @@ export interface ICycle {
     Weight: number;
     BirthDate: Date;
     Gender: Gender;  
+    Emitted: boolean;
     CycleItems: ICycleItem[];
 }

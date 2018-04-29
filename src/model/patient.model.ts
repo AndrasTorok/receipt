@@ -1,5 +1,4 @@
 import { CommonEntity, IValidity } from '../common/common.entity';
-import { Calculation } from '../common/helpers';
 
 export class Patient extends CommonEntity<Patient> implements IPatient {
     Id?: number;
@@ -10,7 +9,7 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
     Gender: Gender;
     Height: number;
     Weight: number;
-    cnpHelper : CNPHelper = new CNPHelper();
+    private cnpValidator: CNPValidator = new CNPValidator();
 
     constructor(
         patient?: IPatient
@@ -47,8 +46,8 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
                     message: (entity: Patient) => `CNP-ul pacientului trebuie sa fie exact 13 caractere.`
                 },
                 {
-                    rule: (entity: Patient) => {                        
-                        return entity.cnpHelper.validateCNP(entity.CNP);
+                    rule: (entity: Patient) => {
+                        return !entity.CNP || entity.CNP.length != 13 || entity.cnpValidator.validateCNP(entity.CNP);
                     },
                     message: (entity: Patient) => `CNP-ul pacientului este intr-un format incorect.`
                 }
@@ -109,11 +108,11 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
     ]);
 
     get Age(): number {
-        return Calculation.age(this.BirthDate);
+        return Patient.age(this.BirthDate);
     }
 
     get BodySurfaceArea(): number {
-        return Calculation.bodySurfaceArea(this.Height, this.Weight);
+        return Patient.bodySurfaceArea(this.Height, this.Weight);
     }
 
     get GenderDisplay(): string {
@@ -121,14 +120,41 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
     }
 
     extractCNP(): void {
-        if(this.cnpHelper.isValid){
-            this.BirthDate = this.cnpHelper.birthDate;
-            this.Gender = this.cnpHelper.gender;
+        if (this.cnpValidator.isValid) {
+            this.BirthDate = this.cnpValidator.birthDate;
+            this.Gender = this.cnpValidator.gender;
         }
-    }    
-}
+    }
 
-const Male20thCentury = '1', Female20thCentury = '2', Male21stCentury = '5', Female21stCentury = '6';
+    static bodySurfaceArea(height: number, weight: number): number {
+        let area = 0;
+
+        if (height && weight) {
+            area = 0.20247 * Math.pow(height / 100, 0.725) * Math.pow(weight, 0.425);
+        }
+
+        return area;
+    }
+
+    static age(birthDate: Date, date?: Date): number {
+        let age = 0;
+
+        if (typeof birthDate == 'string') birthDate = new Date(birthDate);
+        if (typeof date == 'string') date = new Date(date);
+
+        let now = date ? date : new Date(),
+            months = now.getMonth() - birthDate.getMonth();
+
+        age = now.getFullYear() - birthDate.getFullYear();
+
+        if (months < 0 || (months === 0 && now.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+
+        return age;
+    }
+}
 
 export interface IPatient {
     CNP: string;
@@ -137,22 +163,22 @@ export interface IPatient {
     BirthDate: Date,
     Gender: Gender,
     Height: number,
-    Weight: number
+    Weight: number    
 }
 
 export enum Gender {
     Male, Female
 }
 
-class CNPHelper {
+class CNPValidator {
     birthDate: Date;
     gender: Gender;
     isValid: boolean;
 
     constructor(
-        
+
     ) {
-        
+
     }
 
     validateCNP(cnp: string): boolean {
@@ -168,7 +194,7 @@ class CNPHelper {
         for (i = 0; i < 13; i++) {
             cnpArray[i] = parseInt(cnp.charAt(i), 10);
             if (isNaN(cnpArray[i])) { return false; }
-            if (i < 12) { hashResult = hashResult + (cnpArray[i] * CNPHelper.HashTable[i]); }
+            if (i < 12) { hashResult = hashResult + (cnpArray[i] * CNPValidator.HashTable[i]); }
         }
 
         hashResult = hashResult % 11;
@@ -196,7 +222,7 @@ class CNPHelper {
 
 
             this.birthDate = new Date(year, month, day);
-            this.gender = CNPHelper.MalePrefixes.includes(cnpArray[0]) ? Gender.Male : Gender.Female;
+            this.gender = CNPValidator.MalePrefixes.includes(cnpArray[0]) ? Gender.Male : Gender.Female;
         }
 
         return this.isValid;

@@ -2,7 +2,6 @@ import { Component, OnInit, ViewEncapsulation, Input } from '@angular/core';
 import { Patient, Gender } from '../../model/patient.model';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
-import { ReceiptDocument } from '../pdf-helpers/receiptDocument';
 import { PatientService } from '../../model/patient.service';
 
 @Component({
@@ -16,9 +15,9 @@ export class PatientDetailComponent implements OnInit {
   patient: Patient;
   id: string;
   formState: FormState;
+  isEditable: boolean = false;
 
   constructor(
-    private receiptDocument: ReceiptDocument,
     private patientService: PatientService,
     private activeRoute: ActivatedRoute,
     private router: Router
@@ -33,8 +32,8 @@ export class PatientDetailComponent implements OnInit {
        
   }
 
-  previewReceipt(form: NgForm): void {    
-    this.receiptDocument.preview({ patient: this.patient });
+  onDiagnosticsInitialized(containsDiagnostics: boolean) {
+    this.isEditable = !containsDiagnostics;
   }
 
   addOrUpdate(): void {

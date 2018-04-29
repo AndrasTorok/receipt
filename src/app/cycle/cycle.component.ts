@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
@@ -19,17 +19,18 @@ export class CycleComponent implements OnInit, OnDestroy {
   cycles: Cycle[];
   patientId: string;
   diagnosticId: string;
-  gridOptions: GridOptions;  
+  gridOptions: GridOptions;
   private searchSubscription: Subscription;
-  
+  @Output() onInitialized = new EventEmitter<boolean>();
+
   constructor(
     private cycleService: CycleService,
     private datePipe: DatePipe,
     private activeRoute: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
-    private searchService: SearchService
-  ) {    
+    private searchService: SearchService    
+  ) {
     let gridReadyPromise = this.configureGrid();
 
     this.activeRoute.params.subscribe(params => {
@@ -39,12 +40,13 @@ export class CycleComponent implements OnInit, OnDestroy {
       searchService.clearSearch();
 
       Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
-        this.gridOptions.api.setRowData(this.cycles);     
-        this.searchSubscription = searchService.search.subscribe(search=>{      
-          if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
-        });   
+        this.onInitialized.emit(this.cycles && this.cycles.some(cycle=> cycle.Emitted));                //inform parent if there are emitted cycles or not
+        this.gridOptions.api.setRowData(this.cycles);
+        this.searchSubscription = searchService.search.subscribe(search => {
+          if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+        });
       });
-    });    
+    });
   }
 
   ngOnInit() {
@@ -98,7 +100,7 @@ export class CycleComponent implements OnInit, OnDestroy {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,        
+        rowHeight: 30,
         onGridReady: () => {
           resolve();
         },
@@ -127,7 +129,7 @@ export class CycleComponent implements OnInit, OnDestroy {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Emitted ? 'Vizualizare': 'Editare'}</button></div>`,
             onCellClicked: (params) => {
               let id = params.data.Id;
 
@@ -138,11 +140,13 @@ export class CycleComponent implements OnInit, OnDestroy {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => params.data.Emitted ? `` : `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              if (!params.data.Emitted) {
+                let id = params.data.Id;
 
-              this.removeCycle(id);
+                this.removeCycle(id);
+              }
             }
           }
         ]

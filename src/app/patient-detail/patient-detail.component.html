@@ -5,18 +5,18 @@
       <div class="form-group col-md-2">
         <label>CNP</label>
         <input type="text" class="form-control" name="CNP" [(ngModel)]="patient.CNP" required minlength="13" maxlength="13"
-          (change)="cnpChanged()" />
+          (change)="cnpChanged()" [disabled]="!isEditable" />
         <app-validation [entity]="patient" property="CNP"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Nume:</label>
-        <input type="text" class="form-control" name="FirstName" [(ngModel)]="patient.FirstName" required minlength="2"
+        <input type="text" class="form-control" name="FirstName" [(ngModel)]="patient.FirstName" required minlength="2" [disabled]="!isEditable"
         />
         <app-validation [entity]="patient" property="FirstName"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Prenume:</label>
-        <input type="text" class="form-control" name="LastName" [(ngModel)]="patient.LastName" required minlength="2"
+        <input type="text" class="form-control" name="LastName" [(ngModel)]="patient.LastName" required minlength="2" [disabled]="!isEditable"
         />
         <app-validation [entity]="patient" property="LastName"></app-validation>
       </div>
@@ -61,7 +61,7 @@
   </form>
 
   <div class="diagnostics-container" *ngIf="patient">
-    <app-diagnostic></app-diagnostic>
+    <app-diagnostic (onInitialized)="onDiagnosticsInitialized($event)"></app-diagnostic>
   </div>
 </div>
 

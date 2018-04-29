@@ -19,6 +19,7 @@ export class DiagnosticDetailComponent implements OnInit {
   id: string;
   formState: FormState;
   viewLoaded: boolean = false;  
+  isEditable : boolean = false;
 
   constructor(
     private diagnosticService: DiagnosticService,
@@ -62,6 +63,10 @@ export class DiagnosticDetailComponent implements OnInit {
 
   changeDate(event) {
     this.diagnostic.Date = new Date(event);
+  }
+
+  onCyclesInitialized(containsEmitted: boolean) {
+    this.isEditable = !containsEmitted;
   }
 
   private reloadView(diagnostic: Diagnostic) {

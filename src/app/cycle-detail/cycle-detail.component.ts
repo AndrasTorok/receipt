@@ -13,7 +13,7 @@ import { TreatmentItem, ITreatmentItem } from '../../model/treatment-item.model'
 import { Diagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
 import { Medicament, DoseApplicationMode } from '../../model/medicament.model';
-import { Calculation, Guid } from '../../common/helpers';
+import { Guid } from '../../common/helpers';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { OrderByPipe } from '../../common/orderBy.pipe';
@@ -180,9 +180,19 @@ export class CycleDetailComponent implements OnInit {
   }
 
   print(form: NgForm): void {
-    this.checkFormIsSaved(form, 'a tipari reteta').then((result: boolean) => {
+    new Promise((resolve, reject) => {
+      if (this.cycle.Emitted) resolve();
+      else {
+        this.checkFormIsSaved(form, 'a tipari reteta').then((result: boolean) => {
+          this.cycleService.emit(this.cycle.Id).subscribe(emitted => {
+            this.cycle.Emitted = true;
+            resolve();
+          });
+        });
+      }
+    }).then(() => {
       this.cycle.CycleItems = this.sortCycleItems(this.cycle.CycleItems, true);     //before print apply sorting and trigger digest cycle
-      (<any>window).print();                                                        //print it      
+      (<any>window).print();                                                        //print it  
     });
   }
 

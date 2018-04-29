@@ -29,4 +29,13 @@ export class CycleService extends ServiceBase<Cycle> {
             })
             .catch(this.handleError);
     }
+
+    emit(id: number): Observable<boolean> {
+        return this._http.put(`${this._url}/emit`, { Id: id})
+            .map((response: Response) => <CycleItem[]>response.json())
+            .do(data => {
+                if (this._doLog) console.log(`All ${JSON.stringify(data)}`);
+            })
+            .catch(this.handleError);
+    }
 }

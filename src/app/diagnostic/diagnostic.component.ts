@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { GridOptions } from "ag-grid/main";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DatePipe } from '@angular/common';
@@ -21,6 +21,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
   gridOptions: GridOptions;
   patientId: string;
   private searchSubscription: Subscription;
+  @Output() onInitialized = new EventEmitter<boolean>();
 
   constructor(
     private datePipe: DatePipe,
@@ -40,6 +41,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
       searchService.clearSearch();
 
       Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
+        this.onInitialized.emit(this.diagnostics && !!this.diagnostics.length);             //inform parent if there are diagnostics or not
         this.gridOptions.api.setRowData(this.diagnostics);
         this.searchSubscription = searchService.search.subscribe(search => {
           if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);

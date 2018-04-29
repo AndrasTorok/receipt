@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { DatePipe } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular/main';
-import { ReceiptDocument } from './pdf-helpers/receiptDocument';
 
 import { AppComponent } from './app.component';
 import { AppConfig } from './app.config';
@@ -88,7 +87,6 @@ export function initConfig(config: AppConfig) {
     AppConfig,
     { provide: APP_INITIALIZER, useFactory: initConfig, deps: [AppConfig], multi: true },
     DatePipe,
-    ReceiptDocument,
     PatientService,
     TreatmentService,
     DiagnosticService,
