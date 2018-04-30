@@ -2,12 +2,7 @@
   <h3 class="text-center">{{treatmentItemId ? 'Editare' : 'Adaugare'}} linie tratament</h3>
   <form *ngIf="treatmentItem" class="noprint" novalidate #form="ngForm">
     <div class="form-row">
-      <div class="form-group col-md-1">
-        <label>In ziua:</label>
-        <input type="number" class="form-control" name="OnDay" [(ngModel)]="treatmentItem.OnDay" required />
-        <app-validation [entity]="treatmentItem" property="OnDay"></app-validation>
-      </div>
-      <div class="form-group col-md-5">
+      <div class="form-group col-md-4">
         <label>Medicament:</label>
         <select class="form-control" name="Medicament" [(ngModel)]="treatmentItem.MedicamentId" required>
           <option *ngFor="let item of medicaments" [value]="item.Id">{{item.Name}}</option>
@@ -15,14 +10,38 @@
         <app-validation [entity]="treatmentItem" property="Medicament"></app-validation>
       </div>
       <div class="form-group col-md-1">
-        <label>Doza:</label>
-        <input type="number" class="form-control" name="Dose" [value]="selectedMedicament?.Dose" disabled />        
+        <label>In ziua:</label>
+        <input type="number" class="form-control" name="OnDay" [(ngModel)]="treatmentItem.OnDay" required />
+        <app-validation [entity]="treatmentItem" property="OnDay"></app-validation>
       </div>
       <div class="form-group col-md-2">
-          <label>Mod aplicare:</label>
-          <input type="text" class="form-control" name="DoseApplicationMode" [value]="applicationMode" disabled />           
-        </div>
+        <label>Pana in ziua:</label>
+        <input type="number" class="form-control" name="EndDay" [(ngModel)]="treatmentItem.EndDay" />
+        <app-validation [entity]="treatmentItem" property="EndDay"></app-validation>
+      </div>
+      <div class="form-group col-md-2">
+        <label>In fiecare zi:</label>
+        <input type="number" class="form-control" name="DayStep" [(ngModel)]="treatmentItem.DayStep" />
+        <app-validation [entity]="treatmentItem" property="DayStep"></app-validation>
+      </div>
+      <div class="form-group col-md-1">
+        <label>Doza:</label>
+        <input type="number" class="form-control" name="Dose" [(ngModel)]="treatmentItem.Dose" required />
+        <app-validation [entity]="treatmentItem" property="Dose"></app-validation>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Mod aplicare:</label>
+        <input type="text" class="form-control" name="DoseApplicationMode" [value]="applicationMode" disabled />
+      </div>
     </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-12">
+        <label>Descriere:</label>
+        <textarea class="form-control" rows=3 maxlength="300" name="Description" #Description="ngModel" [(ngModel)]="treatmentItem.Description"></textarea>
+      </div>
+    </div>
+
 
     <button type="button" class="btn" [routerLink]="['/treatment', treatmentId]">Inapoi</button>
     <button type="button" class="btn btn-primary" [disabled]="formSubmitted || form.invalid || !form.dirty" (click)="addOrUpdate(form)">Salveaza</button>

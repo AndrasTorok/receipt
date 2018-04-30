@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
 import { Diagnostic } from '../../model/diagnostic.model';
@@ -20,12 +20,14 @@ export class DiagnosticDetailComponent implements OnInit {
   formState: FormState;
   viewLoaded: boolean = false;  
   isEditable : boolean = false;
+  maxDate: Date = new Date();
 
   constructor(
     private diagnosticService: DiagnosticService,
     private patientService: PatientService,
     private activeRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private changeDetectorRef: ChangeDetectorRef
   ) {    
     activeRoute.params.subscribe(params => {
       this.patientId = activeRoute.snapshot.params['patientId'];
@@ -67,6 +69,7 @@ export class DiagnosticDetailComponent implements OnInit {
 
   onCyclesInitialized(containsEmitted: boolean) {
     this.isEditable = !containsEmitted;
+    this.changeDetectorRef.detectChanges();
   }
 
   private reloadView(diagnostic: Diagnostic) {

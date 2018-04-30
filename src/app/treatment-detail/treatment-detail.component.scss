@@ -1,5 +1,9 @@
 .treatment-detail-component {
     .treatment-items-grid {
         height: 400px;
+
+        .cell-wrap-text {
+            white-space: normal;
+        }
     }
 }

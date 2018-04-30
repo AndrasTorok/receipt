@@ -103,26 +103,15 @@ export class MedicamentComponent implements OnInit, OnDestroy {
           {
             headerName: 'Medicament',
             field: "Name",
-            width: 300,
+            width: 700,
             sort: 'asc'
-          },
-          {
-            headerName: 'Doza',
-            field: "Dose",
-            width: 100
-          },
+          },          
           {
             headerName: 'Mod aplicare',
             field: "DoseApplicationMode",
-            width: 100,
+            width: 150,
             valueGetter: (params) => DoseApplicationModeEnumeration.get(params.data.DoseApplicationMode)
-          },
-          {
-            headerName: 'Descriere',
-            field: "Description",
-            width: 350,
-            tooltip: (params) => params.data.Description
-          },
+          },          
           {
             headerName: '',
             field: '',

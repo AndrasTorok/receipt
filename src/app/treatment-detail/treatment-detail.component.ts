@@ -114,6 +114,12 @@ export class TreatmentDetailComponent implements OnInit {
         onSelectionChanged: () => {
 
         },
+        getRowHeight: (params)=> { 
+          let nrOfRows = (Math.floor(params.data.Description.length / 50) + 1),
+            rowHeighInPixel = nrOfRows *25;
+
+            return rowHeighInPixel;
+        },
         columnDefs: [
           {
             headerName: 'Ziua',
@@ -122,15 +128,25 @@ export class TreatmentDetailComponent implements OnInit {
             sort: 'asc'
           },
           {
+            headerName: 'Pana',
+            field: "EndDay",
+            width: 50            
+          },
+          {
+            headerName: 'Din',
+            field: "DayStep",
+            width: 50            
+          },
+          {
             headerName: 'Medicament',
-            width: 300,
+            width: 250,
             sort: 'asc',
             valueGetter: (params) => params.data.Medicament.Name
           },
           {
             headerName: 'Doza Medicament',
             width: 130,
-            valueGetter: (params) => params.data.Medicament.Dose
+            valueGetter: (params) => params.data.Dose
           },
           {
             headerName: 'Mod aplicare',
@@ -141,9 +157,11 @@ export class TreatmentDetailComponent implements OnInit {
           {
             headerName: 'Descriere',
             field: "Description",
-            width: 300,
-            valueGetter: (params) => params.data.Medicament.Description,
-            tooltip: (params) => params.data.Medicament.Description
+            width: 270,
+            autoHeight: true,
+            cellClass: 'cell-wrap-text',
+            valueGetter: (params) => params.data.Description,
+            tooltip: (params) => params.data.Description
           },
           {
             headerName: '',

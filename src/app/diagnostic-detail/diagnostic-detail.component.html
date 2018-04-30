@@ -5,20 +5,25 @@
     <div class="form-row">
       <div class="form-group col-md-2">
         <label>Data:</label>
-        <input type="date" class="form-control" name="Date" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date = $event"
-        [disabled]="!isEditable" required />
+        <div *ngIf="isEditable">
+          <input type="date" class="form-control" name="Date" [ngModel]="diagnostic.Date|date:'yyyy-MM-dd'" (ngModelChange)="diagnostic.Date = $event"
+            required [max]="maxDate | date:'yyyy-MM-dd'" />
+        </div>
+        <div *ngIf="!isEditable">
+          <input type="text" class="form-control" name="Date" [value]="diagnostic.Date|date:'dd/MM/yyyy'" disabled />
+        </div>
         <app-validation [entity]="diagnostic" property="Date"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Descriere:</label>
-        <input type="text" class="form-control" name="Description" [(ngModel)]="diagnostic.Description" required minlength="2" maxlength="200" [disabled]="!isEditable"
-        />
+        <input type="text" class="form-control" name="Description" [(ngModel)]="diagnostic.Description" required minlength="2" maxlength="200"
+          [disabled]="!isEditable" />
         <app-validation [entity]="diagnostic" property="Description"></app-validation>
       </div>
       <div class="form-group col-md-5">
         <label>Localizare:</label>
-        <input type="text" class="form-control" name="Localization" [(ngModel)]="diagnostic.Localization" required minlength="2" [disabled]="!isEditable"
-          maxlength="200" />
+        <input type="text" class="form-control" name="Localization" [(ngModel)]="diagnostic.Localization" required minlength="2"
+          [disabled]="!isEditable" maxlength="200" />
         <app-validation [entity]="diagnostic" property="Localization"></app-validation>
       </div>
     </div>

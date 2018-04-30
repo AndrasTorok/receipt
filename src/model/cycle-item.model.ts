@@ -9,7 +9,7 @@ import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     Id: number;
     CycleId: number;
-    Cycle: Cycle;    
+    Cycle: Cycle;
     TreatmentItemId: number;
     TreatmentItem: TreatmentItem;
     MedicamentId: number;
@@ -17,6 +17,7 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     OnDay: number;
     QuantityCalculated: number;
     QuantityApplied: number;
+    Description: string;
     private _calculationMap: Map<DoseApplicationMode, (patient: Patient) => number>;
 
     static validityMap = new Map<string, IValidity<CycleItem>[]>([
@@ -47,14 +48,15 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     ]);
 
     static calculationMap = new Map<DoseApplicationMode, (cycleItem: CycleItem) => number>([
-        [DoseApplicationMode.Sqm, (cycleItem: CycleItem) => Number((cycleItem.Medicament.Dose * cycleItem.Cycle.bodySurfaceArea).toFixed(2))],
-        [DoseApplicationMode.Kg, (cycleItem: CycleItem) => Number((cycleItem.Medicament.Dose * cycleItem.Cycle.Weight).toFixed(2))],
+        [DoseApplicationMode.Sqm, (cycleItem: CycleItem) => Number((cycleItem.TreatmentItem.Dose * cycleItem.Cycle.bodySurfaceArea).toFixed(2))],
+        [DoseApplicationMode.Kg, (cycleItem: CycleItem) => Number((cycleItem.TreatmentItem.Dose * cycleItem.Cycle.Weight).toFixed(2))],
         [DoseApplicationMode.Carboplatin, (cycleItem: CycleItem) => {
             let GFR = (cycleItem.Cycle.Gender == Gender.Male ? 1 : 0.85) * (140 - cycleItem.Cycle.age) / cycleItem.Cycle.SerumCreat * (cycleItem.Cycle.Weight / 72),
-                dose = cycleItem.Medicament.Dose * (GFR + 25);
+                dose = cycleItem.TreatmentItem.Dose * (GFR + 25);
 
             return dose;
-        }]
+        }],
+        [DoseApplicationMode.DT, (cycleItem: CycleItem) => Number((cycleItem.TreatmentItem.Dose).toFixed(2))]
     ]);
 
     constructor(cycleItemOrCycleId: ICycleItem | number, cycle?: Cycle) {
@@ -73,17 +75,19 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         } else cycleItem = <ICycleItem>cycleItemOrCycleId;
 
         for (var prop in cycleItem) {
-            if(/^[A-Z]/.test(prop)) {
+            if (/^[A-Z]/.test(prop)) {
                 this[prop] = cycleItem[prop];
-            }  
+            }
         }
 
-        if(cycle) this.Cycle = cycle;
+        if (cycle) this.Cycle = cycle;
     }
 
     setCalculatedQuantity(patient: Patient): void {
         let calculation = CycleItem.calculationMap.get(this.Medicament.DoseApplicationMode),
             calculatedQuantity = calculation(this);
+
+        calculatedQuantity = Math.round(calculatedQuantity * 10) / 10;
 
         this.QuantityCalculated = calculatedQuantity;
         this.QuantityApplied = calculatedQuantity;
@@ -105,7 +109,7 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
 export interface ICycleItem {
     Id: number;
     CycleId: number;
-    Cycle: Cycle;    
+    Cycle: Cycle;
     TreatmentItemId: number;
     TreatmentItem: TreatmentItem;
     MedicamentId: number;
@@ -113,4 +117,5 @@ export interface ICycleItem {
     OnDay: number;
     QuantityCalculated: number;
     QuantityApplied: number;
+    Description?: string;
 }

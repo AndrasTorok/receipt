@@ -4,9 +4,7 @@ import { CommonEntity, IValidity } from '../common/common.entity';
 export class Medicament extends CommonEntity<Medicament> {
     Id: number;
     Name: string;
-    DoseApplicationMode: DoseApplicationMode;
-    Dose: number;
-    Description: string;
+    DoseApplicationMode: DoseApplicationMode;   
 
     constructor(medicament?: IMedicament) {
         super(Medicament.validityMap);
@@ -14,9 +12,7 @@ export class Medicament extends CommonEntity<Medicament> {
             medicament = <IMedicament>{
                 Id: 0,
                 Name: '',
-                DoseApplicationMode: DoseApplicationMode.Sqm,
-                Dose: 0,
-                Description: ''
+                DoseApplicationMode: DoseApplicationMode.Sqm                
             };
         }
 
@@ -35,31 +31,23 @@ export class Medicament extends CommonEntity<Medicament> {
                 rule: (entity: Medicament) => !entity.Name || entity.Name.length >= 2,
                 message: (entity: Medicament) => `Numele medicamentului trebuie sa fie minin 2 caractere.`
             }]
-        ],
-        ['Dose',
-            [{
-                rule: (entity: Medicament) => !!entity.Dose,
-                message: (entity: Medicament) => `Doza medicamentului trebuie sa fie specificat.`
-            }
-            ]
-        ]
+        ]        
     ]);
 
 }
 
 export interface IMedicament {
     Id: number;
-    Name: string;
-    Dose: number;
-    Description: string;
+    Name: string;    
 }
 
 export enum DoseApplicationMode {
-    Sqm, Kg, Carboplatin
+    Sqm, Kg, Carboplatin, DT
 }
 
 export const DoseApplicationModeEnumeration = new Enumeration<DoseApplicationMode>(new Map<DoseApplicationMode, string>([
     [DoseApplicationMode.Sqm, 'Mp'],
     [DoseApplicationMode.Kg, 'Kg'],
-    [DoseApplicationMode.Carboplatin, 'Carboplatin']
+    [DoseApplicationMode.Carboplatin, 'Carboplatin'],
+    [DoseApplicationMode.DT, 'DT']
 ]));

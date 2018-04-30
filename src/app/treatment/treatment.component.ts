@@ -101,7 +101,7 @@ export class TreatmentComponent implements OnInit, OnDestroy {
           {
             headerName: 'Tratament',
             field: "Name",
-            width: 300,
+            width: 500,
             sort: 'asc'
           },
           {

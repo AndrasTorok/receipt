@@ -9,6 +9,6 @@ import { RouterModule } from '@angular/router';
     imports: [BrowserModule, RouterModule],
     declarations: [MessageComponent],
     exports: [MessageComponent],
-    providers: [MessageService/*, { provide: ErrorHandler, useClass: MessageErrorHandler }*/]
+    providers: [MessageService, /*{ provide: ErrorHandler, useClass: MessageErrorHandler }*/]
 })
 export class MessageModule { }
