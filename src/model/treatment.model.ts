@@ -6,6 +6,7 @@ export class Treatment extends CommonEntity<Treatment> {
     Name: string;
     TreatmentItems: TreatmentItem[];
     IsSerumCreatNeeded: boolean;
+    IsDefault: boolean;
 
     constructor(treatment?: ITreatment) {
         super(Treatment.validityMap);
@@ -14,6 +15,7 @@ export class Treatment extends CommonEntity<Treatment> {
                 Id: 0,
                 Name: '',
                 IsSerumCreatNeeded: false,
+                IsDefault: false,
                 TreatmentItems: []
             };
         }
@@ -42,4 +44,5 @@ export interface ITreatment {
     Name: string;
     TreatmentItems: TreatmentItem[];
     IsSerumCreatNeeded: boolean;
+    IsDefault: boolean;
 }

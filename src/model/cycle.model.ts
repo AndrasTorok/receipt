@@ -1,9 +1,11 @@
 import { Diagnostic } from './diagnostic.model';
 import { Treatment } from './treatment.model';
+import { TreatmentItem } from './treatment-item.model';
 import { CycleItem, ICycleItem } from './cycle-item.model';
 import { CommonEntity, IValidity, Validity } from '../common/common.entity';
 import { DoseApplicationMode } from './medicament.model';
 import { Patient, Gender } from './patient.model';
+import { Medicament } from './medicament.model';
 
 export class Cycle extends CommonEntity<Cycle> implements ICycle {
     Id: number;
@@ -14,11 +16,11 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     StartDate: Date;
     SerumCreat: number;
     Height: number;
-    Weight: number;    
+    Weight: number;
     Emitted: boolean;
     BirthDate: Date;                     //property exists only on GUI
     Gender: Gender;                     //property exists only on GUI
-    CycleItems: CycleItem[];    
+    CycleItems: CycleItem[];
 
     static validityMap = new Map<string, IValidity<Cycle>[]>([
         ['Diagnostic',
@@ -44,33 +46,33 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
                 rule: (entity: Cycle) => {
                     return !entity.Treatment || !entity.Treatment.IsSerumCreatNeeded || entity.Treatment.IsSerumCreatNeeded && !!entity.SerumCreat;
                 },
-                message: (entity: Cycle) => `Data de inceput ciclului de tratament trebuie sa fie specificata.`
+                message: (entity: Cycle) => `Creatina pacientului trebuie sa fie specificata.`
             }
             ]
         ],
-        ['Height', 
+        ['Height',
             [
                 {
-                    rule: (entity: Cycle) => !!entity.Height ,
+                    rule: (entity: Cycle) => !!entity.Height,
                     message: (entity: Cycle) => `Inaltimea patientului trebuie sa fie specificata.`
                 },
                 {
-                    rule: (entity: Cycle) => !entity.Height || (entity.Height>=60 && entity.Height<=260 ),
+                    rule: (entity: Cycle) => !entity.Height || (entity.Height >= 60 && entity.Height <= 260),
                     message: (entity: Cycle) => `Inaltimea patientului trebuie sa fie intre 60 si 260 cm.`
-                }                
+                }
             ]
 
         ],
-        ['Weight', 
+        ['Weight',
             [
                 {
-                    rule: (entity: Cycle) => !!entity.Weight ,
+                    rule: (entity: Cycle) => !!entity.Weight,
                     message: (entity: Cycle) => `Greutatea patientului trebuie sa fie specificata.`
-                } ,
+                },
                 {
-                    rule: (entity: Cycle) => !entity.Weight || (entity.Weight>=20 && entity.Weight<=500 ),
+                    rule: (entity: Cycle) => !entity.Weight || (entity.Weight >= 20 && entity.Weight <= 500),
                     message: (entity: Cycle) => `Greutatea patientului trebuie sa fie intre 20 si 500 cm.`
-                }              
+                }
             ]
 
         ],
@@ -94,7 +96,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
                 TreatmentId: 0,
                 Treatment: null,
                 StartDate: new Date(),
-                SerumCreat: null,                
+                SerumCreat: null,
                 Height: height,
                 Weight: weight,
                 BirthDate: birthDate,
@@ -104,17 +106,17 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
             };
         } else {
             cycle = <ICycle>cycleOrDiagnosticId;
-            cycle.BirthDate= birthDate;
+            cycle.BirthDate = birthDate;
             cycle.Gender = gender;
         }
 
-        if(!cycle.Height) cycle.Height = height;
-        if(!cycle.Weight) cycle.Weight = weight;
+        if (!cycle.Height) cycle.Height = height;
+        if (!cycle.Weight) cycle.Weight = weight;
 
         for (var prop in cycle) {
-            if(/^[A-Z]/.test(prop)) {
+            if (/^[A-Z]/.test(prop)) {
                 this[prop] = cycle[prop];
-            }            
+            }
         }
 
         if (cycle.CycleItems) {
@@ -132,31 +134,84 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
         return Patient.bodySurfaceArea(this.Height, this.Weight);
     }
 
-    get age(): number{
+    get age(): number {
         return Patient.age(this.BirthDate, this.StartDate);
     }
 
-    get durationInDays() : number {
-        let durationInDays : number = 0;
+    get durationInDays(): number {
+        let durationInDays: number = 0;
 
-        if(this.CycleItems && this.CycleItems.length) {
-            let onDayArray : number[] = this.CycleItems.map(ci=> ci.OnDay),
-            startDay = Math.min(...onDayArray),
-            endDay = Math.max(...onDayArray);
+        if (this.CycleItems && this.CycleItems.length) {
+            let onDayArray: number[] = this.CycleItems.map(ci => ci.OnDay),
+                startDay = Math.min(...onDayArray),
+                endDay = Math.max(...onDayArray);
 
-            durationInDays = endDay -  startDay;
+            durationInDays = endDay - startDay;
         }
 
         return durationInDays;
     }
 
-    get endDate() : Date {
-        if(!this.StartDate) return null;
+    get endDate(): Date {
+        if (!this.StartDate) return null;
         let date = new Date(this.StartDate.toString());
 
         date.setDate(date.getDate() + this.durationInDays);
 
         return date;
+    }
+
+    applyTreatment(treatment: Treatment): void {
+        let cycleItems = [];
+
+        if (treatment.TreatmentItems && treatment.TreatmentItems.length) {
+            treatment.TreatmentItems.forEach(ti => {
+                if (ti.EndDay) {
+                    for (let onDay = ti.OnDay; onDay <= ti.EndDay; onDay += ti.DayStep ? ti.DayStep : 1) {
+                        let cycleItem = this.getCycleItem(ti, onDay);
+
+                        cycleItems.push(cycleItem);
+                    }
+                } else {
+                    let cycleItem = this.getCycleItem(ti);
+                    cycleItems.push(cycleItem);
+                }
+            });
+        }
+
+        this.CycleItems = cycleItems;
+        this.sortCycleItems();
+    }
+
+    sortCycleItems(): void {
+        let sortedCycleItems = this.CycleItems.sort((a, b) => {
+            let onDayDifference = a.OnDay - b.OnDay;
+            if (onDayDifference) return onDayDifference;
+            let medicamentNameDifference = a.Medicament && b.Medicament ? (a.Medicament.Name > b.Medicament.Name ? 1 : -1) : 0;
+
+            return medicamentNameDifference;
+        });
+
+        this.CycleItems = sortedCycleItems;
+    }
+
+    private getCycleItem(ti: TreatmentItem, onDay?: number): CycleItem {
+        let cycleItem = new CycleItem(<ICycleItem>{
+            CycleId: this.Id,
+            Cycle: <any>this,
+            TreatmentItemId: ti.Id,
+            TreatmentItem: new TreatmentItem(ti),
+            MedicamentId: ti.MedicamentId,
+            Medicament: new Medicament(ti.Medicament),
+            OnDay: onDay ? onDay : ti.OnDay,
+            QuantityCalculated: 0,
+            QuantityApplied: 0,
+            Description: ti.Description
+        });
+
+        cycleItem.setCalculatedQuantity();
+
+        return cycleItem;
     }
 }
 
@@ -167,11 +222,11 @@ export interface ICycle {
     TreatmentId: number;
     Treatment: Treatment;
     StartDate: Date;
-    SerumCreat?: number;    
+    SerumCreat?: number;
     Height: number;
     Weight: number;
     BirthDate: Date;
-    Gender: Gender;  
+    Gender: Gender;
     Emitted: boolean;
     CycleItems: ICycleItem[];
 }

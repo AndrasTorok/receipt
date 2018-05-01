@@ -10,22 +10,11 @@
       </div>
       <div class="form-group col-md-2">
         <label>Mod aplicare:</label>
-        <select class="form-control" name="DoseApplicationMode" #DoseApplicationMode="ngModel" [(ngModel)]="medicament.DoseApplicationMode">
+        <select class="form-control" name="DoseApplicationMode" [(ngModel)]="medicament.DoseApplicationMode">
           <option *ngFor="let kvp of doseApplicationModeEnumeration.keyValuePairs" value="{{kvp.key}}">{{kvp.value}}</option>
         </select>
-      </div>
-      <div class="form-group col-md-2">
-        <label>{{medicament.DoseApplicationMode == 2 ? 'TargetAUC' : 'Doza' }}:</label>
-        <input type="number" class="form-control" name="Dose" [(ngModel)]="medicament.Dose" required min="0.01" />
-        <app-validation [entity]="medicament" property="Dose"></app-validation>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group col-md-12">
-        <label>Descriere:</label>
-        <textarea class="form-control" rows=3 maxlength="300" name="Description" #Description="ngModel" [(ngModel)]="medicament.Description"></textarea>
-      </div>
-    </div>
+      </div>      
+    </div>    
 
     <button type="button" class="btn" [routerLink]="['/medicament']">Inapoi</button>
     <button type="button" class="btn btn-primary" [disabled]="!(medicament.$valid() && form.dirty)" (click)="addOrUpdate(form)">Salveaza</button>

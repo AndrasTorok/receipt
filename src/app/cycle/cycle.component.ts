@@ -122,20 +122,14 @@ export class CycleComponent implements OnInit, OnDestroy {
           {
             headerName: 'Tratament',
             field: "Treatment",
-            width: 400,
-            valueGetter: (params) => params.data.Treatment.Name
-          },
-          {
-            headerName: '',
-            field: '',
-            width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Emitted ? 'Vizualizare': 'Editare'}</button></div>`,
+            width: 680,            
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Treatment.Name}</button></div>`,
             onCellClicked: (params) => {
               let id = params.data.Id;
 
               this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
             }
-          },
+          },          
           {
             headerName: '',
             field: '',

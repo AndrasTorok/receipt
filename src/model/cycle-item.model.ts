@@ -83,11 +83,17 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         if (cycle) this.Cycle = cycle;
     }
 
-    setCalculatedQuantity(patient: Patient): void {
+    setCalculatedQuantity(): void {
         let calculation = CycleItem.calculationMap.get(this.Medicament.DoseApplicationMode),
             calculatedQuantity = calculation(this);
 
-        calculatedQuantity = Math.round(calculatedQuantity * 10) / 10;
+        if(calculatedQuantity > 1000) {
+            calculatedQuantity = Math.round(calculatedQuantity);
+        } else if(calculatedQuantity > 100) {
+            calculatedQuantity = Math.round(calculatedQuantity * 10) / 10;
+        } else {
+            calculatedQuantity = Math.round(calculatedQuantity * 100) / 100;
+        }        
 
         this.QuantityCalculated = calculatedQuantity;
         this.QuantityApplied = calculatedQuantity;
@@ -99,7 +105,7 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         if (this.Cycle) {
             date = new Date(this.Cycle.StartDate.toString());
 
-            date.setDate(date.getDate() + this.OnDay);
+            date.setDate(date.getDate() + this.OnDay - 1);                  //from the onDate we substract one all the time
         }
 
         return date;

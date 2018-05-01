@@ -110,7 +110,13 @@ export class PatientComponent implements OnInit, OnDestroy {
           {
             headerName: 'CNP',
             field: "CNP",
-            width: 130
+            width: 130,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.CNP}</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+    
+              this.router.navigateByUrl(`/patient/${id}`);
+            }
           },
           {
             headerName: 'Nume',
@@ -144,18 +150,7 @@ export class PatientComponent implements OnInit, OnDestroy {
             headerName: 'Greutate',
             field: 'Weight',
             width: 80
-          },
-          {
-            headerName: '',
-            field: '',
-            width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-            onCellClicked: (params) => {
-              let id = params.data.Id;
-    
-              this.router.navigateByUrl(`/patient/${id}`);
-            }
-          },
+          },          
           {
             headerName: '',
             field: '',

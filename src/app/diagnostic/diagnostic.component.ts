@@ -120,26 +120,21 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
           {
             headerName: 'Descriere',
             field: "Description",
-            width: 400,
-            tooltip: (params) => params.data.Description
-          },
-          {
-            headerName: 'Localizare',
-            field: "Localization",
-            width: 400,
-            tooltip: (params) => params.data.Localization
-          },
-          {
-            headerName: '',
-            field: '',
-            width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            width: 580,
+            tooltip: (params) => params.data.Description,
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Description}</button></div>`,
             onCellClicked: (params) => {
               let id = params.data.Id;
 
               this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${id}`);
             }
           },
+          {
+            headerName: 'Localizare',
+            field: "Localization",
+            width: 300,
+            tooltip: (params) => params.data.Localization
+          },          
           {
             headerName: '',
             field: '',

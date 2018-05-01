@@ -104,27 +104,22 @@ export class MedicamentComponent implements OnInit, OnDestroy {
             headerName: 'Medicament',
             field: "Name",
             width: 700,
-            sort: 'asc'
+            sort: 'asc',
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Name}</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+
+              this.router.navigateByUrl(`/medicament/${id}`);
+            }
           },          
           {
             headerName: 'Mod aplicare',
             field: "DoseApplicationMode",
             width: 150,
             valueGetter: (params) => DoseApplicationModeEnumeration.get(params.data.DoseApplicationMode)
-          },          
+          },                    
           {
-            headerName: '',
-            field: '',
-            width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
-            onCellClicked: (params) => {
-              let id = params.data.Id;
-
-              this.router.navigateByUrl(`/medicament/${id}`);
-            }
-          },
-          {
-            headerName: '',
+            headerName: 'Sterge',
             field: '',
             width: 80,
             cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,

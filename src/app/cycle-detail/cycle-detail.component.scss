@@ -2,3 +2,13 @@
     background-color: #e9ecef;
     opacity: 1;
 }
+
+.header-row {
+    position: relative;
+    height: 24*3px; 
+
+    .label-row {
+        position: absolute;
+        bottom: 0;   
+    }
+}

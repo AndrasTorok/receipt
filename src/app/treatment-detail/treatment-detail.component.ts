@@ -29,19 +29,19 @@ export class TreatmentDetailComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     private router: Router,
     private messageService: MessageService
-  ) {    
+  ) {
     this.activeRoute.params.subscribe(params => {
       this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
       this.formState = this.treatmentId ? FormState.Updating : FormState.Adding;
-  
-      Promise.all([this.configureGrid(), this.fetchEntities()]).then(()=>{
+
+      Promise.all([this.configureGrid(), this.fetchEntities()]).then(() => {
         this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
-      });       
+      });
     });
   }
 
   ngOnInit() {
-    
+
   }
 
   addOrUpdate(form: NgForm): void {
@@ -114,11 +114,11 @@ export class TreatmentDetailComponent implements OnInit {
         onSelectionChanged: () => {
 
         },
-        getRowHeight: (params)=> { 
-          let nrOfRows = (Math.floor(params.data.Description.length / 50) + 1),
-            rowHeighInPixel = nrOfRows *25;
+        getRowHeight: (params) => {
+          let nrOfRows = (Math.floor(params.data.Description.length / 55) + 1),
+            rowHeighInPixel = nrOfRows * 25;
 
-            return rowHeighInPixel;
+          return rowHeighInPixel;
         },
         columnDefs: [
           {
@@ -130,18 +130,23 @@ export class TreatmentDetailComponent implements OnInit {
           {
             headerName: 'Pana',
             field: "EndDay",
-            width: 50            
+            width: 50
           },
           {
             headerName: 'Din',
             field: "DayStep",
-            width: 50            
+            width: 50
           },
           {
             headerName: 'Medicament',
             width: 250,
             sort: 'asc',
-            valueGetter: (params) => params.data.Medicament.Name
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Medicament.Name}</button></div>`,
+            onCellClicked: (params) => {
+              let id = params.data.Id;
+
+              this.router.navigateByUrl(`/treatment/${this.treatmentId}/item/${id}`);
+            }
           },
           {
             headerName: 'Doza Medicament',
@@ -157,7 +162,7 @@ export class TreatmentDetailComponent implements OnInit {
           {
             headerName: 'Descriere',
             field: "Description",
-            width: 270,
+            width: 350,
             autoHeight: true,
             cellClass: 'cell-wrap-text',
             valueGetter: (params) => params.data.Description,
@@ -167,22 +172,13 @@ export class TreatmentDetailComponent implements OnInit {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            cellRenderer: (params) => this.treatment.IsDefault ? '' : `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              if (!this.treatment.IsDefault) {
+                let id = params.data.Id;
 
-              this.router.navigateByUrl(`/treatment/${this.treatmentId}/item/${id}`);
-            }
-          },
-          {
-            headerName: '',
-            field: '',
-            width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
-            onCellClicked: (params) => {
-              let id = params.data.Id;
-
-              this.removeTreatmentItem(id);
+                this.removeTreatmentItem(id);
+              }
             }
           }
         ]
@@ -191,10 +187,10 @@ export class TreatmentDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let treatmentPromise = new Promise((resolve, reject)=>{
+    let treatmentPromise = new Promise((resolve, reject) => {
       if (this.treatmentId) {
         let treatmentSubscription = this.treatmentService.getById(this.treatmentId).subscribe(treatment => {
-          this.treatment = new Treatment(treatment);          
+          this.treatment = new Treatment(treatment);
           treatmentSubscription.unsubscribe();
           resolve();
         });

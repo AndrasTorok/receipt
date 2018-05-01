@@ -32,7 +32,6 @@ export class CycleDetailComponent implements OnInit {
   diagnosticId: string;
   cycleId: string;
   treatments: Treatment[];
-  selectedTreatment: Treatment;
   formState: FormState;
   formLoaded: boolean = false;
   minDate: Date = new Date();
@@ -62,48 +61,17 @@ export class CycleDetailComponent implements OnInit {
     });
   }
 
-  applyTreatment(): void {
-    this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
-      let cycleItems = [];
+  selectedTreatmentChanged(): void {
+    let selectedTratment = this.treatments.find(t => t.Id == Number(this.cycle.TreatmentId));
 
-      this.selectedTreatment = new Treatment(treatment);
-
-      if (treatment.TreatmentItems && treatment.TreatmentItems.length) {
-        treatment.TreatmentItems.forEach(ti=>{
-          if(ti.EndDay) {
-            for(let onDay = ti.OnDay; onDay <= ti.EndDay; onDay += ti.DayStep ? ti.DayStep : 1){
-              let cycleItem = this.getCycleItem(ti, onDay);
-              
-              cycleItems.push(cycleItem);
-            }            
-          } else {
-            let cycleItem = this.getCycleItem(ti);
-            cycleItems.push(cycleItem);
-          }
-        });        
-      }
-
-      this.cycle.CycleItems = this.sortCycleItems(cycleItems);
-    });
+    if (selectedTratment) this.cycle.Treatment = selectedTratment;
+    this.cycle.CycleItems = [];
   }
 
-  private getCycleItem(ti: TreatmentItem, onDay?: number) : CycleItem {
-    let cycleItem = new CycleItem(<ICycleItem>{
-      CycleId: this.cycle.Id,
-      Cycle: this.cycle,
-      TreatmentItemId: ti.Id,
-      TreatmentItem: new TreatmentItem(ti),
-      MedicamentId: ti.MedicamentId,
-      Medicament: new Medicament(ti.Medicament),
-      OnDay: onDay ? onDay : ti.OnDay,
-      QuantityCalculated: 0,
-      QuantityApplied: 0,
-      Description: ti.Description            
+  applyTreatment(): void {
+    this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
+      this.cycle.applyTreatment(treatment);
     });
-
-    cycleItem.setCalculatedQuantity(this.patient);
-    
-    return cycleItem;
   }
 
   saveCycleGraph(form: NgForm): void {
@@ -113,18 +81,23 @@ export class CycleDetailComponent implements OnInit {
     });
 
     this.cycle.Diagnostic = this.cycle.Treatment = null;
+    this.cycle.Emitted = true;
 
     this.cycleService.cycleGraph(this.cycle).subscribe(cycle => {
       if (this.cycle.Id) {                                          //saving an already added graph
         form.reset();
         this.router.navigate([`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${cycle.Id}`], { queryParams: { reload: Guid.newGuid() } });
       } else {                                                      //adding a new graph
-        this.router.navigate([`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`]);
+        this.router.navigate([`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${cycle.Id}`]);
       }
     }, err => {
 
     });
-  }  
+  }
+
+  get canSave(): boolean {
+    return this.valid && this.cycle.CycleItems && !!this.cycle.CycleItems.length;
+  }
 
   get valid(): boolean {
     return this.cycle && this.cycle.$valid();
@@ -187,29 +160,11 @@ export class CycleDetailComponent implements OnInit {
     });
   }
 
-  get canClone(): boolean {
-    return this.valid && !!this.cycle.Id && this.cycle.CycleItems && !this.cycle.CycleItems.some(ci => !ci.Id);
-  }
-
   print(form: NgForm): void {
-    new Promise((resolve, reject) => {
-      resolve();
-      /*
-      if (this.cycle.Emitted) resolve();
-      else {
-        this.checkFormIsSaved(form, 'a tipari reteta').then((result: boolean) => {
-          this.cycleService.emit(this.cycle.Id).subscribe(emitted => {
-            this.cycle.Emitted = true;
-            resolve();
-          });
-        });
-      }
-      */
-    }).then(() => {
-      this.cycle.CycleItems = this.sortCycleItems(this.cycle.CycleItems, true);     //before print apply sorting and trigger digest cycle
-      (<any>window).print();                                                        //print it  
-    });
-  }  
+    if (this.cycle.Emitted) {
+      (<any>window).print();                                                      //print it  
+    }
+  }
 
   private fetchEntities(): Promise<any>[] {
     let fetchPatientPromise = new Promise((resolve, reject) => {
@@ -225,7 +180,7 @@ export class CycleDetailComponent implements OnInit {
         if (this.cycleId) {
           let cycleSubscription = this.cycleService.getById(this.cycleId).subscribe(cycle => {
             this.cycle = new Cycle(cycle, this.patient.Gender, this.patient.BirthDate);
-            this.cycle.CycleItems = this.sortCycleItems(this.cycle.CycleItems);
+            this.cycle.sortCycleItems();
             cycleSubscription.unsubscribe();
             resolve();
           });
@@ -253,20 +208,6 @@ export class CycleDetailComponent implements OnInit {
     });
 
     return [fetchCyclePromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
-  }
-
-  private sortCycleItems(cycleItems: CycleItem[], doTriggerDigestCycle: boolean = false): CycleItem[] {
-    let sortedCycleItems = cycleItems.sort((a, b) => {
-      let onDayDifference = a.OnDay - b.OnDay;
-      if (onDayDifference) return onDayDifference;
-      let medicamentNameDifference = a.Medicament && b.Medicament ? (a.Medicament.Name > b.Medicament.Name ? 1 : -1) : 0;
-
-      return medicamentNameDifference;
-    });
-
-    if (doTriggerDigestCycle) this.changeDetectorRef.detectChanges();
-
-    return sortedCycleItems;
   }
 
   private checkFormIsSaved(form: NgForm, action: string): Promise<boolean> {

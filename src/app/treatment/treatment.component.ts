@@ -34,7 +34,7 @@ export class TreatmentComponent implements OnInit, OnDestroy {
     Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.treatments);
       this.searchSubscription = searchService.search.subscribe(search => {
-        if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+        if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
       });
     });
   }
@@ -91,7 +91,7 @@ export class TreatmentComponent implements OnInit, OnDestroy {
         paginationAutoPageSize: true,
         rowSelection: 'single',
         rowHeight: 30,
-        onGridReady: () => {          
+        onGridReady: () => {
           resolve();
         },
         onSelectionChanged: () => {
@@ -101,14 +101,9 @@ export class TreatmentComponent implements OnInit, OnDestroy {
           {
             headerName: 'Tratament',
             field: "Name",
-            width: 500,
-            sort: 'asc'
-          },
-          {
-            headerName: '',
-            field: '',
-            width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Editare</button></div>`,
+            width: 960,
+            sort: 'asc',
+            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Name}</button></div>`,
             onCellClicked: (params) => {
               let id = params.data.Id;
 
@@ -116,14 +111,16 @@ export class TreatmentComponent implements OnInit, OnDestroy {
             }
           },
           {
-            headerName: '',
+            headerName: 'Sterge',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => params.data.IsDefault ? '' : `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              if (!params.data.IsDefault) {
+                let id = params.data.Id;
 
-              this.removeTreatment(id);
+                this.removeTreatment(id);
+              }
             }
           }
         ]
