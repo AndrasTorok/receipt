@@ -1,7 +1,7 @@
 import { Diagnostic } from './diagnostic.model';
 import { Treatment } from './treatment.model';
 import { TreatmentItem } from './treatment-item.model';
-import { Medicament, DoseApplicationMode } from './medicament.model';
+import { Medicament, DoseApplicationMode, DoseApplicationUnit } from './medicament.model';
 import { Cycle } from './cycle.model';
 import { Patient, Gender } from './patient.model';
 import { CommonEntity, IValidity, Validity } from '../common/common.entity';
@@ -17,8 +17,7 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
     OnDay: number;
     QuantityCalculated: number;
     QuantityApplied: number;
-    Description: string;
-    private _calculationMap: Map<DoseApplicationMode, (patient: Patient) => number>;
+    Description: string;    
 
     static validityMap = new Map<string, IValidity<CycleItem>[]>([
         ['TreatmentItem',
@@ -109,6 +108,10 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         }
 
         return date;
+    }
+
+    get dozaj(): string {
+        return `${this.TreatmentItem.Dose} ${DoseApplicationUnit.get(this.Medicament.DoseApplicationMode)}`;
     }
 }
 

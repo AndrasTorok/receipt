@@ -6,7 +6,11 @@
         display: none !important;        
     }    
 
-    @page { margin: 0; }
+    @page { margin: 20; }
+
+    .page-break-before {
+        page-break-before: always;
+    }
 }
 
 @media screen {

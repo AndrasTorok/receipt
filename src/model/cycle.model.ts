@@ -146,7 +146,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
                 startDay = Math.min(...onDayArray),
                 endDay = Math.max(...onDayArray);
 
-            durationInDays = endDay - startDay;
+            durationInDays = endDay - startDay + 1;
         }
 
         return durationInDays;

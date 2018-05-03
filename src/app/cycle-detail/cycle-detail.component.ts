@@ -18,6 +18,8 @@ import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { OrderByPipe } from '../../common/orderBy.pipe';
 
+const HeaderRows = [0, 10, 25, 50];
+
 @Component({
   selector: 'app-cycle-detail',
   templateUrl: './cycle-detail.component.html',
@@ -68,6 +70,12 @@ export class CycleDetailComponent implements OnInit {
     this.cycle.CycleItems = [];
   }
 
+  quantityAppliedChanged(cycleItem: CycleItem) {
+    let itemsToUpdate = this.cycle.CycleItems.filter(ci=> ci.Medicament.Id == cycleItem.Medicament.Id && ci.QuantityCalculated == cycleItem.QuantityCalculated);
+
+    itemsToUpdate.forEach(ci=> ci.QuantityApplied = cycleItem.QuantityApplied);    
+  }
+
   applyTreatment(): void {
     this.treatmentService.getById(this.cycle.TreatmentId.toString()).subscribe(treatment => {
       this.cycle.applyTreatment(treatment);
@@ -101,62 +109,45 @@ export class CycleDetailComponent implements OnInit {
 
   get valid(): boolean {
     return this.cycle && this.cycle.$valid();
-  }
-
-  get invalidProperties(): string {
-    return this.cycle ? this.cycle.$invalidProperties().join(', ') : '';
-  }
-
-  get isSerumCreatNeeded(): boolean {
-    let isNeeded: boolean = false;
-
-    if (this.cycle && this.cycle.TreatmentId && this.treatments) {
-      let selectedTreatment = this.treatments.find(t => t.Id == this.cycle.TreatmentId);
-      if (!selectedTreatment) throw new Error(`Selected treatment does not exists!`);
-
-      isNeeded = selectedTreatment.IsSerumCreatNeeded;
-    }
-
-    return isNeeded;
-  }
+  }    
 
   clone(form: NgForm): void {
-    this.checkFormIsSaved(form, 'a clona reteta').then((result: boolean) => {
-      let promise = new Promise<boolean>((resolve, reject) => {
-        let msg = `Sunteti sigur ca doriti sa clonati ciclul de tratament ? Daca da, se va crea un ciclu tratament care incepe cu ziua de azi. `,
-          responses: [string, (string) => void][] = [
-            ["Da", () => {
-              resolve(true);
-            }],
-            ["Nu", () => {
-              resolve(false);
-            }]
-          ],
-          message = new Message(msg, false, responses);
+    let promise = new Promise<boolean>((resolve, reject) => {
+      let msg = `Sunteti sigur ca doriti sa clonati ciclul de tratament ? Daca da, se va crea un ciclu tratament care incepe cu ziua de azi pe care o puteti edita. `,
+        responses: [string, (string) => void][] = [
+          ["Da", () => {
+            resolve(true);
+          }],
+          ["Nu", () => {
+            resolve(false);
+          }]
+        ],
+        message = new Message(msg, false, responses);
 
-        this.messageService.reportMessage(message);
-      });
+      this.messageService.reportMessage(message);
+    });
 
-      promise.then((doClone: boolean) => {
-        this.messageService.removeMessage();
-        if (doClone) {
-          let clone = new Cycle(this.cycle, this.cycle.Gender, this.cycle.BirthDate);
+    promise.then((doClone: boolean) => {
+      this.messageService.removeMessage();
+      if (doClone) {
+        let clone = new Cycle(this.cycle, this.cycle.Gender, this.cycle.BirthDate);
 
-          clone.CycleItems.forEach(ci => {
-            ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
-            ci.Id = ci.CycleId = 0;
-          });
+        clone.CycleItems.forEach(ci => {
+          ci.Medicament = ci.Cycle = ci.TreatmentItem = null;
+          ci.Id = ci.CycleId = 0;
+        });
 
-          clone.Diagnostic = clone.Treatment = null;
-          clone.Id = 0;
+        clone.Diagnostic = clone.Treatment = null;
+        clone.Id = 0;
+        clone.StartDate = new Date();
+        clone.Emitted = false;
 
-          this.cycleService.cycleGraph(clone).subscribe(cycle => {
-            this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}`);
-          }, err => {
+        this.cycleService.cycleGraph(clone).subscribe(cycle => {
+          this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${cycle.Id}`);
+        }, err => {
 
-          });
-        }
-      });
+        });
+      }
     });
   }
 
@@ -165,6 +156,10 @@ export class CycleDetailComponent implements OnInit {
       (<any>window).print();                                                      //print it  
     }
   }
+
+  isHeaderRow(index: number): boolean {
+    return HeaderRows.includes(index);
+  }    
 
   private fetchEntities(): Promise<any>[] {
     let fetchPatientPromise = new Promise((resolve, reject) => {
@@ -208,24 +203,6 @@ export class CycleDetailComponent implements OnInit {
     });
 
     return [fetchCyclePromise, fetchTreatmentsPromise, fetchPatientPromise, fetchDiagnosticPromise];
-  }
-
-  private checkFormIsSaved(form: NgForm, action: string): Promise<boolean> {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      if (form.dirty) {
-        let msg = `Ati facut schimbari in forma. Inainte de ${action} trebuie sa salvati schimbarile.`,
-          responses: [string, (string) => void][] = [
-            ["Ok", () => {
-              this.messageService.removeMessage();
-            }]
-          ],
-          message = new Message(msg, false, responses);
-
-        this.messageService.reportMessage(message);
-      } else resolve(true);
-    });
-
-    return promise;
   }
 
   private fetchView(): void {

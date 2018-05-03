@@ -51,3 +51,10 @@ export const DoseApplicationModeEnumeration = new Enumeration<DoseApplicationMod
     [DoseApplicationMode.Carboplatin, 'Carboplatin'],
     [DoseApplicationMode.DT, 'DT']
 ]));
+
+export const DoseApplicationUnit = new Enumeration<DoseApplicationMode>(new Map<DoseApplicationMode, string>([
+    [DoseApplicationMode.Sqm, 'mg/mp'],
+    [DoseApplicationMode.Kg, 'mg/kg'],
+    [DoseApplicationMode.Carboplatin, 'AUC'],
+    [DoseApplicationMode.DT, 'DT']
+]));

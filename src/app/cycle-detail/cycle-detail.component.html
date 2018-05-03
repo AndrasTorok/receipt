@@ -6,15 +6,16 @@
       <app-patient-detail-display [patient]="patient" [diagnostic]="diagnostic"></app-patient-detail-display>
       <div class="form-row">
         <div class="form-group col-md-4">
-          <label>Treatment:</label>
+          <label>Tratament:</label>
           <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" (change)="selectedTreatmentChanged()" [disabled]="cycle.Emitted">
             <option *ngFor="let item of treatments" [value]="item?.Id">{{item?.Name}}</option>
           </select>
         </div>
         <div class="form-group col-md-3">
           <label>Data inceput tratament:</label>
-          <input type="date" class="form-control" name="StartDate" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" (ngModelChange)="cycle.StartDate=$event"
+          <input *ngIf="!cycle?.Emitted" type="date" class="form-control" name="StartDate" [ngModel]="cycle.StartDate|date:'yyyy-MM-dd'" (ngModelChange)="cycle.StartDate=$event"
             [disabled]="cycle.Emitted" required [min]="minDate | date:'yyyy-MM-dd'" />
+          <input *ngIf="cycle?.Emitted" type="text" class="form-control" name="endDate" [value]="cycle.StartDate|date:'EEE dd/MM/yyyy':locale" disabled />
           <app-validation [entity]="cycle" property="StartDate"></app-validation>
         </div>
         <div class="form-group col-md-2">
@@ -23,7 +24,7 @@
         </div>
         <div class="form-group col-md-3">
           <label>Data finalizare tratament:</label>
-          <input type="text" class="form-control" name="endDate" [value]="cycle.endDate|date:'dd/MM/yyyy'" disabled />
+          <input type="text" class="form-control" name="endDate" [value]="cycle.endDate|date:'EEE dd/MM/yyyy':locale" disabled />
         </div>
       </div>
       <div class="form-row">
@@ -44,14 +45,20 @@
           <app-validation [entity]="cycle" property="Weight"></app-validation>
         </div>
         <div class="form-group col-md-2">
+          <label>Suprafata (m2)</label>
+          <input type="text" class="form-control" name="bodySurfaceArea" [value]="cycle.bodySurfaceArea.toFixed(2)" disabled
+          />          
+        </div>        
+        <div class="form-group col-md-2">
           <label [class.noprint]="!cycle.SerumCreat">Creatina:</label>
           <input type="number" class="form-control" [class.noprint]="!cycle.SerumCreat" name="SerumCreat" [(ngModel)]="cycle.SerumCreat"
-            [disabled]="!isSerumCreatNeeded" />
+            [disabled]="!cycle?.Treatment?.IsSerumCreatNeeded" />
           <app-validation [entity]="cycle" property="SerumCreat"></app-validation>
         </div>
         <div class="form-group col-md-2 noprint" *ngIf="!cycle.Emitted">
           <label>Aplica:</label>
-          <button type="button" class="form-control btn btn-primary" [disabled]="!cycle || !cycle.$valid() || cycle.Emitted" (click)="applyTreatment()">Aplica tratament</button>
+          <button type="button" class="form-control btn btn-primary" [disabled]="cycleId || !cycle || !cycle.$valid() || cycle.Emitted"
+            (click)="applyTreatment()">Aplica tratament</button>
         </div>
       </div>
     </div>
@@ -64,41 +71,50 @@
       <button type="button" class="btn m-3" [disabled]="!canSave || !cycle.Emitted" (click)="print(form)">Tipareste</button>
     </div>
 
-    <div *ngIf="cycle?.CycleItems">
-      <div class="row">
-        <div class="col-md-2 header-row">
-          <div class="label-row">In data:</div>          
+    <div *ngIf="cycle?.CycleItems?.length" class="treatment-rows">
+      <div *ngFor="let cycleItem of cycle.CycleItems; let index = index">
+        <div class="row" *ngIf="isHeaderRow(index)" [class.page-break-before]="index > 0" [class.print-only]="index">          
+          <div class="col-md-2 header-row">
+            <div class="label-row">In data:</div>
+          </div>
+          <div class="col-md-2 header-row">
+            <div class="label-row">Medicament:</div>
+          </div>
+          <div class="col-md-1 header-row">
+            <div class="label-row">Doza prescrisa:</div>
+          </div>
+          <div class="col-md-1 header-row">
+            <div class="label-row">Doza calculata (mg):</div>
+          </div>
+          <div class="col-md-1 header-row">
+            <div class="label-row">Doza aplicata (mg):</div>
+          </div>
+          <div class="col-md-5 header-row">
+            <div class="label-row">Explicatii:</div>
+          </div>
         </div>
-        <div class="col-md-3 header-row">
-          <div class="label-row">Medicament:</div>          
-        </div>
-        <div class="col-md-1 header-row">
-          <div class="label-row">Doza calculata (mg):</div>          
-        </div>
-        <div class="col-md-1 header-row">
-          <div class="label-row">Doza aplicata (mg):</div>          
-        </div>
-        <div class="col-md-5 header-row">
-          <div class="label-row">Explicatii:</div>          
-        </div>
-      </div>
-      <div class="form-row" *ngFor="let cycleItem of cycle.CycleItems; let index = index">
-        <div class="form-group col-md-2">          
-          <input type="text" class="form-control" name="endDate" [value]="cycleItem.onDate|date:'dd/MM/yyyy'" disabled />
-        </div>
-        <div class="form-group col-md-3">          
-          <div class="form-control read-only">{{cycleItem?.Medicament?.Name}}</div>
-        </div>
-        <div class="form-group col-md-1">          
-          <input type="number" class="form-control" name="QuantityCalculated-{{index}}" [value]="cycleItem.QuantityCalculated" disabled
-          />
-        </div>
-        <div class="form-group col-md-1">          
-          <input type="number" class="form-control" name="QuantityApplied-{{index}}" [(ngModel)]="cycleItem.QuantityApplied" [disabled]="cycle.Emitted"
-            required />
-        </div>
-        <div class="form-group col-md-5">         
-          <div class="form-control read-only">{{cycleItem.TreatmentItem?.Description}}</div>
+        <div class="form-row">
+          <div class="form-group col-md-2">
+            <input type="text" class="form-control" name="endDate" [value]="cycleItem.onDate|date:'EEE dd/MM/yyyy':locale" disabled />
+          </div>
+          <div class="form-group col-md-2">
+            <div class="form-control read-only">{{cycleItem?.Medicament?.Name}}</div>
+          </div>
+          <div class="form-group col-md-1">
+            <div class="form-control read-only">{{cycleItem.dozaj}}</div>
+          </div>
+          <div class="form-group col-md-1">
+            <input type="number" class="form-control align-right" name="QuantityCalculated-{{index}}" [value]="cycleItem.QuantityCalculated" disabled
+            />
+          </div>
+          <div class="form-group col-md-1">
+            <input type="number" class="form-control align-right" name="QuantityApplied-{{index}}" [(ngModel)]="cycleItem.QuantityApplied" 
+                (input)="quantityAppliedChanged(cycleItem)" [disabled]="cycle.Emitted"
+              required />
+          </div>
+          <div class="form-group col-md-5">
+            <div class="form-control read-only">{{cycleItem.TreatmentItem?.Description}}</div>
+          </div>
         </div>
       </div>
     </div>

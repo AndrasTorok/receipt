@@ -3,12 +3,19 @@
     opacity: 1;
 }
 
-.header-row {
-    position: relative;
-    height: 24*3px; 
+.treatment-rows {
+    .header-row {
+        position: relative;
+        height: 24*3px; 
 
-    .label-row {
-        position: absolute;
-        bottom: 0;   
+        .label-row {
+            position: absolute;
+            bottom: 0;   
+        }
+    }
+
+    input[type=number] {
+        padding: 6px;
+        text-align: right;
     }
 }

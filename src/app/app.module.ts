@@ -1,11 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { NgModule, APP_INITIALIZER, LOCALE_ID } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { DatePipe } from '@angular/common';
+import { DatePipe, registerLocaleData } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular/main';
-
 import { AppComponent } from './app.component';
 import { AppConfig } from './app.config';
 import { WelcomeComponent } from './welcome/welcome.component';
@@ -34,6 +33,7 @@ import { NgDatepickerModule } from 'ng2-datepicker';
 import { SearchComponent } from './search/search.component';
 import { SearchService } from './search/search.service';
 import { OrderByPipe } from '../common/orderBy.pipe';
+import localeRo from '@angular/common/locales/ro';
 
 let routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
@@ -52,6 +52,8 @@ let routes = RouterModule.forRoot([
 export function initConfig(config: AppConfig) {
   return () => config.load()
 }
+
+registerLocaleData(localeRo, 'ro');
 
 @NgModule({
   declarations: [
@@ -95,7 +97,8 @@ export function initConfig(config: AppConfig) {
     CycleService,
     { provide: 'Window', useValue: window },
     SearchService,
-    OrderByPipe
+    OrderByPipe,
+    { provide: LOCALE_ID, useValue: 'ro'}
   ],
   bootstrap: [AppComponent]
 })
