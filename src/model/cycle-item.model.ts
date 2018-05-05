@@ -110,8 +110,8 @@ export class CycleItem extends CommonEntity<CycleItem> implements ICycleItem {
         return date;
     }
 
-    get dozaj(): string {
-        return `${this.TreatmentItem.Dose} ${DoseApplicationUnit.get(this.Medicament.DoseApplicationMode)}`;
+    get doseUnit(): string {        
+        return this.TreatmentItem && this.Medicament ? `${this.TreatmentItem.Dose} ${DoseApplicationUnit.get(this.Medicament.DoseApplicationMode)}` : '';        
     }
 }
 
