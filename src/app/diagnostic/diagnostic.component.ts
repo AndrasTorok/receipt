@@ -40,7 +40,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
 
       searchService.clearSearch();
 
-      Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
+      Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
         this.onInitialized.emit(this.diagnostics && !!this.diagnostics.length);             //inform parent if there are diagnostics or not
         this.gridOptions.api.setRowData(this.diagnostics);
         this.searchSubscription = searchService.search.subscribe(search => {
@@ -151,7 +151,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
     });
   }
 
-  private fetchEntities(): Promise<any> {
+  private fetchEntity(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.patientId) {
         this.diagnosticService.getAllForPatientId(this.patientId).subscribe((diagnostics: IDiagnostic[]) => {

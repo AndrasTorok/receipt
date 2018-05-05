@@ -32,7 +32,7 @@ export class MedicamentComponent implements OnInit, OnDestroy {
 
     searchService.clearSearch();
 
-    Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
+    Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.medicaments);
       this.searchSubscription = searchService.search.subscribe(search => {
         if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
@@ -134,7 +134,7 @@ export class MedicamentComponent implements OnInit, OnDestroy {
     });
   }
 
-  private fetchEntities(): Promise<any> {
+  private fetchEntity(): Promise<any> {
     return new Promise((resolve, reject) => {
       Promise.all([
         this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)))

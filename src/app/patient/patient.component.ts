@@ -33,7 +33,7 @@ export class PatientComponent implements OnInit, OnDestroy {
 
     searchService.clearSearch();
 
-    Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
+    Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.patients);      
 
       this.searchSubscription = searchService.search.subscribe(search=>{      
@@ -167,7 +167,7 @@ export class PatientComponent implements OnInit, OnDestroy {
     });
   }
   
-  private fetchEntities(): Promise<any> {
+  private fetchEntity(): Promise<any> {
     return new Promise((resolve, reject) => {
       Promise.all([
         this.patientService.fetchEntityAndUnsubscribe((entities) => this.patients = entities.map(p => new Patient(p)))
