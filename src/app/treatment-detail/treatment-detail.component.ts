@@ -162,8 +162,7 @@ export class TreatmentDetailComponent implements OnInit {
           {
             headerName: 'Descriere',
             field: "Description",
-            width: 350,
-            autoHeight: true,
+            width: 350,            
             cellClass: 'cell-wrap-text',
             valueGetter: (params) => params.data.Description,
             tooltip: (params) => params.data.Description
