@@ -34,7 +34,7 @@ export class TreatmentDetailComponent implements OnInit {
       this.treatmentId = this.activeRoute.snapshot.params['treatmentId'];
       this.formState = this.treatmentId ? FormState.Updating : FormState.Adding;
 
-      Promise.all([this.configureGrid(), this.fetchEntities()]).then(() => {
+      Promise.all(this.fetchEntities().concat(this.configureGrid())).then(() => {
         this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
       });
     });

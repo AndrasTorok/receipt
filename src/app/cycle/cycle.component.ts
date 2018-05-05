@@ -39,7 +39,7 @@ export class CycleComponent implements OnInit, OnDestroy {
 
       searchService.clearSearch();
 
-      Promise.all([this.fetchEntities(), gridReadyPromise]).then(() => {
+      Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
         this.onInitialized.emit(this.cycles && this.cycles.some(cycle=> cycle.Emitted));                //inform parent if there are emitted cycles or not
         this.gridOptions.api.setRowData(this.cycles);
         this.searchSubscription = searchService.search.subscribe(search => {
@@ -148,7 +148,7 @@ export class CycleComponent implements OnInit, OnDestroy {
     });
   }
 
-  private fetchEntities(): Promise<any> {
+  private fetchEntity(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.diagnosticId) {
         let subscription = this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {

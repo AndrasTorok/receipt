@@ -29,7 +29,6 @@ import { CycleDetailComponent } from './cycle-detail/cycle-detail.component';
 import { ValidationComponent } from './validation/validation.component';
 import { PatientDetailDisplayComponent } from './patient-detail-display/patient-detail-display.component';
 import { MessageModule } from '../messages/message.module';
-import { NgDatepickerModule } from 'ng2-datepicker';
 import { SearchComponent } from './search/search.component';
 import { SearchService } from './search/search.service';
 import { OrderByPipe } from '../common/orderBy.pipe';
@@ -72,8 +71,8 @@ registerLocaleData(localeRo, 'ro');
     CycleDetailComponent,
     ValidationComponent,
     PatientDetailDisplayComponent,
-    SearchComponent    ,
-    OrderByPipe    
+    SearchComponent,
+    OrderByPipe
   ],
   imports: [
     BrowserModule,
@@ -82,8 +81,7 @@ registerLocaleData(localeRo, 'ro');
     ReactiveFormsModule,
     HttpModule,
     AgGridModule.withComponents([]),
-    MessageModule,
-    NgDatepickerModule
+    MessageModule
   ],
   providers: [
     AppConfig,
@@ -98,7 +96,7 @@ registerLocaleData(localeRo, 'ro');
     { provide: 'Window', useValue: window },
     SearchService,
     OrderByPipe,
-    { provide: LOCALE_ID, useValue: 'ro'}
+    { provide: LOCALE_ID, useValue: 'ro' }
   ],
   bootstrap: [AppComponent]
 })

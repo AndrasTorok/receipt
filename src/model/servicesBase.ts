@@ -13,7 +13,13 @@ export abstract class ServiceBase<T> {
     protected _requestOptions: RequestOptions;
     protected _url: string;
 
-    constructor(protected _http: Http, private _messageService: MessageService, protected _config: AppConfig = null, protected _serviceUrl: string, protected _doLog: boolean = false) {
+    constructor(
+        protected _http: Http, 
+        private _messageService: MessageService, 
+        protected _config: AppConfig, 
+        protected _serviceUrl: string, 
+        protected _doLog: boolean = false
+    ) {
         var host = this._config.getConfig('host'),
             origin = this._config.getConfig('origin'),
             headers = new Headers({ 'Access-Control-Allow-Origin': origin });
