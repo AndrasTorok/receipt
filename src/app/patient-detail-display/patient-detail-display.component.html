@@ -1,18 +1,18 @@
 <div class="form-row">
-  <div class="form-group col-md-6">
+  <div class="form-group col-md-2">
+    <label>CNP</label>
+    <input type="text" class="form-control" name="CNP" [value]="patient.CNP" disabled />
+  </div>
+  <div class="form-group col-md-5">
     <label>Nume:</label>
     <input type="text" class="form-control" name="FirstName" [value]="patient.FirstName" disabled />
   </div>
-  <div class="form-group col-md-6">
+  <div class="form-group col-md-5">
     <label>Prenume:</label>
     <input type="text" class="form-control" name="LastName" [value]="patient.LastName" disabled />
   </div>
 </div>
 <div class="form-row">
-  <div class="form-group col-md-2">
-    <label>CNP</label>
-    <input type="text" class="form-control" name="CNP" [value]="patient.CNP" disabled />
-  </div>
   <div class="form-group col-md-2">
     <label>Data nasterii:</label>
     <input type="text" class="form-control" name="BirthDate" [value]="patient.BirthDate|date:'dd/MM/yyyy'" disabled />
@@ -24,8 +24,12 @@
       <option value="0">M</option>
     </select>
   </div>
-  <div *ngIf="diagnostic" class="form-group col-md-3">
-    <label>Localizare:</label>
-    <input type="text" class="form-control" name="Localization" [value]="diagnostic.Localization" disabled />
+  <div *ngIf="diagnostic" class="form-group col-md-2">
+    <label>Data diagnostic:</label>
+    <input type="text" class="form-control" name="Date" [value]="diagnostic.Date|date:'dd/MM/yyyy'" disabled />
   </div>
+  <div *ngIf="diagnostic" class="form-group col-md-7">
+    <label>Diagnostic si localizare:</label>
+    <div class="form-control read-only break-word">{{diagnostic.Description}} ( {{diagnostic.Localization}} )</div>
+  </div>  
 </div>

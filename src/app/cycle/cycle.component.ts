@@ -120,9 +120,14 @@ export class CycleComponent implements OnInit, OnDestroy {
             valueGetter: (params) => this.datePipe.transform(params.data.endDate, 'dd/MM/yyyy')
           },
           {
+            headerName: 'Durata',
+            field: "durationInDays",
+            width: 80            
+          },
+          {
             headerName: 'Tratament',
             field: "Treatment",
-            width: 680,            
+            width: 600,            
             cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Treatment.Name}</button></div>`,
             onCellClicked: (params) => {
               let id = params.data.Id;

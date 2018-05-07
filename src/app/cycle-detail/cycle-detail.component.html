@@ -7,7 +7,7 @@
       <div class="form-row">
         <div class="form-group col-md-4">
           <label>Tratament:</label>
-          <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" (change)="selectedTreatmentChanged()" [disabled]="cycle.Emitted">
+          <select class="form-control" name="Treatment" [(ngModel)]="cycle.TreatmentId" (change)="selectedTreatmentChanged()" [disabled]="cycle.Emitted || cycleId">
             <option *ngFor="let item of treatments" [value]="item?.Id">{{item?.Name}}</option>
           </select>
         </div>
