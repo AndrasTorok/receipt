@@ -12,15 +12,17 @@ export abstract class CommonEntity<T extends ICommonEntity> implements ICommonEn
         let isValid = true;
 
         if (prop) {
-            let validities = this._validityMap.get(prop);
+            const validities = this._validityMap.get(prop);
 
             if (validities) {
                 isValid = !validities.some(validity => !validity.rule(<any>this));
             }
         } else {
-            this._validityMap.forEach((validities, prop) => {
+            this._validityMap.forEach((validities) => {
                 if (validities) {
-                    if (validities.some(validity => !validity.rule(<any>this))) isValid = false;
+                    if (validities.some(validity => !validity.rule(<any>this))) {
+                        isValid = false;
+                    }
                 }
             });
         }
@@ -29,22 +31,25 @@ export abstract class CommonEntity<T extends ICommonEntity> implements ICommonEn
     }
 
     $invalidProperties(): string[] {
-        let invalidProperties: string[] = [];
+        const invalidProperties: string[] = [];
 
         this._validityMap.forEach((validities, prop) => {
             if (validities) {
-                if (validities.some(validity => !validity.rule(<any>this))) invalidProperties.push(prop);
+                if (validities.some(validity => !validity.rule(<any>this))) {
+                    invalidProperties.push(prop);
+                }
             }
         });
 
-        if (DoDebug && invalidProperties.length) console.log(`Invalid properties: ${invalidProperties.join(', ')}`);
-
+        if (DoDebug && invalidProperties.length) {
+            console.log(`Invalid properties: ${invalidProperties.join(', ')}`);
+        }
         return invalidProperties;
     }
 
     $invalidMessages(prop: string): string[] {
-        let validities = this._validityMap.get(prop),
-            messages: string[] = validities.filter(validity=> !validity.rule(<any>this)).map(validity => validity.message(<any>this));
+        const validities = this._validityMap.get(prop),
+            messages: string[] = validities.filter(validity => !validity.rule(<any>this)).map(validity => validity.message(<any>this));
 
         return messages;
     }

@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Patient, IPatient, Gender } from './patient.model';
 
 describe('Patient', () => {
-    let patient : Patient;
+    let patient: Patient;
 
     beforeEach(() => {
         patient = patient = new Patient(<IPatient>{
@@ -18,9 +18,9 @@ describe('Patient', () => {
     });
 
     it('Patient.extractCNP should extract Gender and BirthDate correctly', () => {
-         patient.extractCNP();
+        patient.extractCNP();
 
-         expect(patient.Gender).toEqual(Gender.Female);
-         expect(patient.BirthDate).toEqual(new Date(1972, 12, 28));
+        expect(patient.Gender).toEqual(Gender.Female);
+        expect(patient.BirthDate).toEqual(new Date(1972, 12, 28));
     });
 });

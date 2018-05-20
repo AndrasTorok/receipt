@@ -61,7 +61,7 @@
   </form>
 
   <div class="diagnostics-container" *ngIf="patient">
-    <app-diagnostic (onInitialized)="onDiagnosticsInitialized($event)"></app-diagnostic>
+    <app-diagnostic (initialized)="onDiagnosticsInitialized($event)"></app-diagnostic>
   </div>
 </div>
 

@@ -34,7 +34,7 @@ import { SearchService } from './search/search.service';
 import { OrderByPipe } from '../common/orderBy.pipe';
 import localeRo from '@angular/common/locales/ro';
 
-let routes = RouterModule.forRoot([
+const routes = RouterModule.forRoot([
   { path: 'welcome', component: WelcomeComponent },
   { path: 'patient', component: PatientComponent },
   { path: 'patient/:patientId', component: PatientDetailComponent },
@@ -49,7 +49,7 @@ let routes = RouterModule.forRoot([
 ]);
 
 export function initConfig(config: AppConfig) {
-  return () => config.load()
+  return () => config.load();
 }
 
 registerLocaleData(localeRo, 'ro');

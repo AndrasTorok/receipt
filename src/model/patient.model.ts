@@ -1,39 +1,6 @@
 import { CommonEntity, IValidity } from '../common/common.entity';
 
 export class Patient extends CommonEntity<Patient> implements IPatient {
-    Id?: number;
-    CNP: string;
-    FirstName: string;
-    LastName: string;
-    BirthDate: Date;
-    Gender: Gender;
-    Height: number;
-    Weight: number;
-    private cnpValidator: CNPValidator = new CNPValidator();
-
-    constructor(
-        patient?: IPatient
-    ) {
-        super(Patient.validityMap);
-        if (!patient) {
-            patient = <IPatient>{
-                CNP: '',
-                FirstName: '',
-                LastName: "",
-                BirthDate: new Date(),
-                Gender: Gender.Male,
-                Height: 170,
-                Weight: 60
-            };
-        }
-
-        for (var prop in patient) {
-            this[prop] = patient[prop];
-        }
-
-        this.BirthDate = new Date(patient.BirthDate.toString());
-    }
-
     static validityMap = new Map<string, IValidity<Patient>[]>([
         ['CNP',
             [
@@ -42,12 +9,12 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
                     message: (entity: Patient) => `CNP-ul pacientului trebuie sa fie specificat.`
                 },
                 {
-                    rule: (entity: Patient) => !entity.CNP || entity.CNP.length == 13,
+                    rule: (entity: Patient) => !entity.CNP || entity.CNP.length === 13,
                     message: (entity: Patient) => `CNP-ul pacientului trebuie sa fie exact 13 caractere.`
                 },
                 {
                     rule: (entity: Patient) => {
-                        return !entity.CNP || entity.CNP.length != 13 || entity.cnpValidator.validateCNP(entity.CNP);
+                        return !entity.CNP || entity.CNP.length !== 13 || entity.cnpValidator.validateCNP(entity.CNP);
                     },
                     message: (entity: Patient) => `CNP-ul pacientului este intr-un format incorect.`
                 }
@@ -107,24 +74,15 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
         ]
     ]);
 
-    get Age(): number {
-        return Patient.age(this.BirthDate);
-    }
-
-    get BodySurfaceArea(): number {
-        return Patient.bodySurfaceArea(this.Height, this.Weight);
-    }
-
-    get GenderDisplay(): string {
-        return this.Gender == Gender.Male ? 'M' : 'F';
-    }
-
-    extractCNP(): void {
-        if (this.cnpValidator.isValid) {
-            this.BirthDate = this.cnpValidator.birthDate;
-            this.Gender = this.cnpValidator.gender;
-        }
-    }
+    Id?: number;
+    CNP: string;
+    FirstName: string;
+    LastName: string;
+    BirthDate: Date;
+    Gender: Gender;
+    Height: number;
+    Weight: number;
+    private cnpValidator: CNPValidator = new CNPValidator();
 
     static bodySurfaceArea(height: number, weight: number): number {
         let area = 0;
@@ -139,10 +97,14 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
     static age(birthDate: Date, date?: Date): number {
         let age = 0;
 
-        if (typeof birthDate == 'string') birthDate = new Date(birthDate);
-        if (typeof date == 'string') date = new Date(date);
+        if (typeof birthDate === 'string') {
+            birthDate = new Date(birthDate);
+        }
+        if (typeof date === 'string') {
+            date = new Date(date);
+        }
 
-        let now = date ? date : new Date(),
+        const now = date ? date : new Date(),
             months = now.getMonth() - birthDate.getMonth();
 
         age = now.getFullYear() - birthDate.getFullYear();
@@ -151,19 +113,64 @@ export class Patient extends CommonEntity<Patient> implements IPatient {
             age--;
         }
 
-
         return age;
+    }
+
+    constructor(
+        patient?: IPatient
+    ) {
+        super(Patient.validityMap);
+        if (!patient) {
+            patient = <IPatient>{
+                CNP: '',
+                FirstName: '',
+                LastName: '',
+                BirthDate: new Date(),
+                Gender: Gender.Male,
+                Height: 170,
+                Weight: 60
+            };
+        }
+
+        for (const prop in patient) {
+            if (patient.hasOwnProperty(prop)) {
+                this[prop] = patient[prop];
+            }
+        }
+
+        this.BirthDate = new Date(patient.BirthDate.toString());
+    }
+
+
+
+    get Age(): number {
+        return Patient.age(this.BirthDate);
+    }
+
+    get BodySurfaceArea(): number {
+        return Patient.bodySurfaceArea(this.Height, this.Weight);
+    }
+
+    get GenderDisplay(): string {
+        return this.Gender === Gender.Male ? 'M' : 'F';
+    }
+
+    extractCNP(): void {
+        if (this.cnpValidator.isValid) {
+            this.BirthDate = this.cnpValidator.birthDate;
+            this.Gender = this.cnpValidator.gender;
+        }
     }
 }
 
 export interface IPatient {
     CNP: string;
-    FirstName: string,
-    LastName: string,
-    BirthDate: Date,
-    Gender: Gender,
-    Height: number,
-    Weight: number    
+    FirstName: string;
+    LastName: string;
+    BirthDate: Date;
+    Gender: Gender;
+    Height: number;
+    Weight: number;
 }
 
 export enum Gender {
@@ -171,6 +178,9 @@ export enum Gender {
 }
 
 class CNPValidator {
+    static HashTable = [2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9];
+    static MalePrefixes = [1, 3, 5, 7];
+
     birthDate: Date;
     gender: Gender;
     isValid: boolean;
@@ -182,12 +192,14 @@ class CNPValidator {
     }
 
     validateCNP(cnp: string): boolean {
-        if (!cnp) return false;
+        if (!cnp) {
+            return false;
+        }
 
         let i = 0,
             year = 0,
-            hashResult = 0,
-            cnpArray = [];
+            hashResult = 0;
+        const cnpArray = [];
 
         if (cnp.length !== 13) { return false; }
 
@@ -215,7 +227,7 @@ class CNPValidator {
         this.isValid = cnpArray[12] === hashResult;
 
         if (this.isValid) {
-            let monthStr = cnp.substr(3, 2),
+            const monthStr = cnp.substr(3, 2),
                 dayStr = cnp.substr(5, 2),
                 month = Number(monthStr) - 1,
                 day = Number(dayStr);
@@ -227,7 +239,4 @@ class CNPValidator {
 
         return this.isValid;
     }
-
-    static HashTable = [2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9];
-    static MalePrefixes = [1, 3, 5, 7];
 }

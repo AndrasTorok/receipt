@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router } from '@angular/router';
 import { Diagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
 import { Patient, Gender } from '../../model/patient.model';
@@ -18,8 +18,8 @@ export class DiagnosticDetailComponent implements OnInit {
   patientId: string;
   id: string;
   formState: FormState;
-  viewLoaded: boolean = false;  
-  isEditable : boolean = false;
+  viewLoaded = false;
+  isEditable = false;
   maxDate: Date = new Date();
 
   constructor(
@@ -28,20 +28,19 @@ export class DiagnosticDetailComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     private router: Router,
     private changeDetectorRef: ChangeDetectorRef
-  ) {    
+  ) {
     activeRoute.params.subscribe(params => {
       this.patientId = activeRoute.snapshot.params['patientId'];
       this.id = activeRoute.snapshot.params['diagnosticId'];
       this.formState = this.id ? FormState.Updating : FormState.Adding;
 
-      Promise.all(this.fetchEntities()).then(()=>{
+      Promise.all(this.fetchEntities()).then(() => {
         this.viewLoaded = true;
       });
     });
   }
 
   ngOnInit() {
-    
   }
 
   addOrUpdate(): void {
@@ -81,9 +80,9 @@ export class DiagnosticDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let fetchDiagnosticPromise = new Promise((resolve, reject) => {
+    const fetchDiagnosticPromise = new Promise((resolve, reject) => {
       if (this.id) {
-        let diagnosticSubscription = this.diagnosticService.getById(this.id).subscribe(diagnostic => {
+        const diagnosticSubscription = this.diagnosticService.getById(this.id).subscribe(diagnostic => {
           this.diagnostic = new Diagnostic(diagnostic);
           diagnosticSubscription.unsubscribe();
           resolve();
@@ -94,8 +93,8 @@ export class DiagnosticDetailComponent implements OnInit {
       }
     });
 
-    let fetchPatientPromise = new Promise((resolve, reject) => {
-      let patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
+    const fetchPatientPromise = new Promise((resolve, reject) => {
+      const patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
         this.patient = new Patient(patient);
         patientSubscription.unsubscribe();
         resolve();

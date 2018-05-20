@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { TreatmentItem } from '../../model/treatment-item.model';
 import { TreatmentItemService } from '../../model/treatment-item.service';
@@ -39,12 +39,13 @@ export class TreatmentItemComponent implements OnInit {
 
   get selectedMedicament(): Medicament {
     return this.medicaments && this.treatmentItem && this.treatmentItem.MedicamentId ?
-      this.medicaments.find(medicament => medicament.Id == this.treatmentItem.MedicamentId) : null;
+      this.medicaments.find(medicament => medicament.Id === this.treatmentItem.MedicamentId) : null;
   }
 
   get applicationMode(): string {
-    let selectedMedicament = this.selectedMedicament,
-      applicationMode =  selectedMedicament ? this.doseApplicationModeEnumeration.keyValuePairs.find(kvp => kvp.key == selectedMedicament.DoseApplicationMode).value : '';
+    const selectedMedicament = this.selectedMedicament,
+      applicationMode =  selectedMedicament ?
+        this.doseApplicationModeEnumeration.keyValuePairs.find(kvp => kvp.key === selectedMedicament.DoseApplicationMode).value : '';
 
       return applicationMode;
   }
@@ -69,16 +70,19 @@ export class TreatmentItemComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let fetchTreatmentItemPromise = new Promise((resolve, reject) => {
+    const fetchTreatmentItemPromise = new Promise((resolve, reject) => {
       if (this.treatmentItemId) {
-        let treatmentItemSubscription = this.treatmentItemService.getById(this.treatmentItemId).subscribe(treatmentItem => {
+        const treatmentItemSubscription = this.treatmentItemService.getById(this.treatmentItemId).subscribe(treatmentItem => {
           this.treatmentItem = new TreatmentItem(treatmentItem);
           treatmentItemSubscription.unsubscribe();
         });
-      } else this.treatmentItem = new TreatmentItem(Number(this.treatmentId));
+      } else {
+        this.treatmentItem = new TreatmentItem(Number(this.treatmentId));
+      }
     });
 
-    let fetchMedicamentPromise = this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)));
+    const fetchMedicamentPromise =
+      this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)));
 
     return [fetchTreatmentItemPromise, fetchMedicamentPromise];
   }

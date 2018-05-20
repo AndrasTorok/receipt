@@ -2,35 +2,6 @@ import { Patient } from './patient.model';
 import { CommonEntity, IValidity } from '../common/common.entity';
 
 export class Diagnostic extends CommonEntity<Diagnostic> implements IDiagnostic {
-    Id: number;
-    PatientId: number;
-    Patient: Patient;
-    Description: string;
-    Localization: string;
-    Date: Date;
-
-    constructor(diagnosticOrId: IDiagnostic | number) {
-        super(Diagnostic.validityMap);
-        let diagnostic: IDiagnostic;
-
-        if (Number.isInteger(<number>diagnosticOrId)) {
-            diagnostic = <IDiagnostic>{
-                Id: 0,
-                PatientId: <number>diagnosticOrId,
-                Patient: null,
-                Description: '',
-                Localization: '',
-                Date: new Date()
-            };
-        } else diagnostic = <IDiagnostic>diagnosticOrId;
-
-        for (var prop in diagnostic) {
-            this[prop] = diagnostic[prop];
-        }
-
-        this.Date = new Date(diagnostic.Date.toString());
-    }
-
     static validityMap = new Map<string, IValidity<Diagnostic>[]>([
         ['Description',
             [{
@@ -61,6 +32,38 @@ export class Diagnostic extends CommonEntity<Diagnostic> implements IDiagnostic 
         ]
     ]);
 
+    Id: number;
+    PatientId: number;
+    Patient: Patient;
+    Description: string;
+    Localization: string;
+    Date: Date;
+
+    constructor(diagnosticOrId: IDiagnostic | number) {
+        super(Diagnostic.validityMap);
+        let diagnostic: IDiagnostic;
+
+        if (Number.isInteger(<number>diagnosticOrId)) {
+            diagnostic = <IDiagnostic>{
+                Id: 0,
+                PatientId: <number>diagnosticOrId,
+                Patient: null,
+                Description: '',
+                Localization: '',
+                Date: new Date()
+            };
+        } else {
+            diagnostic = <IDiagnostic>diagnosticOrId;
+        }
+
+        for (const prop in diagnostic) {
+            if (diagnostic.hasOwnProperty(prop)) {
+                this[prop] = diagnostic[prop];
+            }
+        }
+
+        this.Date = new Date(diagnostic.Date.toString());
+    }
 }
 
 export interface IDiagnostic {

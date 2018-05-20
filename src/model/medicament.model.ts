@@ -2,25 +2,6 @@ import { Enumeration } from '../common/helpers';
 import { CommonEntity, IValidity } from '../common/common.entity';
 
 export class Medicament extends CommonEntity<Medicament> {
-    Id: number;
-    Name: string;
-    DoseApplicationMode: DoseApplicationMode;   
-
-    constructor(medicament?: IMedicament) {
-        super(Medicament.validityMap);
-        if (!medicament) {
-            medicament = <IMedicament>{
-                Id: 0,
-                Name: '',
-                DoseApplicationMode: DoseApplicationMode.Sqm                
-            };
-        }
-
-        for (var prop in medicament) {
-            this[prop] = medicament[prop];
-        }
-    }
-
     static validityMap = new Map<string, IValidity<Medicament>[]>([
         ['Name',
             [{
@@ -31,14 +12,34 @@ export class Medicament extends CommonEntity<Medicament> {
                 rule: (entity: Medicament) => !entity.Name || entity.Name.length >= 2,
                 message: (entity: Medicament) => `Numele medicamentului trebuie sa fie minin 2 caractere.`
             }]
-        ]        
+        ]
     ]);
 
+    Id: number;
+    Name: string;
+    DoseApplicationMode: DoseApplicationMode;
+
+    constructor(medicament?: IMedicament) {
+        super(Medicament.validityMap);
+        if (!medicament) {
+            medicament = <IMedicament>{
+                Id: 0,
+                Name: '',
+                DoseApplicationMode: DoseApplicationMode.Sqm
+            };
+        }
+
+        for (const prop in medicament) {
+            if (medicament.hasOwnProperty(prop)) {
+                this[prop] = medicament[prop];
+            }
+        }
+    }
 }
 
 export interface IMedicament {
     Id: number;
-    Name: string;    
+    Name: string;
 }
 
 export enum DoseApplicationMode {

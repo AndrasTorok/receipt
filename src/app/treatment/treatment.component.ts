@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
-import { GridOptions, GridApi } from "ag-grid/main";
-import { ActivatedRoute, Router } from "@angular/router";
+import { GridOptions, GridApi } from 'ag-grid/main';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TreatmentService } from '../../model/treatment.service';
 import { Treatment } from '../../model/treatment.model';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { SearchService } from '../search/search.service';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-treatment',
@@ -27,14 +27,16 @@ export class TreatmentComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private searchService: SearchService
   ) {
-    let gridReadyPromise = this.configureGrid();
+    const gridReadyPromise = this.configureGrid();
 
     searchService.clearSearch();
 
     Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.treatments);
       this.searchSubscription = searchService.search.subscribe(search => {
-        if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+        if (this.gridOptions.api) {
+          this.gridOptions.api.setQuickFilter(search);
+        }
       });
     });
   }
@@ -48,14 +50,14 @@ export class TreatmentComponent implements OnInit, OnDestroy {
   }
 
   removeTreatment(id: number): void {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      let msg = `Sunteti sigur ca doriti sa stergeti schema de tratament ?`,
+    const promise = new Promise<boolean>((resolve, reject) => {
+      const msg = `Sunteti sigur ca doriti sa stergeti schema de tratament ?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
+          ['Da', () => {
             this.messageService.removeMessage();
             resolve(true);
           }],
-          ["Nu", () => {
+          ['Nu', () => {
             this.messageService.removeMessage();
             resolve(false);
           }]
@@ -66,18 +68,19 @@ export class TreatmentComponent implements OnInit, OnDestroy {
     });
 
     promise.then((doDelete: boolean) => {
-      if (!doDelete) return;
-      let subscription = this.treatmentService.delete(id.toString()).subscribe(success => {
-        if (success) {
-          let deletedTreatmentIndex = this.treatments.findIndex(d => d.Id == id);
+      if (doDelete) {
+        const subscription = this.treatmentService.delete(id.toString()).subscribe(success => {
+          if (success) {
+            const deletedTreatmentIndex = this.treatments.findIndex(d => d.Id === id);
 
-          if (deletedTreatmentIndex >= 0) {
-            this.treatments.splice(deletedTreatmentIndex, 1);
-            this.gridOptions.api.setRowData(this.treatments);
+            if (deletedTreatmentIndex >= 0) {
+              this.treatments.splice(deletedTreatmentIndex, 1);
+              this.gridOptions.api.setRowData(this.treatments);
+            }
           }
-        }
-        subscription.unsubscribe();
-      });
+          subscription.unsubscribe();
+        });
+      }
     });
   }
 
@@ -100,12 +103,13 @@ export class TreatmentComponent implements OnInit, OnDestroy {
         columnDefs: [
           {
             headerName: 'Tratament',
-            field: "Name",
+            field: 'Name',
             width: 960,
             sort: 'asc',
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Name}</button></div>`,
+            cellRenderer: (params) =>
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>${params.data.Name}</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.router.navigateByUrl(`/treatment/${id}`);
             }
@@ -114,10 +118,11 @@ export class TreatmentComponent implements OnInit, OnDestroy {
             headerName: 'Sterge',
             field: '',
             width: 80,
-            cellRenderer: (params) => params.data.IsDefault ? '' : `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => params.data.IsDefault ? '' :
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>Sterge</button></div>`,
             onCellClicked: (params) => {
               if (!params.data.IsDefault) {
-                let id = params.data.Id;
+                const id = params.data.Id;
 
                 this.removeTreatment(id);
               }

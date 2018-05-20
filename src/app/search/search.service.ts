@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class SearchService {
@@ -8,7 +8,7 @@ export class SearchService {
 
     setSearch(searchText: string) {
         this.subject.next(searchText);
-    }    
+    }
 
     clearSearch(): void {
         this.subject.next('');

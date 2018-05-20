@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
-import { GridOptions } from "ag-grid/main";
-import { ActivatedRoute, Router } from "@angular/router";
+import { GridOptions } from 'ag-grid/main';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { PatientService } from '../../model/patient.service';
 import { Patient } from '../../model/patient.model';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { SearchService } from '../search/search.service';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-patient',
@@ -18,8 +18,8 @@ import { Subscription } from 'rxjs';
 export class PatientComponent implements OnInit, OnDestroy {
   patients: Patient[];
   selectedPatient: Patient;
-  gridOptions: GridOptions;   
-  private searchSubscription: Subscription; 
+  gridOptions: GridOptions;
+  private searchSubscription: Subscription;
 
   constructor(
     private patientService: PatientService,
@@ -29,22 +29,24 @@ export class PatientComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private searchService: SearchService
   ) {
-    let gridReadyPromise = this.configureGrid();
+    const gridReadyPromise = this.configureGrid();
 
     searchService.clearSearch();
 
     Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
-      this.gridOptions.api.setRowData(this.patients);      
+      this.gridOptions.api.setRowData(this.patients);
 
-      this.searchSubscription = searchService.search.subscribe(search=>{      
-        if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+      this.searchSubscription = searchService.search.subscribe(search => {
+        if (this.gridOptions.api) {
+          this.gridOptions.api.setQuickFilter(search);
+        }
       });
-    });   
+    });
   }
 
   ngOnInit() {
-    
-  }  
+
+  }
 
   ngOnDestroy() {
     this.searchSubscription.unsubscribe();
@@ -55,14 +57,14 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   removePatient(id: number) {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      let msg = `Sunteti sigur ca doriti sa stergeti pacient-ul?`,
+    const promise = new Promise<boolean>((resolve, reject) => {
+      const msg = `Sunteti sigur ca doriti sa stergeti pacient-ul?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
+          ['Da', () => {
             this.messageService.removeMessage();
             resolve(true);
           }],
-          ["Nu", () => {
+          ['Nu', () => {
             this.messageService.removeMessage();
             resolve(false);
           }]
@@ -73,18 +75,19 @@ export class PatientComponent implements OnInit, OnDestroy {
     });
 
     promise.then((doDelete: boolean) => {
-      if (!doDelete) return;
-      let subscription = this.patientService.delete(id.toString()).subscribe(success => {
-        if (success) {
-          let deletedPatientIndex = this.patients.findIndex(d => d.Id == id);
+      if (doDelete) {
+        const subscription = this.patientService.delete(id.toString()).subscribe(success => {
+          if (success) {
+            const deletedPatientIndex = this.patients.findIndex(d => d.Id === id);
 
-          if (deletedPatientIndex >= 0) {
-            this.patients.splice(deletedPatientIndex, 1);
-            this.gridOptions.api.setRowData(this.patients);
+            if (deletedPatientIndex >= 0) {
+              this.patients.splice(deletedPatientIndex, 1);
+              this.gridOptions.api.setRowData(this.patients);
+            }
           }
-        }
-        subscription.unsubscribe();
-      });
+          subscription.unsubscribe();
+        });
+      }
     });
   }
 
@@ -97,43 +100,44 @@ export class PatientComponent implements OnInit, OnDestroy {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,        
+        rowHeight: 30,
         onGridReady: () => {
           resolve();
         },
         onSelectionChanged: () => {
-          let selectedPatient = this.gridOptions.api.getSelectedRows();
+          const selectedPatient = this.gridOptions.api.getSelectedRows();
 
           this.selectedPatient = selectedPatient && selectedPatient.length ? selectedPatient[0] : null;
-        },        
+        },
         columnDefs: [
           {
             headerName: 'CNP',
-            field: "CNP",
+            field: 'CNP',
             width: 130,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.CNP}</button></div>`,
+            cellRenderer: (params) =>
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>${params.data.CNP}</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
-    
+              const id = params.data.Id;
+
               this.router.navigateByUrl(`/patient/${id}`);
             }
           },
           {
             headerName: 'Nume',
-            field: "LastName",
+            field: 'LastName',
             width: 200,
             sort: 'asc'
           },
           {
             headerName: 'Prenume',
-            field: "FirstName",
+            field: 'FirstName',
             width: 200,
             sort: 'asc'
           },
           {
             headerName: 'Sex',
             field: 'GenderDisplay',
-            width: 50            
+            width: 50
           },
           {
             headerName: 'Data nasterii',
@@ -150,15 +154,15 @@ export class PatientComponent implements OnInit, OnDestroy {
             headerName: 'Greutate',
             field: 'Weight',
             width: 80
-          },          
+          },
           {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>Sterge</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
-    
+              const id = params.data.Id;
+
               this.removePatient(id);
             }
           }
@@ -166,7 +170,7 @@ export class PatientComponent implements OnInit, OnDestroy {
       };
     });
   }
-  
+
   private fetchEntity(): Promise<any> {
     return new Promise((resolve, reject) => {
       Promise.all([

@@ -7,10 +7,12 @@ export abstract class Entity<T> {
         if (!entity) {
             entity = this.$new();
             this._$state = EntityState.Added;
-        } else this._$state = EntityState.New;
+        } else {
+            this._$state = EntityState.New;
+        }
 
         this.$properties().forEach(propertyName => {
-            let privatePropertyName = `_${propertyName}`,
+            const privatePropertyName = `_${propertyName}`,
                 propertyValue = entity[propertyName];
 
             this._$initialEntity[propertyName] = propertyValue;
@@ -24,7 +26,9 @@ export abstract class Entity<T> {
                     if (this[privatePropertyName] !== value) {
                         this[privatePropertyName] = value;
 
-                        if (this._$state == EntityState.New) this._$state = EntityState.Changed;
+                        if (this._$state === EntityState.New) {
+                            this._$state = EntityState.Changed;
+                        }
                     }
                 }
             });

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { Medicament, DoseApplicationModeEnumeration } from '../../model/medicament.model';
 import { MedicamentService } from '../../model/medicament.service';
@@ -20,22 +20,22 @@ export class MedicamentDetailComponent implements OnInit {
     private medicamentService: MedicamentService,
     private activeRoute: ActivatedRoute,
     private router: Router
-  ) { 
+  ) {
     this.medicamentId = this.activeRoute.snapshot.params['medicamentId'];
-    this.formState = this.medicamentId ? FormState.Updating: FormState.Adding;
+    this.formState = this.medicamentId ? FormState.Updating : FormState.Adding;
 
     this.fetchEntities();
   }
 
   ngOnInit() {
-    
+
   }
 
   addOrUpdate(form: NgForm): void {
     switch (this.formState) {
-      case FormState.Updating:        
+      case FormState.Updating:
         this.medicamentService.put(this.medicament).subscribe(medicament => {
-          this.router.navigateByUrl(`/medicament`);          
+          this.router.navigateByUrl(`/medicament`);
         }, err => {
 
         });
@@ -51,14 +51,14 @@ export class MedicamentDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let medicamentPromise = new Promise((resolve, reject)=>{
+    const medicamentPromise = new Promise((resolve, reject) => {
       if (this.medicamentId) {
-        let subscription = this.medicamentService.getById(this.medicamentId).subscribe(medicament => {
-          this.medicament = new Medicament(medicament);        
+        const subscription = this.medicamentService.getById(this.medicamentId).subscribe(medicament => {
+          this.medicament = new Medicament(medicament);
           subscription.unsubscribe();
           resolve();
         });
-      } else { 
+      } else {
         this.medicament = new Medicament();
         resolve();
       }

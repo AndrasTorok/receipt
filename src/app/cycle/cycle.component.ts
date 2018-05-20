@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { GridOptions } from "ag-grid/main";
-import { ActivatedRoute, Router } from "@angular/router";
+import { GridOptions } from 'ag-grid/main';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Cycle, ICycle } from '../../model/cycle.model';
 import { CycleService } from '../../model/cycle.service';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { SearchService } from '../search/search.service';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-cycle',
@@ -21,7 +21,7 @@ export class CycleComponent implements OnInit, OnDestroy {
   diagnosticId: string;
   gridOptions: GridOptions;
   private searchSubscription: Subscription;
-  @Output() onInitialized = new EventEmitter<boolean>();
+  @Output() initialized = new EventEmitter<boolean>();
 
   constructor(
     private cycleService: CycleService,
@@ -29,9 +29,9 @@ export class CycleComponent implements OnInit, OnDestroy {
     private activeRoute: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
-    private searchService: SearchService    
+    private searchService: SearchService
   ) {
-    let gridReadyPromise = this.configureGrid();
+    const gridReadyPromise = this.configureGrid();
 
     this.activeRoute.params.subscribe(params => {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
@@ -40,10 +40,12 @@ export class CycleComponent implements OnInit, OnDestroy {
       searchService.clearSearch();
 
       Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
-        this.onInitialized.emit(this.cycles && this.cycles.some(cycle=> cycle.Emitted));                //inform parent if there are emitted cycles or not
+        this.initialized.emit(this.cycles && this.cycles.some(cycle => cycle.Emitted)); // inform parent if there are emitted cycles
         this.gridOptions.api.setRowData(this.cycles);
         this.searchSubscription = searchService.search.subscribe(search => {
-          if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+          if (this.gridOptions.api) {
+            this.gridOptions.api.setQuickFilter(search);
+          }
         });
       });
     });
@@ -58,14 +60,14 @@ export class CycleComponent implements OnInit, OnDestroy {
   }
 
   removeCycle(id: number): void {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      let msg = `Sunteti sigur ca doriti sa stergeti tratament pacient?`,
+    const promise = new Promise<boolean>((resolve, reject) => {
+      const msg = `Sunteti sigur ca doriti sa stergeti tratament pacient?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
+          ['Da', () => {
             this.messageService.removeMessage();
             resolve(true);
           }],
-          ["Nu", () => {
+          ['Nu', () => {
             this.messageService.removeMessage();
             resolve(false);
           }]
@@ -76,18 +78,19 @@ export class CycleComponent implements OnInit, OnDestroy {
     });
 
     promise.then((doDelete: boolean) => {
-      if (!doDelete) return;
-      let subscription = this.cycleService.delete(id.toString()).subscribe(success => {
-        if (success) {
-          let deletedCycleIndex = this.cycles.findIndex(d => d.Id == id);
+      if (doDelete) {
+        const subscription = this.cycleService.delete(id.toString()).subscribe(success => {
+          if (success) {
+            const deletedCycleIndex = this.cycles.findIndex(d => d.Id === id);
 
-          if (deletedCycleIndex >= 0) {
-            this.cycles.splice(deletedCycleIndex, 1);
-            this.gridOptions.api.setRowData(this.cycles);
+            if (deletedCycleIndex >= 0) {
+              this.cycles.splice(deletedCycleIndex, 1);
+              this.gridOptions.api.setRowData(this.cycles);
+            }
           }
-        }
-        subscription.unsubscribe();
-      });
+          subscription.unsubscribe();
+        });
+      }
     });
   }
 
@@ -107,42 +110,44 @@ export class CycleComponent implements OnInit, OnDestroy {
         columnDefs: [
           {
             headerName: 'Data inceput',
-            field: "StartDate",
+            field: 'StartDate',
             width: 150,
             sort: 'desc',
             valueGetter: (params) => this.datePipe.transform(params.data.StartDate, 'dd/MM/yyyy')
           },
           {
             headerName: 'Data finalizare',
-            field: "endDate",
+            field: 'endDate',
             width: 150,
             sort: 'desc',
             valueGetter: (params) => this.datePipe.transform(params.data.endDate, 'dd/MM/yyyy')
           },
           {
             headerName: 'Durata',
-            field: "durationInDays",
-            width: 80            
+            field: 'durationInDays',
+            width: 80
           },
           {
             headerName: 'Tratament',
-            field: "Treatment",
-            width: 600,            
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Treatment.Name}</button></div>`,
+            field: 'Treatment',
+            width: 600,
+            cellRenderer: (params) =>
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>${params.data.Treatment.Name}</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${this.diagnosticId}/cycle/${id}`);
             }
-          },          
+          },
           {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => params.data.Emitted ? `` : `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => params.data.Emitted ? `` :
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>Sterge</button></div>`,
             onCellClicked: (params) => {
               if (!params.data.Emitted) {
-                let id = params.data.Id;
+                const id = params.data.Id;
 
                 this.removeCycle(id);
               }
@@ -156,12 +161,14 @@ export class CycleComponent implements OnInit, OnDestroy {
   private fetchEntity(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.diagnosticId) {
-        let subscription = this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {
+        const subscription = this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {
           this.cycles = cycles.map(cycle => new Cycle(cycle, <any>0, new Date()));
           resolve();
           subscription.unsubscribe();
         });
-      } else resolve();
+      } else {
+        resolve();
+      }
     });
   }
 }

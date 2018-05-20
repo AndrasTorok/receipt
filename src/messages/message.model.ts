@@ -4,7 +4,7 @@ export class Message {
         private text: string,
         private error: boolean = false,
         private responses?: [string, (string) => void][]
-    ) { 
-        
+    ) {
+
     }
 }

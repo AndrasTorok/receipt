@@ -11,20 +11,20 @@ import { SearchService } from './search.service';
   encapsulation: ViewEncapsulation.None
 })
 export class SearchComponent implements OnInit {
-  searchText: string = '';
+  searchText = '';
 
   constructor(
     private searchService: SearchService
   ) {
-    searchService.search.subscribe(search=>{
+    searchService.search.subscribe(search => {
       this.searchText = search;
     });
-   }
+  }
 
   ngOnInit() {
   }
 
-  onSearchChange(value: string) {    
+  onSearchChange(value: string) {
     this.searchService.setSearch(value);
   }
 }

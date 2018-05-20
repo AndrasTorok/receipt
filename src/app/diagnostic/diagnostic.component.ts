@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewEncapsulation, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { GridOptions } from "ag-grid/main";
-import { ActivatedRoute, Router } from "@angular/router";
+import { GridOptions } from 'ag-grid/main';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Diagnostic, IDiagnostic } from '../../model/diagnostic.model';
 import { DiagnosticService } from '../../model/diagnostic.service';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { SearchService } from '../search/search.service';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-diagnostic',
@@ -21,7 +21,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
   gridOptions: GridOptions;
   patientId: string;
   private searchSubscription: Subscription;
-  @Output() onInitialized = new EventEmitter<boolean>();
+  @Output() initialized = new EventEmitter<boolean>();
 
   constructor(
     private datePipe: DatePipe,
@@ -31,27 +31,30 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private searchService: SearchService
   ) {
-    let gridReadyPromise = this.configureGrid();
+    const gridReadyPromise = this.configureGrid();
 
     this.activeRoute.params.subscribe(params => {
       this.patientId = this.activeRoute.snapshot.params['patientId'];
 
-      if (!this.diagnostics) this.diagnostics = [];
+      if (!this.diagnostics) {
+        this.diagnostics = [];
+      }
 
       searchService.clearSearch();
 
       Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
-        this.onInitialized.emit(this.diagnostics && !!this.diagnostics.length);             //inform parent if there are diagnostics or not
+        this.initialized.emit(this.diagnostics && !!this.diagnostics.length);             // inform parent if there are diagnostics or not
         this.gridOptions.api.setRowData(this.diagnostics);
         this.searchSubscription = searchService.search.subscribe(search => {
-          if (this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+          if (this.gridOptions.api) {
+            this.gridOptions.api.setQuickFilter(search);
+          }
         });
       });
     });
   }
 
   ngOnInit() {
-
   }
 
   ngOnDestroy() {
@@ -59,13 +62,13 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
   }
 
   removeDiagnostic(id: number): void {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      let msg = `Sunteti sigur ca doriti sa stergeti diagnostic-ul ?`,
+    const promise = new Promise<boolean>((resolve, reject) => {
+      const msg = `Sunteti sigur ca doriti sa stergeti diagnostic-ul ?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
+          ['Da', () => {
             resolve(true);
           }],
-          ["Nu", () => {
+          ['Nu', () => {
             resolve(false);
           }]
         ],
@@ -76,18 +79,19 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
 
     promise.then((doDelete: boolean) => {
       this.messageService.removeMessage();
-      if (!doDelete) return;
-      let subscription = this.diagnosticService.delete(id.toString()).subscribe(success => {
-        if (success) {
-          let deletedDiagnosticIndex = this.diagnostics.findIndex(d => d.Id == id);
+      if (doDelete) {
+        const subscription = this.diagnosticService.delete(id.toString()).subscribe(success => {
+          if (success) {
+            const deletedDiagnosticIndex = this.diagnostics.findIndex(d => d.Id === id);
 
-          if (deletedDiagnosticIndex >= 0) {
-            this.diagnostics.splice(deletedDiagnosticIndex, 1);
-            this.gridOptions.api.setRowData(this.diagnostics);
+            if (deletedDiagnosticIndex >= 0) {
+              this.diagnostics.splice(deletedDiagnosticIndex, 1);
+              this.gridOptions.api.setRowData(this.diagnostics);
+            }
           }
-        }
-        subscription.unsubscribe();
-      });
+          subscription.unsubscribe();
+        });
+      }
     });
   }
 
@@ -105,7 +109,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
           resolve();
         },
         onSelectionChanged: () => {
-          let selectedDiagnostic = this.gridOptions.api.getSelectedRows();
+          const selectedDiagnostic = this.gridOptions.api.getSelectedRows();
 
           this.selectedDiagnostic = selectedDiagnostic && selectedDiagnostic.length ? selectedDiagnostic[0] : null;
         },
@@ -119,35 +123,36 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
           },
           {
             headerName: 'Descriere',
-            field: "Description",
+            field: 'Description',
             width: 580,
             tooltip: (params) => params.data.Description,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Description}</button></div>`,
+            cellRenderer: (params) =>
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>${params.data.Description}</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.router.navigateByUrl(`/patient/${this.patientId}/diagnostic/${id}`);
             }
           },
           {
             headerName: 'Localizare',
-            field: "Localization",
+            field: 'Localization',
             width: 300,
             tooltip: (params) => params.data.Localization
-          },          
+          },
           {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>Sterge</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.removeDiagnostic(id);
             }
           }
         ]
-      }
+      };
     });
   }
 
@@ -158,7 +163,9 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
           this.diagnostics = diagnostics.map(diagnostic => new Diagnostic(diagnostic));
           resolve();
         });
-      } else resolve();
+      } else {
+        resolve();
+      }
     });
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { GridOptions, GridApi } from "ag-grid/main";
-import { ActivatedRoute, Router } from "@angular/router";
+import { GridOptions, GridApi } from 'ag-grid/main';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { TreatmentService } from '../../model/treatment.service';
 import { Treatment } from '../../model/treatment.model';
@@ -20,7 +20,7 @@ export class TreatmentDetailComponent implements OnInit {
   treatment: Treatment;
   gridOptions: GridOptions;
   gridReadyPromise: Promise<any>;
-  gridReady: boolean = false;
+  gridReady = false;
   private formState: FormState;
 
   constructor(
@@ -47,7 +47,7 @@ export class TreatmentDetailComponent implements OnInit {
   addOrUpdate(form: NgForm): void {
     switch (this.formState) {
       case FormState.Updating:
-        this.treatment.TreatmentItems = null;       //need to remove the items from the graph to be able to edit it
+        this.treatment.TreatmentItems = null;       // need to remove the items from the graph to be able to edit it
         this.treatmentService.put(this.treatment).subscribe(treatment => {
           this.router.navigateByUrl(`/treatment/${treatment.Id}`);
         }, err => {
@@ -65,14 +65,14 @@ export class TreatmentDetailComponent implements OnInit {
   }
 
   removeTreatmentItem(id: number): void {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      let msg = `Sunteti sigur ca doriti sa stergeti rand-ul tratament?`,
+    const promise = new Promise<boolean>((resolve, reject) => {
+      const msg = `Sunteti sigur ca doriti sa stergeti rand-ul tratament?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
+          ['Da', () => {
             this.messageService.removeMessage();
             resolve(true);
           }],
-          ["Nu", () => {
+          ['Nu', () => {
             this.messageService.removeMessage();
             resolve(false);
           }]
@@ -83,18 +83,19 @@ export class TreatmentDetailComponent implements OnInit {
     });
 
     promise.then((doDelete: boolean) => {
-      if (!doDelete) return;
-      let subscription = this.treatmentItemService.delete(id.toString()).subscribe(success => {
-        if (success) {
-          let deletedTreatmentItemIndex = this.treatment.TreatmentItems.findIndex(d => d.Id == id);
+      if (doDelete) {
+        const subscription = this.treatmentItemService.delete(id.toString()).subscribe(success => {
+          if (success) {
+            const deletedTreatmentItemIndex = this.treatment.TreatmentItems.findIndex(d => d.Id === id);
 
-          if (deletedTreatmentItemIndex >= 0) {
-            this.treatment.TreatmentItems.splice(deletedTreatmentItemIndex, 1);
-            this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
+            if (deletedTreatmentItemIndex >= 0) {
+              this.treatment.TreatmentItems.splice(deletedTreatmentItemIndex, 1);
+              this.gridOptions.api.setRowData(this.treatment.TreatmentItems);
+            }
           }
-        }
-        subscription.unsubscribe();
-      });
+          subscription.unsubscribe();
+        });
+      }
     });
   }
 
@@ -115,7 +116,7 @@ export class TreatmentDetailComponent implements OnInit {
 
         },
         getRowHeight: (params) => {
-          let nrOfRows = (Math.floor(params.data.Description.length / 55) + 1),
+          const nrOfRows = (Math.floor(params.data.Description.length / 55) + 1),
             rowHeighInPixel = nrOfRows * 25;
 
           return rowHeighInPixel;
@@ -123,27 +124,28 @@ export class TreatmentDetailComponent implements OnInit {
         columnDefs: [
           {
             headerName: 'Ziua',
-            field: "OnDay",
+            field: 'OnDay',
             width: 60,
             sort: 'asc'
           },
           {
             headerName: 'Pana',
-            field: "EndDay",
+            field: 'EndDay',
             width: 50
           },
           {
             headerName: 'Din',
-            field: "DayStep",
+            field: 'DayStep',
             width: 50
           },
           {
             headerName: 'Medicament',
             width: 250,
             sort: 'asc',
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Medicament.Name}</button></div>`,
+            cellRenderer: (params) =>
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>${params.data.Medicament.Name}</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.router.navigateByUrl(`/treatment/${this.treatmentId}/item/${id}`);
             }
@@ -155,14 +157,14 @@ export class TreatmentDetailComponent implements OnInit {
           },
           {
             headerName: 'Mod aplicare',
-            field: "DoseApplicationMode",
+            field: 'DoseApplicationMode',
             width: 100,
             valueGetter: (params) => DoseApplicationModeEnumeration.get(params.data.Medicament.DoseApplicationMode)
           },
           {
             headerName: 'Descriere',
-            field: "Description",
-            width: 350,            
+            field: 'Description',
+            width: 350,
             cellClass: 'cell-wrap-text',
             valueGetter: (params) => params.data.Description,
             tooltip: (params) => params.data.Description
@@ -171,10 +173,11 @@ export class TreatmentDetailComponent implements OnInit {
             headerName: '',
             field: '',
             width: 80,
-            cellRenderer: (params) => this.treatment.IsDefault ? '' : `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => this.treatment.IsDefault ? '' :
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>Sterge</button></div>`,
             onCellClicked: (params) => {
               if (!this.treatment.IsDefault) {
-                let id = params.data.Id;
+                const id = params.data.Id;
 
                 this.removeTreatmentItem(id);
               }
@@ -186,9 +189,9 @@ export class TreatmentDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    let treatmentPromise = new Promise((resolve, reject) => {
+    const treatmentPromise = new Promise((resolve, reject) => {
       if (this.treatmentId) {
-        let treatmentSubscription = this.treatmentService.getById(this.treatmentId).subscribe(treatment => {
+        const treatmentSubscription = this.treatmentService.getById(this.treatmentId).subscribe(treatment => {
           this.treatment = new Treatment(treatment);
           treatmentSubscription.unsubscribe();
           resolve();

@@ -32,6 +32,6 @@
     <button type="button" class="btn btn-primary" [disabled]="!diagnostic?.$valid() || !form.dirty || !isEditable" (click)="addOrUpdate()">Salveaza</button>
   </form>
   <div>
-    <app-cycle (onInitialized)="onCyclesInitialized($event)"></app-cycle>
+    <app-cycle (initialized)="onCyclesInitialized($event)"></app-cycle>
   </div>
 </div>

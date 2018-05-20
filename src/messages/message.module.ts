@@ -1,8 +1,8 @@
-import { NgModule, ErrorHandler } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
-import { MessageComponent } from "./message.component";
-import { MessageService } from "./message.service";
-import { MessageErrorHandler } from "./message.errorHandler";
+import { NgModule, ErrorHandler } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { MessageComponent } from './message.component';
+import { MessageService } from './message.service';
+import { MessageErrorHandler } from './message.errorHandler';
 import { RouterModule } from '@angular/router';
 
 @NgModule({

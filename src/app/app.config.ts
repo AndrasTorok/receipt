@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
 import { Http } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class AppConfig {
 
     private config: Object = null;
-    private env:    Object = null;
+    private env: Object = null;
 
     constructor(private http: Http) {
 
@@ -33,13 +33,13 @@ export class AppConfig {
      */
     public load() {
         return new Promise((resolve, reject) => {
-            this.http.get('assets/env.json').map( res => res.json() ).catch((error: any):any => {
+            this.http.get('assets/env.json').map(res => res.json()).catch((error: any): any => {
                 console.log('Configuration file "env.json" could not be read');
                 resolve(true);
                 return Observable.throw(error.json().error || 'Server error');
-            }).subscribe( (envResponse) => {
+            }).subscribe((envResponse) => {
                 this.env = envResponse;
-                let request:any = null;
+                let request: any = null;
 
                 switch (envResponse.env) {
                     case 'production': {
@@ -58,7 +58,7 @@ export class AppConfig {
 
                 if (request) {
                     request
-                        .map( res => res.json() )
+                        .map(res => res.json())
                         .catch((error: any) => {
                             console.error('Error reading ' + envResponse.env + ' configuration file');
                             resolve(error);

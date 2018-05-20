@@ -6,13 +6,15 @@ export class StringBuilder {
     }
 
     append(...args: string[]): StringBuilder {
-        for (var i = 0; i < args.length; i++) this.store.push(args[i]);
-        return this;                                                                                //make it fluent
+        for (let i = 0; i < args.length; i++) {
+            this.store.push(args[i]);
+        }
+        return this;                                                                                // make it fluent
     }
 
     get isEmpty(): boolean { return !this.store.length; }
 
-    toString(joinStr?: string): string {                                                            //optional string argument as join character
+    toString(joinStr?: string): string {    // optional string argument as join character
         return this.store.join(joinStr !== undefined ? joinStr : '');
     }
 }

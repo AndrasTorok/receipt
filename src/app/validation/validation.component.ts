@@ -8,21 +8,16 @@ import { ICommonEntity } from '../../common/common.entity';
 })
 export class ValidationComponent implements OnInit {
 
-  @Input("entity") entity: ICommonEntity;
-  @Input("property") property: string;
+  @Input('entity') entity: ICommonEntity;
+  @Input('property') property: string;
 
   constructor() { }
 
   ngOnInit() {
-  }  
-
-  ngOnChanges() {
-    let entity = this.entity;
-
   }
 
-  get showMessage() : boolean {
-    let doShow = this.entity && !this.entity.$valid(this.property);
+  get showMessage(): boolean {
+    const doShow = this.entity && !this.entity.$valid(this.property);
 
     return doShow;
   }

@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
-import { GridOptions, GridApi } from "ag-grid/main";
-import { ActivatedRoute, Router } from "@angular/router";
+import { GridOptions, GridApi } from 'ag-grid/main';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Medicament, DoseApplicationModeEnumeration } from '../../model/medicament.model';
 import { MedicamentService } from '../../model/medicament.service';
 import { MessageService } from '../../messages/message.service';
 import { Message } from '../../messages/message.model';
 import { SearchService } from '../search/search.service';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-medicament',
@@ -17,8 +17,8 @@ import { Subscription } from 'rxjs';
 export class MedicamentComponent implements OnInit, OnDestroy {
   medicaments: Medicament[];
   selectedMedicament: Medicament;
-  gridOptions: GridOptions;  
-  gridReady: boolean = false;
+  gridOptions: GridOptions;
+  gridReady = false;
   private searchSubscription: Subscription;
 
   constructor(
@@ -28,35 +28,37 @@ export class MedicamentComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private searchService: SearchService
   ) {
-    let gridReadyPromise = this.configureGrid();
+    const gridReadyPromise = this.configureGrid();
 
     searchService.clearSearch();
 
     Promise.all([this.fetchEntity(), gridReadyPromise]).then(() => {
       this.gridOptions.api.setRowData(this.medicaments);
       this.searchSubscription = searchService.search.subscribe(search => {
-        if(this.gridOptions.api) this.gridOptions.api.setQuickFilter(search);
+        if (this.gridOptions.api) {
+          this.gridOptions.api.setQuickFilter(search);
+        }
       });
     });
   }
 
   ngOnInit() {
-    
-  }  
+
+  }
 
   ngOnDestroy() {
     this.searchSubscription.unsubscribe();
   }
 
   removeMedicament(id: number): void {
-    let promise = new Promise<boolean>((resolve, reject) => {
-      let msg = `Sunteti sigur ca doriti sa stergeti medicament-ul ?`,
+    const promise = new Promise<boolean>((resolve, reject) => {
+      const msg = `Sunteti sigur ca doriti sa stergeti medicament-ul ?`,
         responses: [string, (string) => void][] = [
-          ["Da", () => {
+          ['Da', () => {
             this.messageService.removeMessage();
             resolve(true);
           }],
-          ["Nu", () => {
+          ['Nu', () => {
             this.messageService.removeMessage();
             resolve(false);
           }]
@@ -67,18 +69,19 @@ export class MedicamentComponent implements OnInit, OnDestroy {
     });
 
     promise.then((doDelete: boolean) => {
-      if (!doDelete) return;
-      let subscription = this.medicamentService.delete(id.toString()).subscribe(success => {
-        if (success) {
-          let deletedMedicamentIndex = this.medicaments.findIndex(d => d.Id == id);
+      if (doDelete) {
+        const subscription = this.medicamentService.delete(id.toString()).subscribe(success => {
+          if (success) {
+            const deletedMedicamentIndex = this.medicaments.findIndex(d => d.Id === id);
 
-          if (deletedMedicamentIndex >= 0) {
-            this.medicaments.splice(deletedMedicamentIndex, 1);
-            this.gridOptions.api.setRowData(this.medicaments);
+            if (deletedMedicamentIndex >= 0) {
+              this.medicaments.splice(deletedMedicamentIndex, 1);
+              this.gridOptions.api.setRowData(this.medicaments);
+            }
           }
-        }
-        subscription.unsubscribe();
-      });
+          subscription.unsubscribe();
+        });
+      }
     });
   }
 
@@ -91,7 +94,7 @@ export class MedicamentComponent implements OnInit, OnDestroy {
         pagination: true,
         paginationAutoPageSize: true,
         rowSelection: 'single',
-        rowHeight: 30,        
+        rowHeight: 30,
         onGridReady: () => {
           this.gridReady = true;
           resolve();
@@ -102,29 +105,30 @@ export class MedicamentComponent implements OnInit, OnDestroy {
         columnDefs: [
           {
             headerName: 'Medicament',
-            field: "Name",
+            field: 'Name',
             width: 700,
             sort: 'asc',
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">${params.data.Name}</button></div>`,
+            cellRenderer: (params) =>
+              `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>${params.data.Name}</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.router.navigateByUrl(`/medicament/${id}`);
             }
-          },          
+          },
           {
             headerName: 'Mod aplicare',
-            field: "DoseApplicationMode",
+            field: 'DoseApplicationMode',
             width: 150,
             valueGetter: (params) => DoseApplicationModeEnumeration.get(params.data.DoseApplicationMode)
-          },                    
+          },
           {
             headerName: 'Sterge',
             field: '',
             width: 80,
-            cellRenderer: (params) => `<div style="vertical-align: middle;"><button class="btn btn-sm btn-link">Sterge</button></div>`,
+            cellRenderer: (params) => `<div style='vertical-align: middle;'><button class='btn btn-sm btn-link'>Sterge</button></div>`,
             onCellClicked: (params) => {
-              let id = params.data.Id;
+              const id = params.data.Id;
 
               this.removeMedicament(id);
             }

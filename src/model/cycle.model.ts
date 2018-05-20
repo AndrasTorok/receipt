@@ -8,20 +8,6 @@ import { Patient, Gender } from './patient.model';
 import { Medicament } from './medicament.model';
 
 export class Cycle extends CommonEntity<Cycle> implements ICycle {
-    Id: number;
-    DiagnosticId: number;
-    Diagnostic: Diagnostic;
-    TreatmentId: number;
-    Treatment: Treatment;
-    StartDate: Date;
-    SerumCreat: number;
-    Height: number;
-    Weight: number;
-    Emitted: boolean;
-    BirthDate: Date;                     //property exists only on GUI
-    Gender: Gender;                     //property exists only on GUI
-    CycleItems: CycleItem[];
-
     static validityMap = new Map<string, IValidity<Cycle>[]>([
         ['Diagnostic',
             [{
@@ -44,7 +30,8 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
         ['SerumCreat',
             [{
                 rule: (entity: Cycle) => {
-                    return !entity.Treatment || !entity.Treatment.IsSerumCreatNeeded || entity.Treatment.IsSerumCreatNeeded && !!entity.SerumCreat;
+                    return !entity.Treatment || !entity.Treatment.IsSerumCreatNeeded ||
+                        entity.Treatment.IsSerumCreatNeeded && !!entity.SerumCreat;
                 },
                 message: (entity: Cycle) => `Creatina pacientului trebuie sa fie specificata.`
             }
@@ -84,6 +71,20 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
         ]
     ]);
 
+    Id: number;
+    DiagnosticId: number;
+    Diagnostic: Diagnostic;
+    TreatmentId: number;
+    Treatment: Treatment;
+    StartDate: Date;
+    SerumCreat: number;
+    Height: number;
+    Weight: number;
+    Emitted: boolean;
+    BirthDate: Date;                        // property exists only on GUI
+    Gender: Gender;                         // property exists only on GUI
+    CycleItems: CycleItem[];
+
     constructor(cycleOrDiagnosticId: ICycle | number, gender: Gender, birthDate: Date, height?: number, weight?: number) {
         super(Cycle.validityMap);
         let cycle: ICycle;
@@ -110,10 +111,14 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
             cycle.Gender = gender;
         }
 
-        if (!cycle.Height) cycle.Height = height;
-        if (!cycle.Weight) cycle.Weight = weight;
+        if (!cycle.Height) {
+            cycle.Height = height;
+        }
+        if (!cycle.Weight) {
+            cycle.Weight = weight;
+        }
 
-        for (var prop in cycle) {
+        for (const prop in cycle) {
             if (/^[A-Z]/.test(prop)) {
                 this[prop] = cycle[prop];
             }
@@ -139,10 +144,10 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     get durationInDays(): number {
-        let durationInDays: number = 0;
+        let durationInDays = 0;
 
         if (this.CycleItems && this.CycleItems.length) {
-            let onDayArray: number[] = this.CycleItems.map(ci => ci.OnDay),
+            const onDayArray: number[] = this.CycleItems.map(ci => ci.OnDay),
                 startDay = Math.min(...onDayArray),
                 endDay = Math.max(...onDayArray);
 
@@ -153,8 +158,10 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     get endDate(): Date {
-        if (!this.StartDate) return null;
-        let date = new Date(this.StartDate.toString());
+        if (!this.StartDate) {
+            return null;
+        }
+        const date = new Date(this.StartDate.toString());
 
         date.setDate(date.getDate() + this.durationInDays);
 
@@ -162,18 +169,18 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     applyTreatment(treatment: Treatment): void {
-        let cycleItems = [];
+        const cycleItems = [];
 
         if (treatment.TreatmentItems && treatment.TreatmentItems.length) {
             treatment.TreatmentItems.forEach(ti => {
                 if (ti.EndDay) {
                     for (let onDay = ti.OnDay; onDay <= ti.EndDay; onDay += ti.DayStep ? ti.DayStep : 1) {
-                        let cycleItem = this.getCycleItem(ti, onDay);
+                        const cycleItem = this.getCycleItem(ti, onDay);
 
                         cycleItems.push(cycleItem);
                     }
                 } else {
-                    let cycleItem = this.getCycleItem(ti);
+                    const cycleItem = this.getCycleItem(ti);
                     cycleItems.push(cycleItem);
                 }
             });
@@ -184,10 +191,12 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     sortCycleItems(): void {
-        let sortedCycleItems = this.CycleItems.sort((a, b) => {
-            let onDayDifference = a.OnDay - b.OnDay;
-            if (onDayDifference) return onDayDifference;
-            let medicamentNameDifference = a.Medicament && b.Medicament ? (a.Medicament.Name > b.Medicament.Name ? 1 : -1) : 0;
+        const sortedCycleItems = this.CycleItems.sort((a, b) => {
+            const onDayDifference = a.OnDay - b.OnDay;
+            if (onDayDifference) {
+                return onDayDifference;
+            }
+            const medicamentNameDifference = a.Medicament && b.Medicament ? (a.Medicament.Name > b.Medicament.Name ? 1 : -1) : 0;
 
             return medicamentNameDifference;
         });
@@ -196,7 +205,7 @@ export class Cycle extends CommonEntity<Cycle> implements ICycle {
     }
 
     private getCycleItem(ti: TreatmentItem, onDay?: number): CycleItem {
-        let cycleItem = new CycleItem(<ICycleItem>{
+        const cycleItem = new CycleItem(<ICycleItem>{
             CycleId: this.Id,
             Cycle: <any>this,
             TreatmentItemId: ti.Id,
