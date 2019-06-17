@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
 import { MessageService } from '../messages/message.service';
 import { Message } from '../messages/message.model';
 
@@ -105,7 +106,7 @@ export abstract class ServiceBase<T> {
             message = error.json().error;
         }
 
-        console.error(error);
+        //console.error(error);        
         return Observable.throw(message || 'Server error');
     }
 
