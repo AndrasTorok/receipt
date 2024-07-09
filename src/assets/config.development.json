@@ -1,4 +1,4 @@
 {
-    "host": "http://localhost/OncologyReceipts"    ,
+    "host": "http://localhost:7151/"    ,
     "origin":"http://localhost:4200"
 }
