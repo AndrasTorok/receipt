@@ -70,14 +70,16 @@ export class TreatmentItemComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    const fetchTreatmentItemPromise = new Promise((resolve, reject) => {
+    const fetchTreatmentItemPromise = new Promise<void>((resolve, reject) => {
       if (this.treatmentItemId) {
         const treatmentItemSubscription = this.treatmentItemService.getById(this.treatmentItemId).subscribe(treatmentItem => {
           this.treatmentItem = new TreatmentItem(treatmentItem);
           treatmentItemSubscription.unsubscribe();
+          resolve();
         });
       } else {
         this.treatmentItem = new TreatmentItem(Number(this.treatmentId));
+        resolve();
       }
     });
 

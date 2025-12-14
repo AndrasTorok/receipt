@@ -100,7 +100,7 @@ export class TreatmentDetailComponent implements OnInit {
   }
 
   private configureGrid(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.gridOptions = <GridOptions>{
         enableFilter: true,
         enableSorting: true,
@@ -189,7 +189,7 @@ export class TreatmentDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    const treatmentPromise = new Promise((resolve, reject) => {
+    const treatmentPromise = new Promise<void>((resolve, reject) => {
       if (this.treatmentId) {
         const treatmentSubscription = this.treatmentService.getById(this.treatmentId).subscribe(treatment => {
           this.treatment = new Treatment(treatment);

@@ -168,8 +168,8 @@ export class CycleDetailComponent implements OnInit {
     return HeaderRows.includes(index);
   }
 
-  private fetchEntities(): Promise<any>[] {
-    const fetchPatientPromise = new Promise((resolve, reject) => {
+  private fetchEntities(): Promise<void>[] {
+    const fetchPatientPromise = new Promise<void>((resolve, reject) => {
       const patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
         this.patient = new Patient(patient);
         patientSubscription.unsubscribe();
@@ -177,7 +177,7 @@ export class CycleDetailComponent implements OnInit {
       });
     });
 
-    const fetchCyclePromise = new Promise((resolve, reject) => {
+    const fetchCyclePromise = new Promise<void>((resolve, reject) => {
       fetchPatientPromise.then(() => {
         if (this.cycleId) {
           const cycleSubscription = this.cycleService.getById(this.cycleId).subscribe(cycle => {
@@ -194,7 +194,7 @@ export class CycleDetailComponent implements OnInit {
       });
     });
 
-    const fetchTreatmentsPromise = new Promise((resolve, reject) => {
+    const fetchTreatmentsPromise = new Promise<void>((resolve, reject) => {
       const subscription = this.treatmentService.getAll().subscribe(treatments => {
         this.treatments = treatments.map(t => new Treatment(t));
         subscription.unsubscribe();
@@ -202,7 +202,7 @@ export class CycleDetailComponent implements OnInit {
       });
     });
 
-    const fetchDiagnosticPromise = new Promise((resolve, reject) => {
+    const fetchDiagnosticPromise = new Promise<void>((resolve, reject) => {
       const diagnosticSubscription = this.diagnosticService.getById(this.diagnosticId).subscribe(diagnostic => {
         this.diagnostic = new Diagnostic(diagnostic);
         diagnosticSubscription.unsubscribe();

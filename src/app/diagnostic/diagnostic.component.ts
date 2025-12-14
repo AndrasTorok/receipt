@@ -96,7 +96,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
   }
 
   private configureGrid(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.gridOptions = <GridOptions>{
         enableFilter: true,
         enableSorting: true,
@@ -157,7 +157,7 @@ export class DiagnosticComponent implements OnInit, OnDestroy {
   }
 
   private fetchEntity(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.patientId) {
         this.diagnosticService.getAllForPatientId(this.patientId).subscribe((diagnostics: IDiagnostic[]) => {
           this.diagnostics = diagnostics.map(diagnostic => new Diagnostic(diagnostic));

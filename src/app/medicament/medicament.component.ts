@@ -86,7 +86,7 @@ export class MedicamentComponent implements OnInit, OnDestroy {
   }
 
   private configureGrid(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.gridOptions = <GridOptions>{
         enableFilter: true,
         enableSorting: true,
@@ -139,7 +139,7 @@ export class MedicamentComponent implements OnInit, OnDestroy {
   }
 
   private fetchEntity(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       Promise.all([
         this.medicamentService.fetchEntityAndUnsubscribe((entities) => this.medicaments = entities.map(p => new Medicament(p)))
       ]).then(() => {

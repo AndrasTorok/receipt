@@ -95,7 +95,7 @@ export class CycleComponent implements OnInit, OnDestroy {
   }
 
   private configureGrid(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.gridOptions = <GridOptions>{
         enableFilter: true,
         enableSorting: true,
@@ -159,7 +159,7 @@ export class CycleComponent implements OnInit, OnDestroy {
   }
 
   private fetchEntity(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.diagnosticId) {
         const subscription = this.cycleService.getAllForDiagnosticId(this.diagnosticId).subscribe((cycles: ICycle[]) => {
           this.cycles = cycles.map(cycle => new Cycle(cycle, <any>0, new Date()));

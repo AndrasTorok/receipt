@@ -80,7 +80,7 @@ export class DiagnosticDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    const fetchDiagnosticPromise = new Promise((resolve, reject) => {
+    const fetchDiagnosticPromise = new Promise<void>((resolve, reject) => {
       if (this.id) {
         const diagnosticSubscription = this.diagnosticService.getById(this.id).subscribe(diagnostic => {
           this.diagnostic = new Diagnostic(diagnostic);
@@ -93,7 +93,7 @@ export class DiagnosticDetailComponent implements OnInit {
       }
     });
 
-    const fetchPatientPromise = new Promise((resolve, reject) => {
+    const fetchPatientPromise = new Promise<void>((resolve, reject) => {
       const patientSubscription = this.patientService.getById(this.patientId).subscribe(patient => {
         this.patient = new Patient(patient);
         patientSubscription.unsubscribe();

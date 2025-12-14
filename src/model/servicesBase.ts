@@ -111,7 +111,7 @@ export abstract class ServiceBase<T> {
     }
 
     fetchEntityAndUnsubscribe(callback: (entities: T[]) => void, sort: (first: T, second: T) => number = null): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             const subscription = this.getAll().subscribe(entities => {
                 if (sort) {
                      entities = entities.sort(sort);

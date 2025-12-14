@@ -63,7 +63,7 @@ export class PatientDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    const patientPromise = new Promise((resolve, reject) => {
+    const patientPromise = new Promise<void>((resolve, reject) => {
       if (this.id) {
         const patientSubscription = this.patientService.getById(this.id).subscribe(patient => {
           this.patient = new Patient(patient);

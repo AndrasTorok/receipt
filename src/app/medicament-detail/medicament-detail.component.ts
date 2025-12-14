@@ -51,7 +51,7 @@ export class MedicamentDetailComponent implements OnInit {
   }
 
   private fetchEntities(): Promise<any>[] {
-    const medicamentPromise = new Promise((resolve, reject) => {
+    const medicamentPromise = new Promise<void>((resolve, reject) => {
       if (this.medicamentId) {
         const subscription = this.medicamentService.getById(this.medicamentId).subscribe(medicament => {
           this.medicament = new Medicament(medicament);
